@@ -1,0 +1,7 @@
+{
+  "name": "JDPC Bauchi Digital Platform",
+  "description": "A comprehensive NGO platform for JDPC Bauchi featuring impact tracking, booking systems, donor hubs, and resource centers.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

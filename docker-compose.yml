@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=jdpc_db
+      - POSTGRES_USER=jdpc_user
+      - POSTGRES_PASSWORD=jdpc_password
+
+  backend:
+    build: ./backend
+    command: gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - media_volume:/app/media
+      - static_volume:/app/staticfiles
+    environment:
+      - DATABASE_URL=postgres://jdpc_user:jdpc_password@db:5432/jdpc_db
+      - SECRET_KEY=django-insecure-docker-key-change-me
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  media_volume:
+  static_volume:
