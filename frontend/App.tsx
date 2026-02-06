@@ -12,26 +12,44 @@ import AdminDashboard from './components/AdminDashboard';
 import BauchiMap from './components/BauchiMap';
 import AboutSection from './components/AboutSection';
 import SuccessStories from './components/SuccessStories';
-import { AppSection } from './types';
+import StoryDetail from './components/StoryDetail';
+import PartnersList from './components/PartnersList';
+import { AppSection, BlogPost } from './types';
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
+  const [selectedStory, setSelectedStory] = useState<BlogPost | null>(null);
+
+  const handleReadStory = (post: BlogPost) => {
+    setSelectedStory(post);
+    setActiveSection(AppSection.NEWS_DETAIL);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const renderContent = () => {
     switch (activeSection) {
       case AppSection.HOME:
         return (
           <main>
-            <Hero onAction={() => setActiveSection(AppSection.DONATIONS)} />
-            <ImpactCounters />
+            <Hero
+              onDonate={() => setActiveSection(AppSection.DONATIONS)}
+              onExplore={() => {
+                const el = document.getElementById('impact-section');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            />
+            <div id="impact-section">
+              <ImpactCounters />
+            </div>
             <BauchiMap />
-            <ProgramGrid onSelect={() => setActiveSection(AppSection.PROGRAMS)} />
+            <ProgramGrid onSelect={() => setActiveSection(AppSection.PROGRAMS)} onReadStory={handleReadStory} />
             <SuccessStories />
-            <NewsSection />
+            <PartnersList onInquire={() => setActiveSection(AppSection.BOOKINGS)} />
+            <NewsSection onReadStory={handleReadStory} onSeeAll={() => setActiveSection(AppSection.NEWS)} />
           </main>
         );
       case AppSection.PROGRAMS:
-        return <ProgramGrid fullView={true} />;
+        return <ProgramGrid fullView={true} onReadStory={handleReadStory} />;
       case AppSection.BOOKINGS:
         return <BookingSystem />;
       case AppSection.RESOURCES:
@@ -39,7 +57,16 @@ const App: React.FC = () => {
       case AppSection.DONATIONS:
         return <DonorHub />;
       case AppSection.NEWS:
-        return <NewsSection fullView={true} />;
+        return <NewsSection fullView={true} onReadStory={handleReadStory} />;
+      case AppSection.NEWS_DETAIL:
+        return selectedStory ? (
+          <StoryDetail
+            post={selectedStory}
+            onBack={() => setActiveSection(AppSection.NEWS)}
+          />
+        ) : (
+          <NewsSection fullView={true} onReadStory={handleReadStory} />
+        );
       case AppSection.ABOUT:
         return <AboutSection />;
       case AppSection.ADMIN:

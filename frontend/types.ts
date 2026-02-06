@@ -27,8 +27,11 @@ export interface Resource {
 export interface BlogPost {
   id: string;
   title: string;
+  slug: string;
   summary: string;
+  body: string;
   category: string;
+  author: string;
   published_date: string;
   image?: string;
 }
@@ -40,6 +43,7 @@ export enum AppSection {
   DONATIONS = 'donations',
   RESOURCES = 'resources',
   NEWS = 'news',
+  NEWS_DETAIL = 'news_detail',
   ABOUT = 'about',
   ADMIN = 'admin'
 }

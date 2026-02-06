@@ -43,3 +43,8 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
+
+# Admin Interface Customization
+admin.site.site_header = "JDPC Bauchi Admin Platform"
+admin.site.site_title = "JDPC Bauchi Portal"
+admin.site.index_title = "Welcome to JDPC Bauchi Digital Administration"

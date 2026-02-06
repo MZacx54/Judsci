@@ -7,6 +7,18 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_filter = ('status', 'date')
     search_fields = ('name', 'email', 'phone')
     actions = ['mark_confirmed']
+    
+    fieldsets = (
+        ('Appointment Schedule', {
+            'fields': ('date', 'time', 'status')
+        }),
+        ('Visitor Information', {
+            'fields': ('name', 'email', 'phone')
+        }),
+        ('Additional Info', {
+            'fields': ('reason',)
+        }),
+    )
 
     def mark_confirmed(self, request, queryset):
         queryset.update(status='CONFIRMED')

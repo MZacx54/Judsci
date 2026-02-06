@@ -61,11 +61,11 @@ const ImpactCounters: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {stats.map((stat, idx) => (
-            <div key={idx} className="group text-center p-8 rounded-[2rem] bg-white shadow-sm border border-gray-100 hover:shadow-2xl hover:border-green-100 transition-all duration-500 transform hover:-translate-y-2">
-              <div className="text-4xl md:text-6xl font-black text-gray-900 mb-2 group-hover:text-green-700 transition-colors">
+            <div key={idx} className="group text-center p-4 md:p-8 rounded-2xl md:rounded-[2rem] bg-white shadow-sm border border-gray-100 hover:shadow-2xl hover:border-green-100 transition-all duration-500 transform hover:-translate-y-2">
+              <div className="text-3xl md:text-6xl font-black text-gray-900 mb-2 group-hover:text-green-700 transition-colors">
                 {counts[idx]?.toLocaleString()}{stat.suffix}
               </div>
-              <div className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-[0.2em]">
+              <div className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest md:tracking-[0.2em]">
                 {stat.label}
               </div>
             </div>

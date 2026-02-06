@@ -7,3 +7,12 @@ class BlogPostAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     list_filter = ('category', 'published_date')
     search_fields = ('title', 'body')
+    
+    fieldsets = (
+        ('Content Information', {
+            'fields': ('title', 'slug', 'category', 'author', 'summary', 'body')
+        }),
+        ('Media', {
+            'fields': ('image',)
+        }),
+    )

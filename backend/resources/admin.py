@@ -6,3 +6,12 @@ class ResourceAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'date')
     list_filter = ('type', 'date')
     search_fields = ('title',)
+    
+    fieldsets = (
+        ('Document Details', {
+            'fields': ('title', 'type', 'date')
+        }),
+        ('Files & Media', {
+            'fields': ('file', 'cover_image')
+        }),
+    )

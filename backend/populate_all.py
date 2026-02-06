@@ -67,23 +67,141 @@ def populate():
         Program.objects.create(**p_data)
         print(f"Created/Reset Program: {p_data['title']}")
 
-    # --- News ---
+    # --- News & Blog Posts ---
     BlogPost.objects.all().delete()
-    BlogPost.objects.create(
-        title="JDPC Launches New Legal Clinic",
-        slug="new-legal-clinic",
-        summary="Providing free legal representation to awaiting trial inmates.",
-        body="Full story content...",
-        category="Justice",
-        author="Admin",
-        # published_date auto-adds
-    )
-    print("Created News Post")
+    
+    news_items = [
+        {
+            "title": "Enhancing Climate Resilience through WASH and Eco-Energy",
+            "slug": "climate-resilience-project",
+            "category": "Projects",
+            "summary": "To enhance community resilience and adaptive capacity to climate change through the integration of water, sanitation, hygiene (WASH), and eco-energy solutions.",
+            "body": """<strong>Project Goal</strong>
+To enhance community resilience and adaptive capacity to climate change through the integration of water, sanitation, hygiene (WASH), briquette production and strengthened psychosocial support systems in Five (5) Local Government Areas of Bauchi Diocese.
 
-    # --- Resources ---
-    # Check if we have files in assets?
-    # For now, just ensuring DB entries exist if user uploads them manually
-    # or re-using previous populate_resources logic if valid.
+<strong>Background</strong>
+In many communities across Bauchi and Gombe States, daily life is shaped by hardship, uncertainty, and a lack of basic services. Families struggle with limited access to clean water, decent sanitation, and reliable sources of income. For women and children in particular, the burden is heavy, walking long distances for water, coping with poor hygiene conditions, and living with the constant risk of waterborne diseases.
+
+The situation is made worse by a changing climate. Rains no longer come as expected, dry seasons last longer, and the land does not produce as it once did. Many smallholder farmers, already vulnerable, are losing their main source of food and income.
+
+<strong>Key Components:</strong>
+<ul>
+<li>Climate change adaptation through sustainable water access</li>
+<li>Promotion of eco-energy solutions, including community-based briquette production</li>
+<li>Promotion of sanitation and hygiene through community-led approaches</li>
+<li>Psychosocial support through trauma-informed care and safe spaces</li>
+</ul>""",
+            "image": "sustainable_agric.jpg",
+            "author": "JDPC Admin"
+        },
+        {
+            "title": "Restoring Health and Dignity in Rijin Gani",
+            "slug": "rijin-gani-water-success",
+            "category": "Success Stories",
+            "summary": "How a community gained reliable access to safe drinking water and eliminated waterborne diseases through JDPC intervention.",
+            "body": """<strong>Problem</strong>
+In Rijin Gani community of Bauchi State, women and children relied on unsafe surface water, leading to frequent waterborne diseases and long hours spent fetching water, especially during the dry season.
+
+<strong>Intervention</strong>
+JDPC Bauchi facilitated community consultations, supported the construction of 2 VIP Latrines and a borehole, and also trained a Water, Sanitation and Hygiene Committee (WASHCOM) to manage maintenance, tariffs, and accountability.
+
+<strong>Result</strong>
+<ul>
+<li>Over 350 households gained reliable access to safe drinking water</li>
+<li>Cases of water-related illnesses reported at the primary health center reduced</li>
+<li>Women saved time and energy for farming and income-generating activities</li>
+</ul>
+
+<em>“Before, our children were always sick. Now we drink clean water, and we are not afraid anymore.”</em> — Community woman leader""",
+            "image": "Borehole Commissioning Pictures (49).JPG.jpeg",
+            "author": "JDPC Media Team"
+        },
+        {
+            "title": "Bridging Divides through Dialogue",
+            "slug": "peace-building-dialogue",
+            "category": "Peace Building",
+            "summary": "Strengthening interfaith collaboration and community trust through inclusive dialogue sessions.",
+            "body": """<strong>Problem</strong>
+Some communities faced low trust, weak collaboration, and lingering tensions that affected collective development efforts.
+
+<strong>Intervention</strong>
+JDPC facilitated inclusive dialogue sessions, strengthened interfaith and community structures, and integrated peace and accountability principles into WASH activities.
+
+<strong>Result</strong>
+<ul>
+<li>Improved cooperation among religious and community leaders</li>
+<li>Joint decision-making on shared resources</li>
+<li>Renewed trust between communities and implementing partners</li>
+</ul>
+
+<em>“JDPC did not just bring projects; they brought us together and listened to us.”</em> — Chief Imam of the community""",
+            "image": "GSS Bogoro LGA Peace Club members (24).JPG.jpeg",
+            "author": "JDPC Peace Desk"
+        },
+        {
+            "title": "Community-Led Sanitation Success",
+            "slug": "sanitation-success",
+            "category": "WASH",
+            "summary": "Eliminating open defecation and promoting hygiene through community ownership and behavior change.",
+            "body": """<strong>Problem</strong>
+Open defecation and poor hygiene practices were common, contributing to disease outbreaks and environmental degradation.
+
+<strong>Intervention</strong>
+JDPC supported the construction of VIP latrines, conducted hygiene promotion sessions, and worked with community leaders to promote behavior change using participatory methods.
+
+<strong>Result</strong>
+<ul>
+<li>Households adopted improved sanitation practices</li>
+<li>Increased hand-washing and safer waste disposal</li>
+<li>Stronger community ownership of hygiene standards</li>
+</ul>
+
+<em>“We now understand that sanitation is everyone’s responsibility. Our environment is cleaner, and our children are healthier.”</em> — Youth leader""",
+            "image": "Borehole Commissioning Pictures (44).JPG.jpeg",
+            "author": "JDPC WASH Team"
+        },
+        {
+            "title": "Empowering Women and Youth",
+            "slug": "women-youth-empowerment-news",
+            "category": "Empowerment",
+            "summary": "Skills acquisition and economic resilience programs for vulnerable groups across Bauchi and Gombe.",
+            "body": """<strong>Our Approach</strong>
+We focus on the vulnerable and marginalized groups, providing skills acquisition and economic resilience training. Our goal is to empower communities towards self-reliance.
+
+<strong>Impact</strong>
+Through our various interventions, women have gained financial independence through small businesses, and youth have been engaged in productive peace clubs and vocational training, reducing idleness and susceptibility to radicalization.""",
+            "image": "IMG_1849.JPG.jpeg",
+            "author": "JDPC Admin"
+        },
+         {
+            "title": "Promoting Good Governance",
+            "slug": "good-governance-advocacy",
+            "category": "Governance",
+            "summary": "Legislative advocacy and civic participation for transparent leadership and accountability.",
+            "body": """<strong>Activities</strong>
+Our Legislative advocacy project and Promoting good governance project aim to increase civic participation. We value accountability and transparency based on responsibility entrusted to us.
+
+We work to ensure that government policies align with the needs of the people, fostering a society where justice and equity prevail.""",
+            "image": "IMG_1843.JPG.jpeg",
+            "author": "JDPC Admin"
+        }
+    ]
+
+    assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
+    images_dir = os.path.join(assets_dir, 'Images')
+
+    for item in news_items:
+        image_name = item.pop('image')
+        post = BlogPost.objects.create(**item)
+        
+        img_path = os.path.join(images_dir, image_name)
+        if os.path.exists(img_path):
+            with open(img_path, 'rb') as f:
+                post.image.save(image_name, File(f), save=True)
+            print(f"Created News: {item['title']} (with image)")
+        else:
+            print(f"Created News: {item['title']} (NO image found: {image_name})")
+
 
     # --- Map Images to Programs ---
     image_map = {
@@ -95,9 +213,6 @@ def populate():
         'prison-ministry': 'IMG_20250909_093607.jpg.jpeg'
     }
 
-    assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
-    images_dir = os.path.join(assets_dir, 'Images')
-
     for slug, filename in image_map.items():
         try:
             program = Program.objects.get(slug=slug)
@@ -105,7 +220,7 @@ def populate():
             if os.path.exists(img_path):
                 with open(img_path, 'rb') as f:
                     program.image.save(filename, File(f), save=True)
-                print(f"Added image to {slug}")
+                print(f"Added image to Program: {slug}")
         except Exception as e:
             print(f"Error adding image to {slug}: {e}")
 

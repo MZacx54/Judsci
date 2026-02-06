@@ -1,4 +1,5 @@
 import React from 'react';
+import bishopImg from '../assets/bishop.jpg';
 
 const AboutSection: React.FC = () => {
     return (
@@ -12,7 +13,7 @@ const AboutSection: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
                     <div className="space-y-6 text-lg text-gray-600 leading-relaxed font-medium animate-fade-in-up delay-100">
                         <p>
-                            <strong className="text-gray-900">The Justice Development and Peace Commission (JDPC)</strong> of the Catholic Diocese of Bauchi is mandated to promote justice, peace, and integral human development. Established as the policy-making body for the Diocese’s social programs, we operate under the authority of the Bishop.
+                            <strong className="text-gray-900">The Justice Development and Peace Commission (JDPC)</strong> of the Catholic Diocese of Bauchi is mandated to promote justice, peace, and integral human development. Established as the policy-making body for the Diocese’s social programs, we operate under the direct authority of the Bishop.
                         </p>
                         <p>
                             Started in 2003 and registered with the <strong>CAC in 2016 (JUDSCI - No. 90258)</strong>, we work across Bauchi and Gombe States. We reach all people irrespective of religion or ethnicity, focusing on the vulnerable.
@@ -31,10 +32,14 @@ const AboutSection: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="relative h-96 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500 animate-fade-in-up delay-200">
-                        <div className="absolute inset-0 bg-green-900/10 z-10"></div>
-                        {/* Using placeholder or uploaded image if available */}
-                        <img src="https://picsum.photos/seed/jdpc_team/800/600" alt="JDPC Team" className="w-full h-full object-cover" />
+                    <div className="relative group rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500 animate-fade-in-up delay-200 aspect-[3/4] md:aspect-[4/5]">
+                        <div className="absolute inset-0 bg-green-900/0 group-hover:bg-green-900/10 transition-colors z-10"></div>
+                        <img src={bishopImg} alt="Most Rev. Dr. Hilary Nanman Dachelem" className="w-full h-full object-cover object-top" />
+
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 z-20">
+                            <h3 className="text-white font-bold text-xl leading-tight">Most Rev. Dr. Hilary Nanman Dachelem, CMF</h3>
+                            <p className="text-green-300 text-sm font-medium mt-1">3rd Catholic Bishop of Bauchi Diocese</p>
+                        </div>
                     </div>
                 </div>
 

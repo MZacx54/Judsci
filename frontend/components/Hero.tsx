@@ -2,12 +2,13 @@
 import React from 'react';
 
 interface HeroProps {
-  onAction: () => void;
+  onExplore: () => void;
+  onDonate: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ onAction }) => {
+const Hero: React.FC<HeroProps> = ({ onExplore, onDonate }) => {
   return (
-    <section className="relative h-[80vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[70vh] md:h-[80vh] flex items-center overflow-hidden">
       {/* Background with overlay */}
       <div className="absolute inset-0 z-0">
         <img
@@ -23,18 +24,24 @@ const Hero: React.FC<HeroProps> = ({ onAction }) => {
           <div className="inline-block mb-4 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-green-300 font-bold tracking-widest uppercase text-sm animate-fade-in-up">
             Justice Development and Peace Committee
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 md:mb-8 tracking-tight leading-tight lg:leading-none drop-shadow-lg animate-fade-in-up delay-100">
-            Building a <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Just</span> & <br className="hidden md:block" />
+          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 md:mb-8 tracking-tight leading-tight lg:leading-none drop-shadow-lg animate-fade-in-up delay-100">
+            Building a <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Just</span> & <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Peaceful</span> Society
           </h1>
           <p className="text-xl md:text-2xl text-gray-200 mb-8 font-light loading-relaxed max-w-2xl animate-fade-in-up delay-200">
             To facilitate the building of a just, peaceful and stable society through the promotion of the Gospel values of Justice, Peace, and Love.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up delay-300">
-            <button className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full transition-all transform hover:scale-105 hover:shadow-green-500/30 shadow-lg">
+            <button
+              onClick={onExplore}
+              className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full transition-all transform hover:scale-105 hover:shadow-green-500/30 shadow-lg"
+            >
               Explore Our Impact
             </button>
-            <button className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-full border border-white/30 transition-all hover:border-white">
+            <button
+              onClick={onDonate}
+              className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-full border border-white/30 transition-all hover:border-white"
+            >
               Donate Now
             </button>
           </div>

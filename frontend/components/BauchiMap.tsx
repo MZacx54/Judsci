@@ -77,7 +77,7 @@ const BauchiMap: React.FC = () => {
                         </svg>
 
                         {hoveredLGA && (
-                            <div className="absolute top-0 right-0 bg-white shadow-2xl p-6 rounded-2xl border border-green-100 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <div className="mt-8 lg:mt-0 lg:absolute lg:top-0 lg:right-0 bg-white shadow-xl p-6 rounded-2xl border border-green-100 animate-in fade-in slide-in-from-right-4 duration-300 z-30">
                                 <div className="text-xs font-black text-green-700 uppercase mb-1">Active LGA</div>
                                 <div className="text-2xl font-black text-gray-900">{hoveredLGA}</div>
                                 <div className="mt-4 flex gap-2">
