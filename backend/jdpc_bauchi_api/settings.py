@@ -38,7 +38,12 @@ DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app'])
 
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app'])
+# Ensure all origins have a scheme (http:// or https://)
+raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app'])
+CSRF_TRUSTED_ORIGINS = [
+    origin if origin.startswith(('http://', 'https://')) else f'https://{origin}'
+    for origin in raw_csrf_origins
+]
 
 
 # Application definition
@@ -178,3 +183,7 @@ REST_FRAMEWORK = {
 # Email Configuration (Dev: Console, Prod: SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST_USER = 'bookings@jdpcbauchi.org'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
