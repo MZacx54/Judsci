@@ -9,6 +9,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 django.setup()
 
 from pathlib import Path
+from core.models import Program
+from impact.models import ImpactStat
+from news.models import BlogPost
+from resources.models import Resource
 
 def populate():
     # Get absolute path to the backend directory

@@ -39,7 +39,7 @@ DEBUG = env('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
 # Ensure all origins have a scheme (http:// or https://)
-raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app'])
+raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app', 'https://judsci.org.ng', 'https://www.judsci.org.ng'])
 CSRF_TRUSTED_ORIGINS = [
     origin if origin.startswith(('http://', 'https://')) else f'https://{origin}'
     for origin in raw_csrf_origins
