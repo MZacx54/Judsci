@@ -14,10 +14,14 @@ from news.models import BlogPost
 from resources.models import Resource
 
 def populate():
-    print("Populating Database...")
+    # Only populate if the database is empty to avoid wiping user data on redeploy
+    if Program.objects.exists():
+        print("Database already has data. Skipping auto-population.")
+        return
+
+    print("Populating Database with initial content...")
 
     # --- Programs ---
-    Program.objects.all().delete()
     programs_data = [
         {
             "title": "Water, Sanitation and Hygiene (WASH)",
@@ -68,7 +72,6 @@ def populate():
         print(f"Created/Reset Program: {p_data['title']}")
 
     # --- News & Blog Posts ---
-    BlogPost.objects.all().delete()
     
     news_items = [
         {
@@ -225,7 +228,6 @@ We work to ensure that government policies align with the needs of the people, f
             print(f"Error adding image to {slug}: {e}")
 
     # --- Resources ---
-    Resource.objects.all().delete()
     pdf_name = "ANNUAL NARRATIVE REPORT 2023 (1).pdf"
     pdf_path = os.path.join(assets_dir, pdf_name)
     

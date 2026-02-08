@@ -21,4 +21,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "jdpc_bauchi_api.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Start script: Run population (idempotent) then start server
+CMD ["sh", "-c", "python populate_all.py && gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000"]
