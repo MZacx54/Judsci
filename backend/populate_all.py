@@ -23,6 +23,8 @@ def populate():
     print(f"Starting population from: {base_dir}")
     print(f"Expecting assets at: {assets_dir}")
 
+    print("--- POPULATION SCRIPT V1.1 (FIXED IMPORTS) ---")
+    print(f"DEBUG: Program model available: {Program}")
     print("Populating Database with fresh initial content...")
 
     # --- Programs ---
