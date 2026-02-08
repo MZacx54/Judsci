@@ -8,12 +8,17 @@ from datetime import timedelta
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 django.setup()
 
-from core.models import Program
-from impact.models import ImpactStat
-from news.models import BlogPost
-from resources.models import Resource
+from pathlib import Path
 
 def populate():
+    # Get absolute path to the backend directory
+    base_dir = Path(__file__).resolve().parent
+    assets_dir = base_dir / 'assets'
+    images_dir = assets_dir / 'Images'
+
+    print(f"Starting population from: {base_dir}")
+    print(f"Expecting assets at: {assets_dir}")
+
     print("Populating Database with fresh initial content...")
 
     # --- Programs ---
@@ -187,15 +192,14 @@ We work to ensure that government policies align with the needs of the people, f
         }
     ]
 
-    assets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
-    images_dir = os.path.join(assets_dir, 'Images')
+    # Assets directories are already defined above
 
     for item in news_items:
         image_name = item.pop('image')
         post = BlogPost.objects.create(**item)
         
-        img_path = os.path.join(images_dir, image_name)
-        if os.path.exists(img_path):
+        img_path = images_dir / image_name
+        if img_path.exists():
             with open(img_path, 'rb') as f:
                 post.image.save(image_name, File(f), save=True)
             print(f"Created News: {item['title']} (with image)")
@@ -216,8 +220,8 @@ We work to ensure that government policies align with the needs of the people, f
     for slug, filename in image_map.items():
         try:
             program = Program.objects.get(slug=slug)
-            img_path = os.path.join(images_dir, filename)
-            if os.path.exists(img_path):
+            img_path = images_dir / filename
+            if img_path.exists():
                 with open(img_path, 'rb') as f:
                     program.image.save(filename, File(f), save=True)
                 print(f"Added image to Program: {slug}")
@@ -227,9 +231,9 @@ We work to ensure that government policies align with the needs of the people, f
     # --- Resources ---
     Resource.objects.all().delete()
     pdf_name = "ANNUAL NARRATIVE REPORT 2023 (1).pdf"
-    pdf_path = os.path.join(assets_dir, pdf_name)
+    pdf_path = assets_dir / pdf_name
     
-    if os.path.exists(pdf_path):
+    if pdf_path.exists():
         with open(pdf_path, 'rb') as f:
             Resource.objects.create(
                 title="Annual Narrative Report 2023",
