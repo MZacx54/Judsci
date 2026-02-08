@@ -1,25 +1,28 @@
-# Sample Dockerfile Content
+# Stage 1: Build
+FROM node:18-alpine as builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install --legacy-peer-deps
+COPY . .
+RUN npm run build
 
-# Use an official base image
-FROM node:14
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+WORKDIR /etc/nginx/conf.d
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Remove default config
+RUN rm -f default.conf
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy built app to nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Install dependencies
-RUN npm install
+# Copy nginx config template
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
-# Copy the rest of the application code
-COPY . . 
+# Set default backend host
+ENV BACKEND_HOST=backend
 
-# Set environment variables with fallback values
-ENV MY_ENV_VAR=${MY_ENV_VAR:-default_value}
+EXPOSE 80
 
-# Expose the port
-EXPOSE 3000
-
-# Command to run the application
-CMD [ "npm", "start" ]
+# Start nginx with envsubst to substitute environment variables
+CMD ["sh", "-c", "envsubst '${BACKEND_HOST}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
