@@ -4,7 +4,7 @@ from django.core.files import File
 from django.utils import timezone
 from datetime import timedelta
 
-# Setup Django environment
+# Setup Django environment - Updated 2026-02-08 19:30
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 django.setup()
 
