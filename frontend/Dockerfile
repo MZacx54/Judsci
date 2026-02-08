@@ -1,15 +1,25 @@
-# Stage 1: Build
-FROM node:18-alpine as builder
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install --legacy-peer-deps
-COPY . .
-RUN npm run build
+# Sample Dockerfile Content
 
-# Stage 2: Serve
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-# Use templates directory for envsubst support in Nginx alpine image
-COPY nginx.conf /etc/nginx/templates/default.conf.template
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Use an official base image
+FROM node:14
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . . 
+
+# Set environment variables with fallback values
+ENV MY_ENV_VAR=${MY_ENV_VAR:-default_value}
+
+# Expose the port
+EXPOSE 3000
+
+# Command to run the application
+CMD [ "npm", "start" ]
