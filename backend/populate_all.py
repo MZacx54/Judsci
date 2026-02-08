@@ -187,7 +187,7 @@ We work to ensure that government policies align with the needs of the people, f
         }
     ]
 
-    assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
+    assets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
     images_dir = os.path.join(assets_dir, 'Images')
 
     for item in news_items:
