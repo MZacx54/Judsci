@@ -24,6 +24,9 @@ The platform consists of three main components:
 1. Click **New** -> **GitHub Repo** -> Select `jdpc-bauchi-digital-platform`.
 2. Edit its settings:
    - **Root Directory**: `backend`
+   - **Deploy Settings**:
+     - **Start Command**: `gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000`
+     - **Release Command**: `python manage.py migrate`
    - **Variables**:
      - `DEBUG`: `False`
      - `SECRET_KEY`: *[A long random string]*
@@ -33,29 +36,29 @@ The platform consists of three main components:
      - `DATABASE_URL`: `${{ Postgres.DATABASE_URL }}` (Railway usually links this automatically)
 
 ### C. Deploy Frontend
-1. Click **New** -> **GitHub Repo** -> Select `jdpc-bauchi-digital-platform`.
+1. Click **New** -> **GitHub Repo** -> Select your repo.
 2. Edit its settings:
    - **Root Directory**: `frontend`
    - **Variables**:
+     - `BACKEND_HOST`: `Judsci` (Must match your Backend Service Name **EXACTLY**, including Capital Letters).
      - `VITE_PAYSTACK_PUBLIC_KEY`: `[Your Paystack Public Key]`
-     - `VITE_API_URL`: `https://[your-backend-railway-url]` (Update this after backend is live)
 
-### D. Finalize Nginx & Proxy
-The Nginx configuration in the frontend is designed to proxy requests to the backend. Ensure your backend service in Railway is named `backend` (or update `nginx.conf` to match the service name).
+### D. Verification & Database Setup
+Once both services are "Active", you **must** initialize the database.
 
-## 4. Post-Deployment
-### Run Migrations & Populate Data
-Once the backend is live, you can use the Railway CLI or the "Shell" tab in the dashboard to run:
-```bash
-python manage.py migrate
-python populate_all.py
-```
+1. Go to the **Backend Service** in Railway.
+2. Click the **"Shell"** tab.
+3. Run the following commands one by one:
+   ```bash
+   python manage.py migrate
+   python populate_all.py
+   python manage.py createsuperuser
+   ```
+   *(Note: Do not type 'python' twice. Just type exactly as shown above.)*
 
-### Create Superuser
-To access the Admin Panel:
-```bash
-python manage.py createsuperuser
-```
+## 4. Final Handshake
+- **Frontend URL**: Generate a domain for your frontend service in its Settings.
+- **Backend CSRF**: Go to your **Backend Service** variables and update `CSRF_TRUSTED_ORIGINS` to include your new frontend URL (e.g., `https://judsci-frontend.up.railway.app`).
 
 ---
 **Need Help? Contact the technical team at JDPC Bauchi.**
