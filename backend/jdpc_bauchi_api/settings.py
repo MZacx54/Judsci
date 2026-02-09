@@ -172,6 +172,7 @@ if not DEBUG:
     CORS_ALLOWED_ORIGIN_REGEXES = [
         r"^https://.*\.railway\.app$",
         r"^https://.*\.vercel\.app$",
+        r"^https://(www\.)?judsci\.org\.ng$",
     ]
 
 # REST Framework Configuration
