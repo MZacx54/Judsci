@@ -37,6 +37,12 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key-change-me')
 DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+# Always allow railway subdomains and custom domain in prod
+if not DEBUG:
+    ALLOWED_HOSTS += ['.railway.app', 'judsci.org.ng', 'www.judsci.org.ng']
+
+# Security Configuration for Railway/Proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Ensure all origins have a scheme (http:// or https://)
 raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app', 'https://judsci.org.ng', 'https://www.judsci.org.ng', 'https://*.vercel.app'])
