@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-interface Photo {
+export interface Photo {
   id: string;
   src: string;
   alt: string;
@@ -57,8 +57,8 @@ const PhotoGallery: React.FC = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [filter, setFilter] = useState('All');
 
-  const filteredPhotos = filter === 'All' 
-    ? SAMPLE_photos 
+  const filteredPhotos = filter === 'All'
+    ? SAMPLE_photos
     : SAMPLE_photos.filter(p => p.category === filter);
 
   const categories = ['All', ...Array.from(new Set(SAMPLE_photos.map(p => p.category)))];
@@ -71,11 +71,10 @@ const PhotoGallery: React.FC = () => {
           <button
             key={cat}
             onClick={() => setFilter(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              filter === cat 
-                ? 'bg-green-700 text-white shadow-md' 
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filter === cat
+                ? 'bg-green-700 text-white shadow-md'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-            }`}
+              }`}
           >
             {cat}
           </button>
@@ -85,15 +84,15 @@ const PhotoGallery: React.FC = () => {
       {/* Grid Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPhotos.map((photo) => (
-          <div 
+          <div
             key={photo.id}
             className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300"
             onClick={() => setSelectedPhoto(photo)}
           >
             <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
-              <img 
-                src={photo.src} 
-                alt={photo.alt} 
+              <img
+                src={photo.src}
+                alt={photo.alt}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />
@@ -108,11 +107,11 @@ const PhotoGallery: React.FC = () => {
 
       {/* Lightbox Modal */}
       {selectedPhoto && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 transition-opacity duration-300"
           onClick={() => setSelectedPhoto(null)}
         >
-          <button 
+          <button
             className="absolute top-4 right-4 text-white/70 hover:text-white p-2"
             onClick={() => setSelectedPhoto(null)}
           >
@@ -120,14 +119,14 @@ const PhotoGallery: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
-          <div 
-            className="max-w-5xl w-full max-h-screen overflow-y-auto bg-transparent relative" 
+
+          <div
+            className="max-w-5xl w-full max-h-screen overflow-y-auto bg-transparent relative"
             onClick={e => e.stopPropagation()}
           >
-            <img 
-              src={selectedPhoto.src} 
-              alt={selectedPhoto.alt} 
+            <img
+              src={selectedPhoto.src}
+              alt={selectedPhoto.alt}
               className="w-full h-auto rounded-lg shadow-2xl max-h-[80vh] object-contain mx-auto"
             />
             <div className="mt-4 text-center">
