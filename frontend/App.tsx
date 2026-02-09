@@ -22,6 +22,12 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     const handleHashChange = () => {
+      // Check for path based admin access first (Vercel fallback)
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.href = 'https://judsci-production-b036.up.railway.app' + window.location.pathname;
+        return;
+      }
+
       const hash = window.location.hash.replace('#', '');
       if (hash === 'admin') {
         setActiveSection(AppSection.ADMIN);
