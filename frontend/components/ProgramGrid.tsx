@@ -67,6 +67,8 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
                     src={prog.image}
                     alt={prog.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className={`w-full h-full ${prog.color} opacity-20 flex items-center justify-center text-5xl`}>

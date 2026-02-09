@@ -47,3 +47,26 @@ export enum AppSection {
   ABOUT = 'about',
   ADMIN = 'admin'
 }
+
+export interface Booking {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  date: string;
+  time: string;
+  reason: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  created_at: string;
+}
+
+export interface Donation {
+  id: number;
+  amount: string; // DecimalField comes as string or number depending on serializer
+  email: string;
+  donor_name: string;
+  reference: string;
+  project_category: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  created_at: string;
+}
