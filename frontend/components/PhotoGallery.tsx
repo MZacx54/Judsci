@@ -8,7 +8,7 @@ export interface Photo {
   category: string;
 }
 
-const SAMPLE_photos: Photo[] = [
+export const SAMPLE_photos: Photo[] = [
   {
     id: '1',
     src: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -72,8 +72,8 @@ const PhotoGallery: React.FC = () => {
             key={cat}
             onClick={() => setFilter(cat)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filter === cat
-                ? 'bg-green-700 text-white shadow-md'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+              ? 'bg-green-700 text-white shadow-md'
+              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
           >
             {cat}
