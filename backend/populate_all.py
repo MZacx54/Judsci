@@ -13,6 +13,9 @@ from core.models import Program
 from impact.models import ImpactStat
 from news.models import BlogPost
 from resources.models import Resource
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def populate():
     # Get absolute path to the backend directory
@@ -252,6 +255,13 @@ We work to ensure that government policies align with the needs of the people, f
         print(f"PDF not found at {pdf_path}")
 
     print("Population Complete!")
+
+    # --- Create Superuser ---
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        print("Created Superuser: admin / admin123")
+    else:
+        print("Superuser 'admin' already exists.")
 
 if __name__ == '__main__':
     populate()

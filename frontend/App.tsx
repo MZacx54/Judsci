@@ -20,6 +20,23 @@ const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
   const [selectedStory, setSelectedStory] = useState<BlogPost | null>(null);
 
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'admin') {
+        setActiveSection(AppSection.ADMIN);
+      } else if (Object.values(AppSection).includes(hash as AppSection)) {
+        setActiveSection(hash as AppSection);
+      }
+    };
+
+    // Check initial hash
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const handleReadStory = (post: BlogPost) => {
     setSelectedStory(post);
     setActiveSection(AppSection.NEWS_DETAIL);
