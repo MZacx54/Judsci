@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '../config';
 
 const BookingSystem: React.FC = () => {
   // State
@@ -58,7 +59,7 @@ const BookingSystem: React.FC = () => {
 
     const dateStr = selectedDate.toISOString().split('T')[0];
 
-    fetch('/api/bookings/', {
+    fetch(API_ENDPOINTS.BOOKINGS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

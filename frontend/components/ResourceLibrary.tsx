@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '../config';
 import { Resource } from '../types';
 
 const RESOURCES: Resource[] = [
@@ -17,7 +17,7 @@ const ResourceLibrary: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
-    fetch('/api/resources/')
+    fetch(API_ENDPOINTS.RESOURCES)
       .then(res => res.json())
       .then(data => {
         setResources(data);

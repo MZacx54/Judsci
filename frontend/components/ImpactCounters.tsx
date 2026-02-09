@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import { API_ENDPOINTS } from '../config';
 import { ImpactStat } from '../types';
 
 const STATS: ImpactStat[] = [
@@ -15,7 +15,7 @@ const ImpactCounters: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/impact-stats/')
+    fetch(API_ENDPOINTS.STATS)
       .then(res => res.json())
       .then(data => {
         setStats(data);

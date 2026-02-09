@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { API_ENDPOINTS } from '../config';
 import { BlogPost } from '../types';
 
 
@@ -14,7 +14,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeA
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    fetch('/api/posts/')
+    fetch(API_ENDPOINTS.POSTS)
       .then(res => res.json())
       .then(data => {
         setPosts(data);

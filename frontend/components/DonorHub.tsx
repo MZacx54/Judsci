@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '../config';
 
 import { usePaystackPayment } from 'react-paystack';
 
@@ -32,7 +32,7 @@ const DonorHub: React.FC = () => {
 
   const onSuccess = (reference: any) => {
     setLoading(true);
-    fetch(`/api/donations/`, {
+    fetch(API_ENDPOINTS.DONATIONS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

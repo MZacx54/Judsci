@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Program } from '../types';
-
+import { API_ENDPOINTS } from '../config';
+import { Program, BlogPost } from '../types';
 
 interface ProgramGridProps {
   onSelect?: () => void;
@@ -17,8 +17,8 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
   React.useEffect(() => {
     // Fetch both programs and posts to allow linking
     Promise.all([
-      fetch('/api/programs/').then(res => res.json()),
-      fetch('/api/posts/').then(res => res.json())
+      fetch(API_ENDPOINTS.PROGRAMS).then(res => res.json()),
+      fetch(API_ENDPOINTS.POSTS).then(res => res.json())
     ]).then(([progData, postData]) => {
       setPrograms(progData);
       setPosts(postData);

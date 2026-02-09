@@ -39,7 +39,7 @@ DEBUG = env('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
 # Ensure all origins have a scheme (http:// or https://)
-raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app', 'https://judsci.org.ng', 'https://www.judsci.org.ng'])
+raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app', 'https://judsci.org.ng', 'https://www.judsci.org.ng', 'https://*.vercel.app'])
 CSRF_TRUSTED_ORIGINS = [
     origin if origin.startswith(('http://', 'https://')) else f'https://{origin}'
     for origin in raw_csrf_origins
@@ -171,6 +171,7 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=['http://localho
 if not DEBUG:
     CORS_ALLOWED_ORIGIN_REGEXES = [
         r"^https://.*\.railway\.app$",
+        r"^https://.*\.vercel\.app$",
     ]
 
 # REST Framework Configuration
