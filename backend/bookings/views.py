@@ -10,6 +10,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     """
     queryset = Appointment.objects.all().order_by('-created_at')
     serializer_class = AppointmentSerializer
+    authentication_classes = [] # Fix: Allow public creation without CSRF token
     
     def get_permissions(self):
         """

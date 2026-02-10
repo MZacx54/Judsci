@@ -53,39 +53,56 @@ const BookingSystem: React.FC = () => {
   };
 
   // Submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDate || !selectedTime) return;
 
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    // Use local date parts instead of toISOString to avoid timezone shifts
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
 
-    fetch(API_ENDPOINTS.BOOKINGS, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...formData,
-        date: dateStr,
-        time: selectedTime,
-      }),
-    })
-      .then(res => {
-        if (res.ok) {
-          setSubmitted(true);
-          setTimeout(() => {
-            setSubmitted(false);
-            setStep(1);
-            setSelectedDate(null);
-            setSelectedTime(null);
-            setFormData({ name: '', email: '', phone: '', reason: '' });
-          }, 5000);
-        } else {
-          alert("Failed to schedule appointment. Please try again.");
-        }
-      })
-      .catch(err => {
-        console.error("Booking failed:", err);
-        alert("An error occurred. Please try again later.");
+    try {
+      const res = await fetch(API_ENDPOINTS.BOOKINGS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          date: dateStr,
+          time: selectedTime,
+        }),
       });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setStep(1);
+          setSelectedDate(null);
+          setSelectedTime(null);
+          setFormData({ name: '', email: '', phone: '', reason: '' });
+        }, 5000);
+      } else {
+        // Handle specific validation errors from DRF
+        let errorMessage = "Failed to schedule appointment.";
+
+        if (data && typeof data === 'object') {
+          // Flatten error messages from DRF (which returns arrays of errors per field or non_field_errors)
+          const errors = Object.values(data).flat();
+          if (errors.length > 0) {
+            errorMessage = String(errors[0]);
+          }
+        }
+
+        alert(errorMessage);
+      }
+    } catch (err) {
+      console.error("Booking failed:", err);
+      alert("An network error occurred. Please check your internet connection and try again.");
+    }
   };
 
   return (
