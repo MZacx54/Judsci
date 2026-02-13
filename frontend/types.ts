@@ -45,7 +45,8 @@ export enum AppSection {
   NEWS = 'news',
   NEWS_DETAIL = 'news_detail',
   ABOUT = 'about',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
+  LOGIN = 'login'
 }
 
 export interface Booking {

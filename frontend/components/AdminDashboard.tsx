@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config';
 import { Booking, Donation } from '../types';
-import { SAMPLE_photos } from './PhotoGallery';
+import { Photo } from './PhotoGallery';
+import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard: React.FC = () => {
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
@@ -12,100 +12,177 @@ const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
     pendingBookings: 0,
     monthlyDonations: 0,
-    activePrograms: 0 // This might need a separate fetch or stay static/mock if no endpoint
+    activePrograms: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+  const { token, logout, refreshAccessToken } = useAuth();
 
-  // New state for tabs and gallery
+  // Gallery Management State
   const [activeTab, setActiveTab] = useState<'overview' | 'gallery'>('overview');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [galleryPhotos, setGalleryPhotos] = useState<any[]>([]);
+  const [galleryPhotos, setGalleryPhotos] = useState<Photo[]>([]);
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState<Partial<Photo> | null>(null);
+  const [isSavingPhoto, setIsSavingPhoto] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+  const fetchAdminData = async () => {
+    setIsLoading(true);
+    try {
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      const [bookingsRes, donationsRes, photosRes, programsRes] = await Promise.all([
+        fetch(API_ENDPOINTS.BOOKINGS, { headers }),
+        fetch(API_ENDPOINTS.DONATIONS, { headers }),
+        fetch(API_ENDPOINTS.PHOTOS),
+        fetch(`${API_ENDPOINTS.PROGRAMS}`)
+      ]);
+
+      if (bookingsRes.status === 401 || donationsRes.status === 401) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) return fetchAdminData();
+        return;
+      }
+
+      if (bookingsRes.ok && donationsRes.ok && photosRes.ok && programsRes.ok) {
+        const bookingsData: Booking[] = await bookingsRes.json();
+        const donationsData: Donation[] = await donationsRes.json();
+        const photosData: Photo[] = await photosRes.json();
+        const programsData = await programsRes.json();
+
+        setBookings(bookingsData);
+        setDonations(donationsData);
+        setGalleryPhotos(photosData);
+
+        // Stats calculation
+        const pending = bookingsData.filter(b => b.status === 'PENDING').length;
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        const monthlyTotal = donationsData
+          .filter(d => {
+            const dDate = new Date(d.created_at);
+            return d.status === 'SUCCESS' &&
+              dDate.getMonth() === currentMonth &&
+              dDate.getFullYear() === currentYear;
+          })
+          .reduce((sum, d) => sum + parseFloat(d.amount), 0);
+
+        setStats({
+          pendingBookings: pending,
+          monthlyDonations: monthlyTotal,
+          activePrograms: programsData.length
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch admin data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Initial gallery load (simulated)
-    setGalleryPhotos(SAMPLE_photos);
-
-    const fetchData = async () => {
-      try {
-        const [bookingsRes, donationsRes] = await Promise.all([
-          fetch(API_ENDPOINTS.BOOKINGS),
-          fetch(API_ENDPOINTS.DONATIONS)
-        ]);
-
-        if (bookingsRes.ok && donationsRes.ok) {
-          const bookingsData: Booking[] = await bookingsRes.json();
-          const donationsData: Donation[] = await donationsRes.json();
-
-          setBookings(bookingsData);
-          setDonations(donationsData);
-
-          // Calculate stats
-          const pending = bookingsData.filter(b => b.status === 'PENDING').length;
-
-          // Calculate current month donations
-          const now = new Date();
-          const currentMonth = now.getMonth();
-          const currentYear = now.getFullYear();
-
-          const monthlyTotal = donationsData
-            .filter(d => {
-              const dDate = new Date(d.created_at);
-              return d.status === 'SUCCESS' &&
-                dDate.getMonth() === currentMonth &&
-                dDate.getFullYear() === currentYear;
-            })
-            .reduce((sum, d) => sum + parseFloat(d.amount), 0);
-
-          setStats(prev => ({
-            ...prev,
-            pendingBookings: pending,
-            monthlyDonations: monthlyTotal
-          }));
-        }
-      } catch (error) {
-        console.error("Failed to fetch admin data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    fetchAdminData();
+  }, [token]);
 
   // Handle Booking Status Update
-  const handleAction = async (id: number, action: 'CONFIRMED' | 'CANCELLED') => {
+  const handleBookingAction = async (id: number, action: 'CONFIRMED' | 'CANCELLED') => {
     try {
-      // Optimistic update
-      setBookings(prev => prev.map(b =>
-        b.id === id ? { ...b, status: action } : b
-      ));
-
-      // Since we don't have authentication token logic implemented in this mock frontend yet,
-      // we will simulate the API call success for now or use the public endpoint if we opened it (which we didn't).
-      // IN REALITY: This needs an Authorization header: `Bearer ${token}`.
-      // For this demo/task, we assume the user is "logged in" and the browser has a session or we are mocking it.
-
-      /* 
       const response = await fetch(`${API_ENDPOINTS.BOOKINGS}${id}/`, {
-          method: 'PATCH',
-          headers: {
-              'Content-Type': 'application/json',
-              // 'Authorization': `Bearer ${token}` 
-          },
-          body: JSON.stringify({ status: action })
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: action })
       });
-      
-      if (!response.ok) throw new Error('Failed to update');
-      */
 
-      alert(`Booking ${action.toLowerCase()} successfully! Email notification sent.`);
-
+      if (response.ok) {
+        setBookings(prev => prev.map(b => b.id === id ? { ...b, status: action } : b));
+        alert(`Booking ${action.toLowerCase()} successfully! Email notification sent.`);
+      } else {
+        throw new Error('Update failed');
+      }
     } catch (error) {
       console.error('Update failed:', error);
-      alert('Failed to update booking status.');
-      // Revert optimistic update
-      // fetchBookings(); // re-fetch
+      alert('Failed to update booking status. Session may have expired.');
     }
+  };
+
+  // Photo Management Handlers
+  const handleSavePhoto = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPhoto?.title || !currentPhoto?.category || (!photoFile && !currentPhoto.id)) {
+      alert('Please fill all required fields and select an image.');
+      return;
+    }
+
+    setIsSavingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', currentPhoto.title);
+      formData.append('category', currentPhoto.category);
+      if (currentPhoto.caption) formData.append('caption', currentPhoto.caption);
+      if (photoFile) formData.append('image', photoFile);
+
+      const url = currentPhoto.id
+        ? `${API_ENDPOINTS.PHOTOS}${currentPhoto.id}/`
+        : API_ENDPOINTS.PHOTOS;
+
+      const method = currentPhoto.id ? 'PATCH' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        setIsPhotoModalOpen(false);
+        setPhotoFile(null);
+        setCurrentPhoto(null);
+        fetchAdminData();
+        alert('Photo saved successfully!');
+      } else {
+        const err = await response.json();
+        alert(`Failed to save: ${JSON.stringify(err)}`);
+      }
+    } catch (error) {
+      console.error('Save failed:', error);
+      alert('Error saving photo.');
+    } finally {
+      setIsSavingPhoto(false);
+    }
+  };
+
+  const handleDeletePhoto = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this photo?')) return;
+
+    try {
+      const response = await fetch(`${API_ENDPOINTS.PHOTOS}${id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setGalleryPhotos(prev => prev.filter(p => p.id !== id));
+        alert('Photo deleted successfully!');
+      } else {
+        alert('Failed to delete photo.');
+      }
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
   };
 
   const handleExport = (type: 'bookings' | 'donations') => {
@@ -113,46 +190,27 @@ const AdminDashboard: React.FC = () => {
       alert('Please select a valid date range first.');
       return;
     }
+    const data = type === 'bookings' ? bookings : donations;
+    const start = new Date(dateRange.start).getTime();
+    const end = new Date(dateRange.end).getTime();
+    const filtered = data.filter((item: any) => {
+      const d = new Date(item.created_at || item.date).getTime();
+      return d >= start && d <= end;
+    });
 
-    setIsExporting(true);
+    if (filtered.length === 0) return alert('No data for range');
 
-    // Simulate delay for generation - in real app, might filtering client side or requesting backend export
-    setTimeout(() => {
-      const data = type === 'bookings' ? bookings : donations;
+    const csv = [
+      Object.keys(filtered[0]).join(','),
+      ...filtered.map((row: any) => Object.values(row).join(','))
+    ].join('\n');
 
-      // Filter by date range
-      const startInfo = new Date(dateRange.start).getTime();
-      const endInfo = new Date(dateRange.end).getTime();
-
-      const filteredData = data.filter((item: any) => {
-        const itemDate = new Date(item.created_at || item.date).getTime();
-        return itemDate >= startInfo && itemDate <= endInfo;
-      });
-
-      if (filteredData.length === 0) {
-        alert('No data found for the selected range.');
-        setIsExporting(false);
-        return;
-      }
-
-      const headers = Object.keys(filteredData[0]).join(',');
-      const rows = filteredData.map((item: any) => Object.values(item).join(',')).join('\n');
-      const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `jdpc_bauchi_${type}_report_${dateRange.start}_to_${dateRange.end}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setIsExporting(false);
-    }, 1000);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `jdpc_${type}_${dateRange.start}_to_${dateRange.end}.csv`;
+    a.click();
   };
 
   return (
@@ -160,164 +218,121 @@ const AdminDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black text-gray-900">Admin Control Center</h1>
-            <p className="text-gray-500">Welcome back, JDPC Bauchi Administrator.</p>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Admin Control Center</h1>
+            <p className="text-gray-500 font-medium">JDPC Bauchi Management Portal</p>
           </div>
           <div className="flex gap-3">
-            <button className="px-4 py-2 bg-white border border-gray-200 rounded-xl font-bold text-sm shadow-sm hover:bg-gray-50 transition-all">
-              Edit Site
+            <button onClick={() => window.location.hash = ''} className="px-5 py-2.5 bg-white border border-gray-200 rounded-2xl font-black text-sm shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2">
+              🌐 View Website
             </button>
-            <button className="px-4 py-2 bg-green-700 text-white rounded-xl font-bold text-sm shadow-md hover:bg-green-800 transition-all">
-              New Report
+            <button onClick={logout} className="px-5 py-2.5 bg-red-50 text-red-600 rounded-2xl font-black text-sm border border-red-100 hover:bg-red-600 hover:text-white transition-all">
+              🚪 Logout
             </button>
           </div>
         </header>
 
         {/* Tab Navigation */}
-        <div className="flex space-x-4 mb-8 border-b border-gray-200 pb-2 overflow-x-auto">
+        <div className="flex space-x-2 mb-8 bg-white/50 p-1.5 rounded-2xl border border-gray-200 w-fit">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors whitespace-nowrap ${activeTab === 'overview' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}
+            className={`px-6 py-2.5 text-sm font-black rounded-xl transition-all ${activeTab === 'overview' ? 'bg-black text-white shadow-lg' : 'text-gray-500 hover:text-black'}`}
           >
-            Overview & Bookings
+            📊 Overview & Bookings
           </button>
           <button
             onClick={() => setActiveTab('gallery')}
-            className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors whitespace-nowrap ${activeTab === 'gallery' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}
+            className={`px-6 py-2.5 text-sm font-black rounded-xl transition-all ${activeTab === 'gallery' ? 'bg-black text-white shadow-lg' : 'text-gray-500 hover:text-black'}`}
           >
-            Photo Gallery
+            📸 Photo Gallery
           </button>
         </div>
 
         {activeTab === 'overview' ? (
           <>
-            {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <div className="text-sm font-bold text-gray-400 uppercase mb-2">Pending Bookings</div>
+              <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl group-hover:scale-110 transition-transform">📅</div>
+                <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Pending Bookings</div>
                 <div className="text-4xl font-black text-gray-900">{stats.pendingBookings}</div>
-                <div className="mt-4 text-xs font-bold text-yellow-600 bg-yellow-50 px-2 py-1 rounded-md inline-block">Action Required</div>
+                <div className="mt-4 text-[10px] font-black text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full inline-block border border-yellow-100">Action Required</div>
               </div>
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <div className="text-sm font-bold text-gray-400 uppercase mb-2">Monthly Donations</div>
+              <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl group-hover:scale-110 transition-transform">💰</div>
+                <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Monthly Donations</div>
                 <div className="text-4xl font-black text-gray-900">{formatCurrency(stats.monthlyDonations)}</div>
-                <div className="mt-4 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md inline-block">Current Month</div>
+                <div className="mt-4 text-[10px] font-black text-green-600 bg-green-50 px-3 py-1 rounded-full inline-block border border-green-100">This Month</div>
               </div>
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <div className="text-sm font-bold text-gray-400 uppercase mb-2">Active Programs</div>
-                <div className="text-4xl font-black text-gray-900">24</div>
-                <div className="mt-4 text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md inline-block">All operational</div>
+              <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl group-hover:scale-110 transition-transform">🚀</div>
+                <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Active Programs</div>
+                <div className="text-4xl font-black text-gray-900">{stats.activePrograms}</div>
+                <div className="mt-4 text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-100">Live on Site</div>
               </div>
             </div>
 
-            {/* Reports & Exports Section */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 mb-10">
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 mb-10">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="max-w-md">
-                  <h3 className="text-xl font-bold mb-2">Analytics & Exports</h3>
-                  <p className="text-sm text-gray-500">Generate custom CSV reports for organizational auditing and donor transparency.</p>
+                <div>
+                  <h3 className="text-xl font-black tracking-tight mb-2">Export Data</h3>
+                  <p className="text-sm text-gray-500 font-medium">Download CSV reports for audits or donor updates.</p>
                 </div>
-
-                <div className="flex flex-col sm:flex-row items-end gap-4">
-                  <div className="w-full sm:w-auto">
-                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Start Date</label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-green-500"
-                      value={dateRange.start}
-                      onChange={e => setDateRange({ ...dateRange, start: e.target.value })}
-                    />
-                  </div>
-                  <div className="w-full sm:w-auto">
-                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-1">End Date</label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-green-500"
-                      value={dateRange.end}
-                      onChange={e => setDateRange({ ...dateRange, end: e.target.value })}
-                    />
+                <div className="flex flex-wrap items-end gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Range</label>
+                    <div className="flex gap-2">
+                      <input type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-green-500 outline-none" />
+                      <input type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-green-500 outline-none" />
+                    </div>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => handleExport('bookings')}
-                      disabled={isExporting}
-                      className="px-6 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-all disabled:opacity-50 flex items-center gap-2"
-                    >
-                      {isExporting ? '...' : 'Export Bookings'}
-                    </button>
-                    <button
-                      onClick={() => handleExport('donations')}
-                      disabled={isExporting}
-                      className="px-6 py-2 bg-green-700 text-white rounded-xl text-sm font-bold hover:bg-green-800 transition-all disabled:opacity-50 flex items-center gap-2"
-                    >
-                      {isExporting ? '...' : 'Export Donations'}
-                    </button>
+                    <button onClick={() => handleExport('bookings')} className="px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-black hover:bg-black transition-all">Export Bookings</button>
+                    <button onClick={() => handleExport('donations')} className="px-6 py-2 bg-green-700 text-white rounded-xl text-xs font-black hover:bg-green-800 transition-all">Export Donations</button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Data Table */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-8 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="text-xl font-bold">Recent Booking Requests</h3>
-                <button className="text-sm text-green-700 font-bold">See All &rarr;</button>
+                <h3 className="text-xl font-black tracking-tight">Recent Booking Requests</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead>
-                    <tr className="bg-gray-50 text-xs font-black text-gray-400 uppercase tracking-widest">
-                      <th className="px-8 py-4">Name</th>
+                  <thead className="bg-gray-50/50">
+                    <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      <th className="px-8 py-4">Requester</th>
                       <th className="px-8 py-4">Reason</th>
-                      <th className="px-8 py-4">Date</th>
+                      <th className="px-8 py-4">Submission Date</th>
                       <th className="px-8 py-4">Status</th>
                       <th className="px-8 py-4">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan={5} className="px-8 py-6 text-center text-gray-500">Loading bookings...</td>
-                      </tr>
-                    ) : bookings.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-8 py-6 text-center text-gray-500">No bookings found.</td>
-                      </tr>
+                  <tbody className="divide-y divide-gray-50">
+                    {bookings.length === 0 ? (
+                      <tr><td colSpan={5} className="px-8 py-10 text-center text-gray-400 font-medium italic">No bookings found.</td></tr>
                     ) : (
-                      bookings.slice(0, 5).map(booking => (
-                        <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
+                      bookings.map(b => (
+                        <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-8 py-6">
-                            <div className="font-bold text-gray-900">{booking.name}</div>
-                            <div className="text-xs text-gray-400">{booking.email}</div>
+                            <div className="font-black text-gray-900">{b.name}</div>
+                            <div className="text-xs text-gray-400">{b.email}</div>
                           </td>
-                          <td className="px-8 py-6 text-sm text-gray-600">{booking.reason}</td>
-                          <td className="px-8 py-6 text-sm font-semibold text-gray-500">
-                            {new Date(booking.created_at).toLocaleDateString()}
-                          </td>
+                          <td className="px-8 py-6 text-sm text-gray-500 font-medium">{b.reason}</td>
+                          <td className="px-8 py-6 text-xs font-bold text-gray-400">{new Date(b.created_at).toLocaleDateString()}</td>
                           <td className="px-8 py-6">
-                            <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full ${booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                              booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
-                                'bg-red-100 text-red-700'
-                              }`}>
-                              {booking.status}
-                            </span>
+                            <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase ${b.status === 'PENDING' ? 'bg-yellow-50 text-yellow-600 border border-yellow-100' :
+                              b.status === 'CONFIRMED' ? 'bg-green-50 text-green-600 border border-green-100' :
+                                'bg-red-50 text-red-600 border border-red-100'
+                              }`}>{b.status}</span>
                           </td>
                           <td className="px-8 py-6">
                             <div className="flex gap-2">
-                              <button
-                                onClick={() => handleAction(booking.id, 'CONFIRMED')}
-                                className="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-700 hover:text-white transition-all"
-                                title="Approve"
-                              >
-                                ✅
-                              </button>
-                              <button
-                                onClick={() => handleAction(booking.id, 'CANCELLED')}
-                                className="p-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-700 hover:text-white transition-all"
-                                title="Reject"
-                              >
-                                ❌
-                              </button>
+                              {b.status === 'PENDING' && (
+                                <>
+                                  <button onClick={() => handleBookingAction(b.id, 'CONFIRMED')} className="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-700 hover:text-white transition-all border border-green-100"> Approve </button>
+                                  <button onClick={() => handleBookingAction(b.id, 'CANCELLED')} className="p-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-700 hover:text-white transition-all border border-red-100"> Reject </button>
+                                </>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -329,39 +344,116 @@ const AdminDashboard: React.FC = () => {
             </div>
           </>
         ) : (
-          /* Gallery Section */
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
+          /* Real Gallery Manager */
+          <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
-                <h3 className="text-xl font-bold">Photo Gallery Manager</h3>
-                <p className="text-sm text-gray-500">Manage images displayed in the gallery section.</p>
+                <h3 className="text-xl font-black tracking-tight">Photo Gallery Manager</h3>
+                <p className="text-sm text-gray-500 font-medium">Manage evidence of your impact.</p>
               </div>
               <button
-                onClick={() => alert('This feature will be connected to the backend API soon.')}
-                className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-bold shadow-md hover:bg-green-800 transition-all flex items-center gap-2"
+                onClick={() => { setCurrentPhoto({ title: '', category: 'Outreach', caption: '' }); setIsPhotoModalOpen(true); }}
+                className="px-6 py-3 bg-green-700 text-white rounded-2xl font-black text-xs shadow-lg shadow-green-900/20 hover:bg-green-800 transition-all flex items-center gap-2"
               >
-                + Add New Photo
+                ➕ Add Impact Photo
               </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {galleryPhotos.map((photo: any) => (
-                <div key={photo.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-gray-200">
-                  <img src={photo.src} alt={photo.alt} className="w-full h-32 object-cover" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button className="p-1 bg-white rounded-full text-gray-800 hover:text-green-600">✎</button>
-                    <button className="p-1 bg-white rounded-full text-red-600 hover:bg-red-50">🗑</button>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {galleryPhotos.map(photo => (
+                <div key={photo.id} className="relative group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                  <img src={photo.image} alt={photo.title} className="w-full h-40 object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => { setCurrentPhoto(photo); setIsPhotoModalOpen(true); }}
+                      className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-gray-800 hover:bg-green-700 hover:text-white transition-all transform hover:scale-110"
+                    > ✎ </button>
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id)}
+                      className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-red-600 hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+                    > 🗑 </button>
                   </div>
-                  <div className="p-2 bg-white text-xs font-bold truncate">{photo.alt}</div>
+                  <div className="p-4">
+                    <div className="text-[9px] font-black text-green-700 uppercase mb-1">{photo.category}</div>
+                    <div className="text-xs font-black text-gray-900 truncate">{photo.title}</div>
+                  </div>
                 </div>
               ))}
             </div>
             {galleryPhotos.length === 0 && (
-              <div className="text-center py-10 text-gray-400">Loading photos or gallery is empty...</div>
+              <div className="text-center py-20 text-gray-400 font-medium italic">No photos in the gallery. Start by adding one!</div>
             )}
           </div>
         )}
       </div>
+
+      {/* Photo Upsert Modal */}
+      {isPhotoModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white max-w-lg w-full rounded-[2.5rem] shadow-2xl p-10 relative animate-fade-in-up">
+            <h3 className="text-2xl font-black tracking-tight mb-6">{currentPhoto?.id ? 'Edit Photo' : 'Upload Impact Photo'}</h3>
+            <form onSubmit={handleSavePhoto} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Title</label>
+                <input
+                  type="text"
+                  value={currentPhoto?.title || ''}
+                  onChange={e => setCurrentPhoto({ ...currentPhoto!, title: e.target.value })}
+                  className="w-full px-5 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                  placeholder="e.g. Borehole Commissioning"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Category</label>
+                  <select
+                    value={currentPhoto?.category || ''}
+                    onChange={e => setCurrentPhoto({ ...currentPhoto!, category: e.target.value })}
+                    className="w-full px-5 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                  >
+                    <option>Outreach</option>
+                    <option>WASH</option>
+                    <option>Legal Aid</option>
+                    <option>Education</option>
+                    <option>Empowerment</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Photo File</label>
+                  <input
+                    type="file"
+                    onChange={e => setPhotoFile(e.target.files?.[0] || null)}
+                    className="w-full text-xs font-bold text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Caption / Description</label>
+                <textarea
+                  value={currentPhoto?.caption || ''}
+                  onChange={e => setCurrentPhoto({ ...currentPhoto!, caption: e.target.value })}
+                  className="w-full px-5 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-green-500 outline-none transition-all h-24 resize-none"
+                  placeholder="Briefly describe this impact photo..."
+                />
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsPhotoModalOpen(false)}
+                  className="flex-1 py-4 bg-gray-100 text-gray-900 rounded-2xl font-black text-sm hover:bg-gray-200 transition-all"
+                > Cancel </button>
+                <button
+                  type="submit"
+                  disabled={isSavingPhoto}
+                  className="flex-2 py-4 px-10 bg-green-700 text-white rounded-2xl font-black text-sm hover:bg-green-800 transition-all shadow-lg shadow-green-900/20 disabled:opacity-50"
+                > {isSavingPhoto ? 'Saving...' : 'Save Changes'} </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

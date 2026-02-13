@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -9,16 +8,19 @@ import ResourceLibrary from './components/ResourceLibrary';
 import DonorHub from './components/DonorHub';
 import NewsSection from './components/NewsSection';
 import AdminDashboard from './components/AdminDashboard';
+import Login from './components/Login';
 import BauchiMap from './components/BauchiMap';
 import AboutSection from './components/AboutSection';
 import SuccessStories from './components/SuccessStories';
 import StoryDetail from './components/StoryDetail';
 import PartnersList from './components/PartnersList';
 import { AppSection, BlogPost } from './types';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
   const [selectedStory, setSelectedStory] = useState<BlogPost | null>(null);
+  const { isAuthenticated } = useAuth();
 
   React.useEffect(() => {
     const handleHashChange = () => {
@@ -29,19 +31,23 @@ const App: React.FC = () => {
       }
 
       const hash = window.location.hash.replace('#', '');
-      if (hash === 'admin') {
-        setActiveSection(AppSection.ADMIN);
+      if (hash === 'login') {
+        setActiveSection(AppSection.LOGIN || 'login' as any);
+      } else if (hash === 'admin') {
+        if (!isAuthenticated) {
+          window.location.hash = '#login';
+        } else {
+          setActiveSection(AppSection.ADMIN);
+        }
       } else if (Object.values(AppSection).includes(hash as AppSection)) {
         setActiveSection(hash as AppSection);
       }
     };
 
-    // Check initial hash
     handleHashChange();
-
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [isAuthenticated]);
 
   const handleReadStory = (post: BlogPost) => {
     setSelectedStory(post);
@@ -50,7 +56,9 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    switch (activeSection) {
+    switch (activeSection as any) {
+      case 'login':
+        return <Login />;
       case AppSection.HOME:
         return (
           <main>
@@ -93,7 +101,7 @@ const App: React.FC = () => {
       case AppSection.ABOUT:
         return <AboutSection />;
       case AppSection.ADMIN:
-        return <AdminDashboard />;
+        return isAuthenticated ? <AdminDashboard /> : <Login />;
       default:
         return <Hero onAction={() => setActiveSection(AppSection.DONATIONS)} />;
     }
@@ -109,6 +117,7 @@ const App: React.FC = () => {
         {renderContent()}
       </div>
       <footer className="bg-gray-900 text-white py-12 px-4">
+        {/* ... (Footer content same as before) */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-2xl font-bold text-green-500 mb-4">JDPC Bauchi</h3>
@@ -142,6 +151,14 @@ const App: React.FC = () => {
         </div>
       </footer>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

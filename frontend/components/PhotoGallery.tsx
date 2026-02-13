@@ -1,67 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '../config';
 
 export interface Photo {
   id: string;
-  src: string;
-  alt: string;
+  image: string;
+  title: string;
   caption?: string;
   category: string;
 }
 
-export const SAMPLE_photos: Photo[] = [
-  {
-    id: '1',
-    src: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    alt: 'Community Outreach',
-    caption: 'Providing essential supplies to rural communities in Bauchi.',
-    category: 'Outreach'
-  },
-  {
-    id: '2',
-    src: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    alt: 'Environmental Awareness',
-    caption: 'Tree planting campaign to combat desertification.',
-    category: 'Environment'
-  },
-  {
-    id: '3',
-    src: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    alt: 'Legal Aid Workshop',
-    caption: 'Educating citizens on their rights and access to justice.',
-    category: 'Legal Aid'
-  },
-  {
-    id: '4',
-    src: 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    alt: 'Youth Empowerment',
-    caption: 'Skill acquisition training for unemployed youth.',
-    category: 'Empowerment'
-  },
-  {
-    id: '5',
-    src: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    alt: 'Clean Water Project',
-    caption: 'Commissioning a new borehole for clean water access.',
-    category: 'WASH'
-  },
-  {
-    id: '6',
-    src: 'https://images.unsplash.com/photo-1576267423048-15c0040fec78?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    alt: 'Healthcare Initiative',
-    caption: 'Free medical checkups for the elderly.',
-    category: 'Health'
-  }
-];
-
 const PhotoGallery: React.FC = () => {
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [filter, setFilter] = useState('All');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const response = await fetch(API_ENDPOINTS.PHOTOS);
+        if (response.ok) {
+          const data = await response.json();
+          setPhotos(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch photos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPhotos();
+  }, []);
 
   const filteredPhotos = filter === 'All'
-    ? SAMPLE_photos
-    : SAMPLE_photos.filter(p => p.category === filter);
+    ? photos
+    : photos.filter(p => p.category === filter);
 
-  const categories = ['All', ...Array.from(new Set(SAMPLE_photos.map(p => p.category)))];
+  const categories = ['All', ...Array.from(new Set(photos.map(p => p.category)))];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-700"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -82,28 +65,34 @@ const PhotoGallery: React.FC = () => {
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPhotos.map((photo) => (
-          <div
-            key={photo.id}
-            className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300"
-            onClick={() => setSelectedPhoto(photo)}
-          >
-            <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
-              <img
-                src={photo.src}
-                alt={photo.alt}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-              />
+      {filteredPhotos.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPhotos.map((photo) => (
+            <div
+              key={photo.id}
+              className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300"
+              onClick={() => setSelectedPhoto(photo)}
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
+                <img
+                  src={photo.image}
+                  alt={photo.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <span className="text-xs font-bold text-green-400 uppercase tracking-widest mb-1">{photo.category}</span>
+                <h3 className="text-white font-bold text-lg">{photo.title}</h3>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-              <span className="text-xs font-bold text-green-400 uppercase tracking-widest mb-1">{photo.category}</span>
-              <h3 className="text-white font-bold text-lg">{photo.alt}</h3>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+          <p className="text-gray-400 font-medium italic">No photos found in this category.</p>
+        </div>
+      )}
 
       {/* Lightbox Modal */}
       {selectedPhoto && (
@@ -125,12 +114,12 @@ const PhotoGallery: React.FC = () => {
             onClick={e => e.stopPropagation()}
           >
             <img
-              src={selectedPhoto.src}
-              alt={selectedPhoto.alt}
+              src={selectedPhoto.image}
+              alt={selectedPhoto.title}
               className="w-full h-auto rounded-lg shadow-2xl max-h-[80vh] object-contain mx-auto"
             />
             <div className="mt-4 text-center">
-              <h3 className="text-2xl font-bold text-white mb-2">{selectedPhoto.alt}</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">{selectedPhoto.title}</h3>
               <p className="text-gray-300">{selectedPhoto.caption}</p>
             </div>
           </div>

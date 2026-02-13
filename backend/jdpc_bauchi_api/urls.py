@@ -23,6 +23,11 @@ from news.views import BlogPostViewSet
 from bookings.views import AppointmentViewSet
 from donations.views import DonationViewSet
 from resources.views import ResourceViewSet
+from gallery.views import PhotoViewSet
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 router = routers.DefaultRouter()
 router.register(r'impact-stats', ImpactStatViewSet)
@@ -32,6 +37,7 @@ router.register(r'posts', BlogPostViewSet)
 router.register(r'bookings', AppointmentViewSet)
 router.register(r'donations', DonationViewSet)
 router.register(r'resources', ResourceViewSet)
+router.register(r'photos', PhotoViewSet)
 
 from django.conf import settings
 from django.urls import re_path
@@ -40,6 +46,8 @@ from django.views.static import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
