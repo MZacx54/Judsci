@@ -55,7 +55,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeA
               <div className="h-64 overflow-hidden relative cursor-pointer" onClick={() => onReadStory?.(post)}>
                 <img
                   src={post.image || `https://picsum.photos/seed/${post.slug}/800/600`}
-                  alt={post.title}
+                  alt={`JDPC Bauchi News: ${post.title}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                   decoding="async"

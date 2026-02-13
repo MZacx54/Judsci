@@ -65,7 +65,7 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
                 {prog.image ? (
                   <img
                     src={prog.image}
-                    alt={prog.title}
+                    alt={`JDPC Bauchi Program: ${prog.title}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
                     decoding="async"

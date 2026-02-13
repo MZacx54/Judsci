@@ -14,7 +14,7 @@ const Hero: React.FC<HeroProps> = ({ onExplore, onDonate }) => {
         <img
           src="https://picsum.photos/id/11/1920/1080"
           className="w-full h-full object-cover filter brightness-[0.4]"
-          alt="Bauchi Landscape"
+          alt="JDPC Bauchi - Promoting Justice and Peace in Bauchi State, Nigeria"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-green-900/60 to-transparent"></div>
       </div>
