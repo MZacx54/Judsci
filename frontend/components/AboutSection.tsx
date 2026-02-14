@@ -36,7 +36,7 @@ const AboutSection: React.FC = () => {
                         <div className="absolute inset-0 bg-green-900/0 group-hover:bg-green-900/10 transition-colors z-10"></div>
                         <img src={bishopImg} alt="Most Rev. Dr. Hilary Nanman Dachelem" className="w-full h-full object-cover object-top" />
 
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 z-20">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 z-20 hidden md:block">
                             <h3 className="text-white font-bold text-xl leading-tight">Most Rev. Dr. Hilary Nanman Dachelem, CMF</h3>
                             <p className="text-green-300 text-sm font-medium mt-1">3rd Catholic Bishop of Bauchi Diocese</p>
                         </div>
