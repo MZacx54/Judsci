@@ -51,7 +51,7 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">Our <span className="text-green-700">Thematic</span> Areas</h2>
         <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto mb-20 font-medium">
-          Evidence-based interventions designed to address the most critical socio-economic and justice needs across Bauchi State.
+          Evidence-based interventions designed to address the most critical socio-economic and justice needs across the <strong>Bauchi Diocese</strong> (Bauchi and Gombe States).
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
@@ -82,7 +82,10 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
                 <p className="text-gray-600 leading-relaxed mb-8 line-clamp-3 text-sm">
                   {prog.description}
                 </p>
-                <button className="text-sm font-black text-green-700 flex items-center gap-2 group-hover:gap-4 transition-all mt-auto">
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleProgramClick(prog); }}
+                  className="text-sm font-black text-green-700 flex items-center gap-2 group-hover:gap-4 transition-all mt-auto pointer-events-auto"
+                >
                   Learn More
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />

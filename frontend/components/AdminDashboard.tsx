@@ -191,26 +191,40 @@ const AdminDashboard: React.FC = () => {
       return;
     }
     const data = type === 'bookings' ? bookings : donations;
-    const start = new Date(dateRange.start).getTime();
-    const end = new Date(dateRange.end).getTime();
+    const start = new Date(dateRange.start);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(dateRange.end);
+    end.setHours(23, 59, 59, 999);
+
     const filtered = data.filter((item: any) => {
-      const d = new Date(item.created_at || item.date).getTime();
+      const d = new Date(item.created_at || item.date);
       return d >= start && d <= end;
     });
 
-    if (filtered.length === 0) return alert('No data for range');
+    if (filtered.length === 0) return alert('No data for selected range');
 
-    const csv = [
-      Object.keys(filtered[0]).join(','),
-      ...filtered.map((row: any) => Object.values(row).join(','))
+    // Better CSV formatting: handle commas by wrapping in quotes
+    const headers = Object.keys(filtered[0]);
+    const csvContent = [
+      headers.join(','),
+      ...filtered.map((row: any) =>
+        headers.map(header => {
+          const val = row[header];
+          const stringVal = val === null || val === undefined ? '' : String(val);
+          return `"${stringVal.replace(/"/g, '""')}"`;
+        }).join(',')
+      )
     ].join('\n');
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `jdpc_${type}_${dateRange.start}_to_${dateRange.end}.csv`;
+    a.download = `judsci_${type}_${dateRange.start}_to_${dateRange.end}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   return (

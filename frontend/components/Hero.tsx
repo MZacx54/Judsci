@@ -22,7 +22,7 @@ const Hero: React.FC<HeroProps> = ({ onExplore, onDonate }) => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
         <div className="max-w-4xl">
           <div className="inline-block mb-4 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-green-300 font-bold tracking-widest uppercase text-sm animate-fade-in-up">
-            Justice Development and Peace Committee
+            Justice Development and Social Cohesion Initiative (JUDSCI) Bauchi
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 md:mb-8 tracking-tight leading-tight lg:leading-none drop-shadow-lg animate-fade-in-up delay-100">
             Building a <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Just</span> & <br className="hidden sm:block" />

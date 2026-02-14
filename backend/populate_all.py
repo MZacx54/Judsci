@@ -36,44 +36,37 @@ def populate():
         {
             "title": "Water, Sanitation and Hygiene (WASH)",
             "slug": "wash",
-            "description": "Providing safe water, VIP latrines, and hygiene training to reduce disease.",
+            "description": "Our WASH interventions focus on the provision of potable water through the construction of boreholes and wells, sensitization on sanitation and hygiene, and the construction of VIP latrines. These projects are implemented with the critical support of Misereor to improve community health and dignity.",
             "icon": "💧",
             "color": "bg-blue-500",
         },
         {
-            "title": "Peace Building & Dialogue",
+            "title": "Peace Building & Conflict Resolution",
             "slug": "peace-building",
-            "description": "Facilitating inter-religious dialogue and establishing Peace Clubs in schools.",
+            "description": "We facilitate inclusive dialogue sessions, establish interfaith peace structures, and create Peace Clubs in schools. Our goal is to foster social and religious tolerance and build lasting harmony within communities across Bauchi and Gombe States.",
             "icon": "🕊️",
             "color": "bg-green-600",
         },
         {
-            "title": "Good Governance",
-            "slug": "good-governance",
-            "description": "Legislative advocacy and civic participation for transparent leadership.",
-            "icon": "⚖️",
-            "color": "bg-purple-600",
-        },
-        {
-            "title": "Women & Youth Empowerment",
-            "slug": "empowerment",
-            "description": "Skills acquisition and economic resilience for vulnerable groups.",
-            "icon": "👩‍🚀",
-            "color": "bg-orange-500",
-        },
-        {
             "title": "Sustainable Agriculture",
             "slug": "agriculture",
-            "description": "Promoting climate-smart farming and eco-friendly alternatives like briquettes.",
+            "description": "We promote sustainable agricultural practices to improve food security and economic resilience for local farmers. Our initiatives provide training on modern techniques and support communities in adapting to environmental changes for long-term sustainability.",
             "icon": "🌱",
             "color": "bg-emerald-600",
         },
         {
-            "title": "Prison Ministry",
-            "slug": "prison-ministry",
-            "description": "Legal aid and psychosocial support for inmates and their families.",
-            "icon": "🔓",
-            "color": "bg-gray-600",
+            "title": "Women and Youth Empowerment",
+            "slug": "empowerment",
+            "description": "Empowering women and youth through vocational skills training, entrepreneurship development, and advocacy for inclusion. We focus on building the capacity of vulnerable groups to achieve economic independence and active participation in society.",
+            "icon": "👩‍🚀",
+            "color": "bg-orange-500",
+        },
+        {
+            "title": "Prison Apostolate",
+            "slug": "prison-apostolate",
+            "description": "We advocate for the rights and dignity of inmates by providing legal aid services, welfare support, and spiritual guidance. Our mission is to promote justice and human rights within the correctional facilities across the Bauchi Diocese.",
+            "icon": "⚖️",
+            "color": "bg-red-600",
         },
     ]
 
@@ -86,118 +79,54 @@ def populate():
     
     news_items = [
         {
-            "title": "Enhancing Climate Resilience through WASH and Eco-Energy",
-            "slug": "climate-resilience-project",
-            "category": "Projects",
-            "summary": "To enhance community resilience and adaptive capacity to climate change through the integration of water, sanitation, hygiene (WASH), and eco-energy solutions.",
-            "body": """<strong>Project Goal</strong>
-To enhance community resilience and adaptive capacity to climate change through the integration of water, sanitation, hygiene (WASH), briquette production and strengthened psychosocial support systems in Five (5) Local Government Areas of Bauchi Diocese.
-
-<strong>Background</strong>
-In many communities across Bauchi and Gombe States, daily life is shaped by hardship, uncertainty, and a lack of basic services. Families struggle with limited access to clean water, decent sanitation, and reliable sources of income. For women and children in particular, the burden is heavy, walking long distances for water, coping with poor hygiene conditions, and living with the constant risk of waterborne diseases.
-
-The situation is made worse by a changing climate. Rains no longer come as expected, dry seasons last longer, and the land does not produce as it once did. Many smallholder farmers, already vulnerable, are losing their main source of food and income.
-
-<strong>Key Components:</strong>
-<ul>
-<li>Climate change adaptation through sustainable water access</li>
-<li>Promotion of eco-energy solutions, including community-based briquette production</li>
-<li>Promotion of sanitation and hygiene through community-led approaches</li>
-<li>Psychosocial support through trauma-informed care and safe spaces</li>
-</ul>""",
-            "image": "sustainable_agric.jpg",
-            "author": "JDPC Admin"
-        },
-        {
-            "title": "Restoring Health and Dignity in Rijin Gani",
+            "title": "Restoring Health and Dignity through Potable Water in Rijin Gani",
             "slug": "rijin-gani-water-success",
             "category": "Success Stories",
-            "summary": "How a community gained reliable access to safe drinking water and eliminated waterborne diseases through JDPC intervention.",
-            "body": """<strong>Problem</strong>
-In Rijin Gani community of Bauchi State, women and children relied on unsafe surface water, leading to frequent waterborne diseases and long hours spent fetching water, especially during the dry season.
+            "summary": "How a community gained reliable access to safe drinking water and eliminated waterborne diseases through JUDSCI's intervention.",
+            "body": """In Rijin Gani community of Bauchi Diocese, women and children long relied on unsafe surface water, leading to frequent waterborne diseases and long hours spent fetching water, especially during the dry season. The lack of reliable access to clean water was a major barrier to the community's development and health.
 
-<strong>Intervention</strong>
-JDPC Bauchi facilitated community consultations, supported the construction of 2 VIP Latrines and a borehole, and also trained a Water, Sanitation and Hygiene Committee (WASHCOM) to manage maintenance, tariffs, and accountability.
+To address this, JUDSCI Bauchi, with the critical support of Misereor, facilitated community consultations and constructed a motorized borehole along with two VIP latrines. We also trained a Water, Sanitation and Hygiene Committee (WASHCOM) to manage maintenance, tariffs, and accountability, ensuring the project's long-term sustainability.
 
-<strong>Result</strong>
-<ul>
-<li>Over 350 households gained reliable access to safe drinking water</li>
-<li>Cases of water-related illnesses reported at the primary health center reduced</li>
-<li>Women saved time and energy for farming and income-generating activities</li>
-</ul>
-
-<em>“Before, our children were always sick. Now we drink clean water, and we are not afraid anymore.”</em> — Community woman leader""",
+The result has been transformative. Over 350 households now have reliable access to safe drinking water, and cases of water-related illnesses reported at the primary health center have significantly reduced. Women have saved vital time and energy, which they now invest in farming and other income-generating activities. As one community woman leader shared: “Before, our children were always sick. Now we drink clean water, and we are not afraid anymore.”""",
             "image": "Borehole Commissioning Pictures (49).JPG.jpeg",
-            "author": "JDPC Media Team"
+            "author": "JUDSCI Media Team"
         },
         {
-            "title": "Bridging Divides through Dialogue",
+            "title": "Bridging Divides through Dialogue and Interfaith Cooperation",
             "slug": "peace-building-dialogue",
             "category": "Peace Building",
-            "summary": "Strengthening interfaith collaboration and community trust through inclusive dialogue sessions.",
-            "body": """<strong>Problem</strong>
-Some communities faced low trust, weak collaboration, and lingering tensions that affected collective development efforts.
+            "summary": "Strengthening interfaith collaboration and community trust through inclusive dialogue sessions across the Diocese.",
+            "body": """Many communities across Bauchi and Gombe States have faced challenges with low trust and weak collaboration, which often hindered collective development efforts. Lingering tensions between different groups sometimes affected the peace and stability needed for progress.
 
-<strong>Intervention</strong>
-JDPC facilitated inclusive dialogue sessions, strengthened interfaith and community structures, and integrated peace and accountability principles into WASH activities.
+JUDSCI Bauchi intervened by facilitating inclusive dialogue sessions and strengthening interfaith and community structures. We integrated peace and accountability principles into all our field activities, ensuring that every project served as a bridge between groups rather than a point of contention.
 
-<strong>Result</strong>
-<ul>
-<li>Improved cooperation among religious and community leaders</li>
-<li>Joint decision-making on shared resources</li>
-<li>Renewed trust between communities and implementing partners</li>
-</ul>
-
-<em>“JDPC did not just bring projects; they brought us together and listened to us.”</em> — Chief Imam of the community""",
+Today, there is improved cooperation among religious and community leaders, and joint decision-making on shared resources has become a standard practice. The renewed trust between communities and implementing partners has laid the groundwork for further development. “JUDSCI did not just bring projects; they brought us together and listened to us,” noted a Chief Imam from one of the beneficiary communities.""",
             "image": "GSS Bogoro LGA Peace Club members (24).JPG.jpeg",
-            "author": "JDPC Peace Desk"
+            "author": "JUDSCI Peace Desk"
         },
         {
-            "title": "Community-Led Sanitation Success",
+            "title": "Community-Led Sanitation: A Path to Better Health",
             "slug": "sanitation-success",
             "category": "WASH",
             "summary": "Eliminating open defecation and promoting hygiene through community ownership and behavior change.",
-            "body": """<strong>Problem</strong>
-Open defecation and poor hygiene practices were common, contributing to disease outbreaks and environmental degradation.
+            "body": """Open defecation and poor hygiene practices were once common in several rural communities, contributing to frequent disease outbreaks and environmental degradation. These issues affected the overall quality of life and put children at high risk of preventable illnesses.
 
-<strong>Intervention</strong>
-JDPC supported the construction of VIP latrines, conducted hygiene promotion sessions, and worked with community leaders to promote behavior change using participatory methods.
+In response, JUDSCI supported the construction of VIP latrines and conducted extensive hygiene promotion sessions. Our approach focused on behavior change using participatory methods, working closely with community leaders to instill a sense of ownership over hygiene standards.
 
-<strong>Result</strong>
-<ul>
-<li>Households adopted improved sanitation practices</li>
-<li>Increased hand-washing and safer waste disposal</li>
-<li>Stronger community ownership of hygiene standards</li>
-</ul>
-
-<em>“We now understand that sanitation is everyone’s responsibility. Our environment is cleaner, and our children are healthier.”</em> — Youth leader""",
+The impact has been profound as households have widely adopted improved sanitation practices. There is a marked increase in hand-washing and safer waste disposal, leading to cleaner environments and healthier families. A youth leader remarked, “We now understand that sanitation is everyone’s responsibility. Our environment is cleaner, and our children are healthier.”""",
             "image": "Borehole Commissioning Pictures (44).JPG.jpeg",
-            "author": "JDPC WASH Team"
+            "author": "JUDSCI WASH Team"
         },
         {
-            "title": "Empowering Women and Youth",
+            "title": "Empowering Women and Youth for Economic Resilience",
             "slug": "women-youth-empowerment-news",
             "category": "Empowerment",
             "summary": "Skills acquisition and economic resilience programs for vulnerable groups across Bauchi and Gombe.",
-            "body": """<strong>Our Approach</strong>
-We focus on the vulnerable and marginalized groups, providing skills acquisition and economic resilience training. Our goal is to empower communities towards self-reliance.
+            "body": """Our approach to empowerment focuses on the most vulnerable and marginalized groups in our society. We provide targeted skills acquisition and economic resilience training to help people achieve self-reliance and dignity.
 
-<strong>Impact</strong>
-Through our various interventions, women have gained financial independence through small businesses, and youth have been engaged in productive peace clubs and vocational training, reducing idleness and susceptibility to radicalization.""",
+Through JUDSCI's various interventions, many women have gained financial independence by starting small businesses, and youth have been actively engaged in productive peace clubs and vocational training. This reduction in idleness and increase in opportunity has made communities more resilient and less susceptible to radicalization.""",
             "image": "IMG_1849.JPG.jpeg",
-            "author": "JDPC Admin"
-        },
-         {
-            "title": "Promoting Good Governance",
-            "slug": "good-governance-advocacy",
-            "category": "Governance",
-            "summary": "Legislative advocacy and civic participation for transparent leadership and accountability.",
-            "body": """<strong>Activities</strong>
-Our Legislative advocacy project and Promoting good governance project aim to increase civic participation. We value accountability and transparency based on responsibility entrusted to us.
-
-We work to ensure that government policies align with the needs of the people, fostering a society where justice and equity prevail.""",
-            "image": "IMG_1843.JPG.jpeg",
-            "author": "JDPC Admin"
+            "author": "JUDSCI Admin"
         }
     ]
 
@@ -220,10 +149,9 @@ We work to ensure that government policies align with the needs of the people, f
     image_map = {
         'wash': 'Borehole Commissioning Pictures (49).JPG.jpeg',
         'peace-building': 'GSS Bogoro LGA Peace Club members (24).JPG.jpeg',
-        'good-governance': 'IMG_1843.JPG.jpeg',
-        'empowerment': 'IMG_1849.JPG.jpeg',
         'agriculture': 'sustainable_agric.jpg', 
-        'prison-ministry': 'IMG_20250909_093607.jpg.jpeg'
+        'empowerment': 'IMG_1849.JPG.jpeg',
+        'prison-apostolate': 'IMG_20250909_093607.jpg.jpeg'
     }
 
     for slug, filename in image_map.items():

@@ -1,14 +1,11 @@
 import React from 'react';
 
 const PARTNERS = [
-    { name: 'MISEREOR', category: 'International', logo: '🤝' },
-    { name: 'Catholic Relief Services', category: 'International', logo: '✝️' },
-    { name: 'USAID', category: 'International', logo: '🇺🇸' },
-    { name: 'European Union', category: 'International', logo: '🇪🇺' },
-    { name: 'British High Commission', category: 'International', logo: '🇬🇧' },
-    { name: 'ActionAid', category: 'International', logo: '🌍' },
+    { name: 'Misereor', category: 'International', logo: '🤝' },
+    { name: 'Catholic Relief Services (CRS)', category: 'International', logo: '✝️' },
     { name: 'Caritas Nigeria', category: 'Local', logo: '🕊️' },
-    { name: 'NHRC Nigeria', category: 'Local', logo: '⚖️' },
+    { name: 'JDPH', category: 'Local', logo: '🏠' },
+    { name: 'Pharos Observatoire', category: 'International', logo: '🔭' },
 ];
 
 interface PartnersListProps {
@@ -62,7 +59,7 @@ const PartnersList: React.FC<PartnersListProps> = ({ onInquire }) => {
 
                 <div className="mt-20 text-center">
                     <p className="text-gray-500 max-w-2xl mx-auto mb-8 font-medium italic">
-                        "JDPC works with communities across Bauchi and Gombe States, reaching all people irrespective of religion, ethnicity, or political affiliation."
+                        "JUDSCI works with communities across Bauchi and Gombe States, reaching all people irrespective of religion, ethnicity, or political affiliation."
                     </p>
                     <button
                         onClick={onInquire}

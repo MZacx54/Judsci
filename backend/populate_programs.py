@@ -8,55 +8,47 @@ django.setup()
 
 from core.models import Program
 
-# Define programs based on the ABOUT US doc
+# Define programs based on owner's required arrangement and updated descriptions
 programs_data = [
     {
         'title': 'Water, Sanitation and Hygiene (WASH)',
-        'description': 'Provision of potable water, sensitization on sanitation and hygiene, and construction of VIP Latrines.',
+        'description': 'Our WASH interventions focus on the provision of potable water through the construction of boreholes and wells, sensitization on sanitation and hygiene, and the construction of VIP latrines. These projects are implemented with the critical support of Misereor to improve community health and dignity.',
         'icon': '🚰',
         'color': 'bg-sky-500',
-        'image_src': 'Borehole Commissioning Pictures (49).JPG.jpeg' # Mapping to best image
+        'image_src': 'Borehole Commissioning Pictures (49).JPG.jpeg' 
     },
     {
         'title': 'Peace Building & Conflict Resolution',
-        'description': 'Facilitation of inclusive dialogue sessions, interfaith structures, and establishment of Peace Clubs in schools.',
+        'description': 'We facilitate inclusive dialogue sessions, establish interfaith peace structures, and create Peace Clubs in schools. Our goal is to foster social and religious tolerance and build lasting harmony within communities across Bauchi and Gombe States.',
         'icon': '🤝',
         'color': 'bg-blue-500',
         'image_src': 'GSS Bogoro LGA Peace Club members (30).JPG.jpeg'
     },
     {
         'title': 'Sustainable Agriculture',
-        'description': 'Promoting sustainable agriculture to support climate change adaptation and sensitization on alternative fertilizers.',
+        'description': 'We promote sustainable agricultural practices to improve food security and economic resilience for local farmers. Our initiatives provide training on modern techniques and support communities in adapting to environmental changes for long-term sustainability.',
         'icon': '🌱',
         'color': 'bg-green-500',
-        # No direct image name matched, using a generic field one based on list
         'image_src': 'IMG-20250906-WA0032.jpg.jpeg' 
     },
     {
-        'title': 'Good Governance & Advocacy',
-        'description': 'Legislative advocacy aimed at promoting transparency, accountability, and the rule of law.',
+        'title': 'Women and Youth Empowerment',
+        'description': 'Empowering women and youth through vocational skills training, entrepreneurship development, and advocacy for inclusion. We focus on building the capacity of vulnerable groups to achieve economic independence and active participation in society.',
+        'icon': '👩‍👩‍👧‍👦',
+        'color': 'bg-purple-500',
+        'image_src': 'IMG-20250906-WA0085.jpg.jpeg'
+    },
+    {
+        'title': 'Prison Apostolate',
+        'description': 'We advocate for the rights and dignity of inmates by providing legal aid services, welfare support, and spiritual guidance. Our mission is to promote justice and human rights within the correctional facilities across the Bauchi Diocese.',
         'icon': '⚖️',
         'color': 'bg-red-500',
-        'image_src': 'IMG_1843.JPG.jpeg' # Placeholder for governance
-    },
-    {
-        'title': 'Psychosocial Support',
-        'description': 'Facilitation of safe spaces for psychosocial support and trauma healing for vulnerable populations.',
-        'icon': '❤️',
-        'color': 'bg-purple-500',
-        'image_src': 'IMG-20250906-WA0085.jpg.jpeg' # Placeholder
-    },
-    {
-        'title': 'Eco-Energy Solutions',
-        'description': 'Promotion of eco-energy solutions including community-based briquette production.',
-        'icon': '🔥',
-        'color': 'bg-orange-500',
-        'image_src': 'IMG-20250906-WA0040.jpg.jpeg'
+        'image_src': 'IMG_1843.JPG.jpeg' # Corrected image reference for justice/prison
     }
 ]
 
 # Source directory for images
-SOURCE_DIR = '../assets/Images'
+SOURCE_DIR = 'assets/Images'
 MEDIA_ROOT = 'media/programs'
 
 def run():

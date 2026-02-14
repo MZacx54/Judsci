@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config';
 
 import { usePaystackPayment } from 'react-paystack';
@@ -9,6 +9,17 @@ const DonorHub: React.FC = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [reportUrl, setReportUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(API_ENDPOINTS.RESOURCES)
+      .then(res => res.json())
+      .then(data => {
+        const report = data.find((r: any) => r.title.includes('2023'));
+        if (report) setReportUrl(report.file);
+      })
+      .catch(console.error);
+  }, []);
 
   const amounts = ['1000', '5000', '10000', '25000', '50000'];
 
@@ -66,7 +77,7 @@ const DonorHub: React.FC = () => {
       alert("Please enter your email address.");
       return;
     }
-    initializePayment(onSuccess as any, onClose);
+    initializePayment({ onSuccess: onSuccess as any, onClose });
   };
 
   return (
@@ -115,12 +126,11 @@ const DonorHub: React.FC = () => {
                 className="w-full px-4 py-4 rounded-2xl border border-gray-200 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all font-medium bg-white appearance-none cursor-pointer"
               >
                 <option value="GENERAL">General Fund (Greatest Need)</option>
-                <option value="WASH">Clean Water & Hygiene (WASH)</option>
-                <option value="PEACE">Peace Building & Dialogue</option>
-                <option value="GOVERNANCE">Good Governance Advocacy</option>
-                <option value="EMP">Women & Youth Empowerment</option>
+                <option value="WASH">Water, Sanitation and Hygiene (WASH)</option>
+                <option value="PEACE">Peace Building & Conflict Resolution</option>
                 <option value="AGRIC">Sustainable Agriculture</option>
-                <option value="LEGAL">Legal Aid & Prison Ministry</option>
+                <option value="EMP">Women and Youth Empowerment</option>
+                <option value="LEGAL">Prison Apostolate & Legal Aid</option>
               </select>
             </div>
 
@@ -174,18 +184,19 @@ const DonorHub: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Account Name</p>
-                  <p className="font-bold">JDPC BAUCHI</p>
+                  <p className="font-bold">JUDSCI BAUCHI</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Currency (USD)</p>
+                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Currency (USD) *</p>
                     <p className="font-mono font-bold tracking-tighter">5071192809</p>
                   </div>
                   <div>
-                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Currency (NGN)</p>
+                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Currency (NGN) *</p>
                     <p className="font-mono font-bold tracking-tighter">1014167683</p>
                   </div>
                 </div>
+                <p className="text-[10px] text-green-400 italic">* Please verify account details with our office before making large wire transfers.</p>
                 <div className="pt-4 border-t border-white/10">
                   <p className="text-green-200 italic leading-relaxed">
                     For International SWIFT/IBAN details, please contact our team at <strong>judscib@gmail.com</strong>
@@ -197,11 +208,15 @@ const DonorHub: React.FC = () => {
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-4">Financial Transparency</h3>
               <p className="text-gray-500 text-sm mb-6">We are committed to full accountability. View our audited financial and narrative reports.</p>
-              <button className="w-full py-4 border-2 border-gray-100 rounded-2xl text-green-700 font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+              <button
+                onClick={() => reportUrl && window.open(reportUrl, '_blank')}
+                disabled={!reportUrl}
+                className="w-full py-4 border-2 border-gray-100 rounded-2xl text-green-700 font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                2023 Narrative Report
+                {reportUrl ? '2023 Narrative Report' : 'Report Loading...'}
               </button>
             </div>
           </div>

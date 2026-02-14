@@ -34,8 +34,8 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
       }`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => onNavigate(AppSection.HOME)}>
-          <img src={logo} alt="JDPC Bauchi" className="h-12 w-auto object-contain" />
-          <span className="text-xl font-bold text-gray-900 hidden sm:block">JDPC <span className="text-green-700">Bauchi</span></span>
+          <img src={logo} alt="JUDSCI Bauchi" className="h-12 w-auto object-contain" />
+          <span className="text-xl font-bold text-gray-900 hidden sm:block">JUDSCI <span className="text-green-700">Bauchi</span></span>
         </div>
 
         {/* Desktop Nav */}

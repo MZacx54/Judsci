@@ -13,13 +13,13 @@ const AboutSection: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
                     <div className="space-y-6 text-lg text-gray-600 leading-relaxed font-medium animate-fade-in-up delay-100">
                         <p>
-                            <strong className="text-gray-900">The Justice Development and Peace Commission (JDPC)</strong> of the Catholic Diocese of Bauchi is mandated to promote justice, peace, and integral human development. Established as the policy-making body for the Diocese’s social programs, we operate under the direct authority of the Bishop.
+                            <strong className="text-gray-900">The Justice Development and Social Cohesion Initiative (JUDSCI) Bauchi</strong> (also known as JDPC Bauchi) of the Catholic Diocese of Bauchi is mandated to promote justice, peace, and integral human development. Established as the policy-making body for the Diocese’s social programs, we operate under the direct authority of the Bishop.
                         </p>
                         <p>
-                            Started in 2003 and registered with the <strong>CAC in 2016 (JUDSCI - No. 90258)</strong>, we work across Bauchi and Gombe States. We reach all people irrespective of religion or ethnicity, focusing on the vulnerable.
+                            Started in 2003 and registered with the <strong>CAC in 2016 (JUDSCI - No. 90258)</strong>, we work across the <strong>Bauchi Diocese</strong> which comprises both <strong>Bauchi and Gombe States</strong>. We reach all people irrespective of religion or ethnicity, focusing on the vulnerable.
                         </p>
                         <p>
-                            Guided by Catholic Social Teachings, interventions include WASH, Peace Building, Good Governance, and Sustainable Agriculture.
+                            Guided by Catholic Social Teachings, our interventions include WASH, Peace Building, Good Governance, Sustainable Agriculture, and <strong>Prison Apostolate</strong>.
                         </p>
                         <div className="flex gap-4 pt-4">
                             <div className="px-6 py-3 bg-green-50 rounded-xl border border-green-100">

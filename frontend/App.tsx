@@ -117,12 +117,11 @@ const AppContent: React.FC = () => {
         {renderContent()}
       </div>
       <footer className="bg-gray-900 text-white py-12 px-4">
-        {/* ... (Footer content same as before) */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold text-green-500 mb-4">JDPC Bauchi</h3>
+            <h3 className="text-2xl font-bold text-green-500 mb-4">JUDSCI Bauchi</h3>
             <p className="text-gray-400 max-w-sm">
-              Promoting Justice, Development, and Peace in Bauchi State through sustainable community interventions and advocacy.
+              Justice Development and Social Cohesion Initiative (JUDSCI) Bauchi (also known as JDPC Bauchi). Promoting justice, development, and peace in the <strong>Bauchi Diocese</strong> (Bauchi and Gombe States).
             </p>
           </div>
           <div>
@@ -144,7 +143,7 @@ const AppContent: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} JDPC Bauchi. All Rights Reserved.
+          &copy; {new Date().getFullYear()} JUDSCI Bauchi. All Rights Reserved.
           <div className="mt-2 text-xs text-gray-600">
             Designed and Developed by <a href="https://g.co/kgs/jJdzmHp" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-green-600 transition-colors">Zacx Digital Agency</a>
           </div>
