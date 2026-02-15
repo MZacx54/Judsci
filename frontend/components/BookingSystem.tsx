@@ -88,22 +88,22 @@ const BookingSystem: React.FC = () => {
           setFormData({ name: '', email: '', phone: '', reason: '' });
         }, 5000);
       } else {
-        // Handle specific validation errors from DRF
-        let errorMessage = "Failed to schedule appointment.";
+        // Detailed diagnostic logging for production debugging
+        console.error(`[JUDSCI Booking Error] Status: ${res.status} ${res.statusText}`);
+        console.error(`[JUDSCI Booking Error] Body:`, data);
 
+        let errorMessage = "Failed to schedule appointment.";
         if (data && typeof data === 'object') {
-          // Flatten error messages from DRF (which returns arrays of errors per field or non_field_errors)
           const errors = Object.values(data).flat();
           if (errors.length > 0) {
             errorMessage = String(errors[0]);
           }
         }
-
-        alert(errorMessage);
+        alert(`${errorMessage} (Status: ${res.status})`);
       }
     } catch (err) {
-      console.error("Booking failed:", err);
-      alert("An network error occurred. Please check your internet connection and try again.");
+      console.error("[JUDSCI Booking Network Error]:", err);
+      alert("A network error occurred. This could be due to slow connection or server timeout. Please try again or contact us directly if the problem persists.");
     } finally {
       setLoading(false);
     }

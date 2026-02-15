@@ -3,6 +3,16 @@ from django.conf import settings
 from rest_framework import viewsets, permissions
 from .models import Appointment
 from .serializers import AppointmentSerializer
+import threading
+
+def send_async_email(subject, message, recipient_list):
+    """Utility to send emails in a background thread to avoid blocking the main request."""
+    email_thread = threading.Thread(
+        target=send_mail,
+        args=(subject, message, settings.EMAIL_HOST_USER, recipient_list),
+        kwargs={'fail_silently': True}
+    )
+    email_thread.start()
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     """
@@ -10,12 +20,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     """
     queryset = Appointment.objects.all().order_by('-created_at')
     serializer_class = AppointmentSerializer
-    authentication_classes = [] # Fix: Allow public creation without CSRF token
+    authentication_classes = [] # Allow public creation
     
     def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
         if self.action == 'create':
             permission_classes = [permissions.AllowAny]
         else:
@@ -25,13 +32,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         appointment = serializer.save()
         
-        # 1. Send Confirmation to User
-        try:
-            send_mail(
-                subject=f"Appointment Received: JDPC Bauchi",
-                message=f"""Dear {appointment.name},
+        # 1. Background Confirmation to User
+        user_msg = f"""Dear {appointment.name},
 
-Thank you for contacting JDPC Bauchi. Your appointment request has been received and is currently PENDING review.
+Thank you for contacting JUDSCI Bauchi. Your appointment request has been received and is currently PENDING review.
 
 Details:
 Date: {appointment.date}
@@ -41,17 +45,12 @@ Reason: {appointment.reason}
 You will receive another email once your appointment is confirmed or if we need to reschedule.
 
 Regards,
-JDPC Bauchi Team
-""",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[appointment.email],
-                fail_silently=True,
-            )
+JUDSCI Bauchi Team
+"""
+        send_async_email(f"Appointment Received: JUDSCI Bauchi", user_msg, [appointment.email])
 
-            # 2. Send Alert to Admin
-            send_mail(
-                subject=f"New Booking Request: {appointment.name}",
-                message=f"""New appointment request received.
+        # 2. Background Alert to Admin
+        admin_msg = f"""New appointment request received.
 
 Name: {appointment.name}
 Date: {appointment.date}
@@ -60,28 +59,20 @@ Reason: {appointment.reason}
 Phone: {appointment.phone}
 
 Please log in to the admin dashboard to Approve or Reject this request.
-""",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[settings.EMAIL_HOST_USER], # Send to the configured 'from' address or a specific admin email
-                fail_silently=True,
-            )
-        except Exception as e:
-            print(f"Email sending failed: {e}")
+"""
+        send_async_email(f"New Booking Request: {appointment.name}", admin_msg, [settings.EMAIL_HOST_USER])
 
     def perform_update(self, serializer):
-        # Check if status is changing
         instance = self.get_object()
         new_status = serializer.validated_data.get('status', instance.status)
-        
         appointment = serializer.save()
 
         if instance.status != new_status:
-            # Status changed, send notification
             subject = ""
             message = ""
 
             if new_status == 'CONFIRMED':
-                subject = f"Appointment Confirmed: JDPC Bauchi - {appointment.date}"
+                subject = f"Appointment Confirmed: JUDSCI Bauchi - {appointment.date}"
                 message = f"""Dear {appointment.name},
 
 Good news! Your appointment has been CONFIRMED.
@@ -89,15 +80,15 @@ Good news! Your appointment has been CONFIRMED.
 Details:
 Date: {appointment.date}
 Time: {appointment.time}
-Location: JDPC Bauchi Secretariat
+Location: JUDSCI Bauchi Secretariat
 
 We look forward to seeing you.
 
 Regards,
-JDPC Bauchi Team
+JUDSCI Bauchi Team
 """
             elif new_status == 'CANCELLED':
-                subject = f"Appointment Update: JDPC Bauchi"
+                subject = f"Appointment Update: JUDSCI Bauchi"
                 message = f"""Dear {appointment.name},
 
 We regret to inform you that we cannot accommodate your appointment request for {appointment.date} at this time.
@@ -105,17 +96,8 @@ We regret to inform you that we cannot accommodate your appointment request for 
 Please contact us directly if you would like to reschedule.
 
 Regards,
-JDPC Bauchi Team
+JUDSCI Bauchi Team
 """
 
             if subject and message:
-                try:
-                    send_mail(
-                        subject=subject,
-                        message=message,
-                        from_email=settings.EMAIL_HOST_USER,
-                        recipient_list=[appointment.email],
-                        fail_silently=True,
-                    )
-                except Exception as e:
-                    print(f"Status update email failed: {e}")
+                send_async_email(subject, message, [appointment.email])
