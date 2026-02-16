@@ -1,5 +1,5 @@
 import React from 'react';
-import bishopImg from '../assets/bishop.jpg';
+import aboutUsImg from '../assets/about-us.jpg';
 
 const AboutSection: React.FC = () => {
     return (
@@ -34,11 +34,11 @@ const AboutSection: React.FC = () => {
                     </div>
                     <div className="relative group rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-500 animate-fade-in-up delay-200 aspect-[3/4] md:aspect-[4/5]">
                         <div className="absolute inset-0 bg-green-900/0 group-hover:bg-green-900/10 transition-colors z-10"></div>
-                        <img src={bishopImg} alt="Most Rev. Dr. Hilary Nanman Dachelem" className="w-full h-full object-cover object-top" />
+                        <img src={aboutUsImg} alt="JDPC Bauchi Team" className="w-full h-full object-cover object-center" />
 
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 z-20 hidden md:block">
-                            <h3 className="text-white font-bold text-xl leading-tight">Most Rev. Dr. Hilary Nanman Dachelem, CMF</h3>
-                            <p className="text-green-300 text-sm font-medium mt-1">3rd Catholic Bishop of Bauchi Diocese</p>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 pt-24 z-20">
+                            <h3 className="text-white font-bold text-xl leading-tight">JDPC Bauchi Team</h3>
+                            <p className="text-green-300 text-sm font-medium mt-1">Promoting Justice, Peace and Development</p>
                         </div>
                     </div>
                 </div>
