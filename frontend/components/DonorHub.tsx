@@ -199,7 +199,7 @@ const DonorHub: React.FC = () => {
                 <p className="text-[10px] text-green-400 italic">* Please verify account details with our office before making large wire transfers.</p>
                 <div className="pt-4 border-t border-white/10">
                   <p className="text-green-200 italic leading-relaxed">
-                    For International SWIFT/IBAN details, please contact our team at <strong>judscib@gmail.com</strong>
+                    For International SWIFT/IBAN details, please contact our team at <strong>support@judsci.org.ng</strong>
                   </p>
                 </div>
               </div>

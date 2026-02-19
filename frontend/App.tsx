@@ -137,7 +137,7 @@ const AppContent: React.FC = () => {
             <h4 className="font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-gray-400">
               <li>St. John’s Catholic Cathedral,<br />P.O. Box 17, Bauchi.</li>
-              <li><a href="mailto:judscib@gmail.com" className="hover:text-green-500 transition-colors">judscib@gmail.com</a></li>
+              <li><a href="mailto:support@judsci.org.ng" className="hover:text-green-500 transition-colors">support@judsci.org.ng</a></li>
               <li><a href="tel:+2348138293928" className="hover:text-green-500 transition-colors">+234 813 829 3928</a></li>
             </ul>
           </div>
