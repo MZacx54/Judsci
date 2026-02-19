@@ -1,17 +1,32 @@
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.conf import settings
 from rest_framework import viewsets, permissions
 from .models import Appointment
 from .serializers import AppointmentSerializer
 import threading
+import logging
 
-def send_async_email(subject, message, recipient_list):
-    """Utility to send emails in a background thread to avoid blocking the main request."""
-    email_thread = threading.Thread(
-        target=send_mail,
-        args=(subject, message, settings.EMAIL_HOST_USER, recipient_list),
-        kwargs={'fail_silently': True}
-    )
+logger = logging.getLogger(__name__)
+
+def send_async_email(subject, body, to_email, reply_to=None):
+    """
+    Sends an email in a background thread with logging and proper headers.
+    """
+    def _send():
+        try:
+            email = EmailMessage(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=to_email,
+                reply_to=reply_to
+            )
+            email.send(fail_silently=False)
+            logger.info(f"Email sent successfully to {to_email}")
+        except Exception as e:
+            logger.error(f"Failed to send email to {to_email}: {str(e)}")
+
+    email_thread = threading.Thread(target=_send)
     email_thread.start()
 
 class AppointmentViewSet(viewsets.ModelViewSet):
@@ -47,7 +62,13 @@ You will receive another email once your appointment is confirmed or if we need 
 Regards,
 JUDSCI Bauchi Team
 """
-        send_async_email(f"Appointment Received: JUDSCI Bauchi", user_msg, [appointment.email])
+        # Reply-To set to support email so user replies go to admin
+        send_async_email(
+            subject="Appointment Received: JUDSCI Bauchi", 
+            body=user_msg, 
+            to_email=[appointment.email],
+            reply_to=[settings.EMAIL_HOST_USER]
+        )
 
         # 2. Background Alert to Admin
         admin_msg = f"""New appointment request received.
@@ -57,10 +78,17 @@ Date: {appointment.date}
 Time: {appointment.time}
 Reason: {appointment.reason}
 Phone: {appointment.phone}
+Email: {appointment.email}
 
 Please log in to the admin dashboard to Approve or Reject this request.
 """
-        send_async_email(f"New Booking Request: {appointment.name}", admin_msg, [settings.EMAIL_HOST_USER])
+        # Reply-To set to user's email so admin can hit reply to contact user
+        send_async_email(
+            subject=f"New Booking Request: {appointment.name}", 
+            body=admin_msg, 
+            to_email=[settings.EMAIL_HOST_USER],
+            reply_to=[appointment.email]
+        )
 
     def perform_update(self, serializer):
         instance = self.get_object()
@@ -100,4 +128,9 @@ JUDSCI Bauchi Team
 """
 
             if subject and message:
-                send_async_email(subject, message, [appointment.email])
+                send_async_email(
+                    subject=subject, 
+                    body=message, 
+                    to_email=[appointment.email],
+                    reply_to=[settings.EMAIL_HOST_USER]
+                )
