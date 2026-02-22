@@ -30,10 +30,38 @@ class AdminDashboardStatsView(APIView):
         # 3. Active Programs
         active_programs = Program.objects.count()
 
+        # 4. Recent Activity (Latest 5 Bookings and 5 Donations)
+        recent_bookings = Appointment.objects.all().order_by('-created_at')[:5]
+        recent_donations = Donation.objects.filter(status='SUCCESS').order_by('-created_at')[:5]
+
+        activity = []
+        for b in recent_bookings:
+            activity.append({
+                "id": f"b-{b.id}",
+                "type": "booking",
+                "title": f"New Request: {b.name}",
+                "timestamp": b.created_at.isoformat(),
+                "status": b.status,
+                "amount": None
+            })
+        for d in recent_donations:
+            activity.append({
+                "id": f"d-{d.id}",
+                "type": "donation",
+                "title": f"Donation: {d.email}",
+                "timestamp": d.created_at.isoformat(),
+                "status": "SUCCESS",
+                "amount": float(d.amount)
+            })
+        
+        # Sort combined activity by timestamp descending
+        activity.sort(key=lambda x: x['timestamp'], reverse=True)
+
         return Response({
             "pendingBookings": int(pending_bookings),
             "monthlyDonations": monthly_donations,
             "activePrograms": int(active_programs),
+            "recentActivity": activity[:5],
             "timestamp": timezone.now().isoformat(),
             "status": "success"
         })

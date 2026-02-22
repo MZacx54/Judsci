@@ -12,7 +12,8 @@ const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
     pendingBookings: 0,
     monthlyDonations: 0,
-    activePrograms: 0
+    activePrograms: 0,
+    recentActivity: [] as any[]
   });
   const [isLoading, setIsLoading] = useState(true);
   const { token, logout, refreshAccessToken } = useAuth();
@@ -288,24 +289,47 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 mb-10">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                  <h3 className="text-xl font-black tracking-tight mb-2">Export Data</h3>
-                  <p className="text-sm text-gray-500 font-medium">Download CSV reports for audits or donor updates.</p>
-                </div>
-                <div className="flex flex-wrap items-end gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+              <div className="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Range</label>
+                    <h3 className="text-xl font-black tracking-tight mb-2">Export Reports</h3>
+                    <p className="text-sm text-gray-500 font-medium">Download CSV data for audits or donor updates.</p>
+                  </div>
+                  <div className="flex flex-wrap items-end gap-3">
+                    <div>
+                      <input type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} className="px-3 py-2 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-green-500 outline-none" />
+                      <input type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} className="px-3 py-2 border border-gray-100 rounded-xl text-xs font-bold ml-2 focus:ring-2 focus:ring-green-500 outline-none" />
+                    </div>
                     <div className="flex gap-2">
-                      <input type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-green-500 outline-none" />
-                      <input type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} className="px-4 py-2 border border-gray-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-green-500 outline-none" />
+                      <button onClick={() => handleExport('bookings')} className="px-5 py-2 bg-black text-white rounded-xl text-[10px] font-black hover:bg-gray-800">Bookings</button>
+                      <button onClick={() => handleExport('donations')} className="px-5 py-2 bg-green-700 text-white rounded-xl text-[10px] font-black hover:bg-green-800">Donations</button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleExport('bookings')} className="px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-black hover:bg-black transition-all">Export Bookings</button>
-                    <button onClick={() => handleExport('donations')} className="px-6 py-2 bg-green-700 text-white rounded-xl text-xs font-black hover:bg-green-800 transition-all">Export Donations</button>
-                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden">
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Recent Activity</h3>
+                <div className="space-y-4">
+                  {stats.recentActivity.length > 0 ? stats.recentActivity.map((act: any) => (
+                    <div key={act.id} className="flex gap-4 items-start pb-4 border-b border-gray-50 last:border-0 last:pb-0">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs shadow-sm bg-gray-50`}>
+                        {act.type === 'booking' ? '📅' : '💰'}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="text-xs font-black text-gray-900 leading-tight">{act.title}</div>
+                        <div className="flex justify-between items-center mt-1">
+                          <div className="text-[10px] font-bold text-gray-400">{new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                          <div className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase ${act.status === 'PENDING' ? 'bg-yellow-50 text-yellow-600' :
+                              act.status === 'SUCCESS' || act.status === 'CONFIRMED' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                            }`}>{act.status}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="text-xs text-center text-gray-400 italic py-4">No recent activity</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -345,36 +369,23 @@ const AdminDashboard: React.FC = () => {
                               }`}>{b.status}</span>
                           </td>
                           <td className="px-8 py-6">
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
+                              <select
+                                value={b.status}
+                                onChange={(e) => handleBookingAction(b.id, e.target.value as any)}
+                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase outline-none transition-all border ${b.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                    b.status === 'CONFIRMED' ? 'bg-green-700 text-white border-transparent' :
+                                      b.status === 'RESCHEDULED' ? 'bg-blue-600 text-white border-transparent' :
+                                        'bg-gray-100 text-gray-500 border-gray-200'
+                                  }`}
+                              >
+                                <option value="PENDING">Pending</option>
+                                <option value="CONFIRMED">Confirm</option>
+                                <option value="RESCHEDULED">Reschedule</option>
+                                <option value="CANCELLED">Reject/Cancel</option>
+                              </select>
                               {b.status === 'PENDING' && (
-                                <>
-                                  <button
-                                    onClick={() => handleBookingAction(b.id, 'CONFIRMED')}
-                                    className="px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-lg hover:bg-green-800 transition-colors"
-                                  >
-                                    Confirm
-                                  </button>
-                                  <button
-                                    onClick={() => handleBookingAction(b.id, 'RESCHEDULED')}
-                                    className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors"
-                                  >
-                                    Reschedule
-                                  </button>
-                                  <button
-                                    onClick={() => handleBookingAction(b.id, 'CANCELLED')}
-                                    className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
-                                  >
-                                    Reject
-                                  </button>
-                                </>
-                              )}
-                              {b.status === 'RESCHEDULED' && (
-                                <button
-                                  onClick={() => handleBookingAction(b.id, 'CONFIRMED')}
-                                  className="px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-lg hover:bg-green-800 transition-colors"
-                                >
-                                  Confirm Final
-                                </button>
+                                <div className="text-[9px] font-black text-yellow-600 self-center animate-pulse">Action Required</div>
                               )}
                             </div>
                           </td>
