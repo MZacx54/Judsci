@@ -19,17 +19,21 @@ class AdminDashboardStatsView(APIView):
 
         # 2. Monthly Donations
         now = timezone.now()
-        monthly_donations = Donation.objects.filter(
+        donation_sum = Donation.objects.filter(
             status='SUCCESS',
             created_at__month=now.month,
             created_at__year=now.year
-        ).aggregate(total=Sum('amount'))['total'] or 0
+        ).aggregate(total=Sum('amount'))['total']
+        
+        monthly_donations = float(donation_sum) if donation_sum else 0.0
 
         # 3. Active Programs
         active_programs = Program.objects.count()
 
         return Response({
-            "pendingBookings": pending_bookings,
-            "monthlyDonations": float(monthly_donations),
-            "activePrograms": active_programs
+            "pendingBookings": int(pending_bookings),
+            "monthlyDonations": monthly_donations,
+            "activePrograms": int(active_programs),
+            "timestamp": timezone.now().isoformat(),
+            "status": "success"
         })

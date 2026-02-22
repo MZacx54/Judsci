@@ -32,30 +32,54 @@ const AdminDashboard: React.FC = () => {
         'Authorization': `Bearer ${token}`
       };
 
+      console.log('--- JDPC Admin Sync Start ---');
+      const fetchWithAuth = (url: string) => fetch(url, { headers });
+
       const [bookingsRes, donationsRes, photosRes, statsRes] = await Promise.all([
-        fetch(API_ENDPOINTS.BOOKINGS, { headers }),
-        fetch(API_ENDPOINTS.DONATIONS, { headers }),
-        fetch(API_ENDPOINTS.PHOTOS),
-        fetch(API_ENDPOINTS.ADMIN_DASHBOARD_STATS, { headers })
+        fetchWithAuth(API_ENDPOINTS.BOOKINGS).catch(() => ({ ok: false, json: () => [] })),
+        fetchWithAuth(API_ENDPOINTS.DONATIONS).catch(() => ({ ok: false, json: () => [] })),
+        fetch(API_ENDPOINTS.PHOTOS).catch(() => ({ ok: false, json: () => [] })),
+        fetchWithAuth(API_ENDPOINTS.ADMIN_DASHBOARD_STATS).catch(() => ({ ok: false, json: () => ({}) }))
       ]);
 
-      if (bookingsRes.status === 401 || donationsRes.status === 401 || statsRes.status === 401) {
+      if ((bookingsRes as any).status === 401 || (donationsRes as any).status === 401 || (statsRes as any).status === 401) {
+        console.warn('Unauthorized. Attempting token refresh...');
         const refreshed = await refreshAccessToken();
         if (refreshed) return fetchAdminData();
         return;
       }
 
-      if (bookingsRes.ok && donationsRes.ok && photosRes.ok && statsRes.ok) {
-        const bookingsData: Booking[] = await bookingsRes.json();
-        const donationsData: Donation[] = await donationsRes.json();
-        const photosData: Photo[] = await photosRes.json();
-        const statsData = await statsRes.json();
-
-        setBookings(bookingsData);
-        setDonations(donationsData);
-        setGalleryPhotos(photosData);
-        setStats(statsData);
+      // Handle Bookings
+      if (bookingsRes.ok) {
+        const data = await (bookingsRes as Response).json();
+        setBookings(data);
+      } else {
+        console.error('Failed to fetch bookings');
       }
+
+      // Handle Donations
+      if (donationsRes.ok) {
+        const data = await (donationsRes as Response).json();
+        setDonations(data);
+      } else {
+        console.error('Failed to fetch donations');
+      }
+
+      // Handle Photos
+      if (photosRes.ok) {
+        const data = await (photosRes as Response).json();
+        setGalleryPhotos(data);
+      }
+
+      // Handle Stats
+      if (statsRes.ok) {
+        const data = await (statsRes as Response).json();
+        console.log('Backend Stats Received:', data);
+        setStats(data);
+      } else {
+        console.error('Failed to fetch stats from', API_ENDPOINTS.ADMIN_DASHBOARD_STATS);
+      }
+      console.log('--- JDPC Admin Sync End ---');
     } catch (error) {
       console.error("Failed to fetch admin data:", error);
     } finally {
