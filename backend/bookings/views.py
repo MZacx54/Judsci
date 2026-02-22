@@ -49,7 +49,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     """
     queryset = Appointment.objects.all().order_by('-created_at')
     serializer_class = AppointmentSerializer
-    authentication_classes = [] # Allow public creation
     
     def get_permissions(self):
         if self.action == 'create':

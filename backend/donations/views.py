@@ -5,7 +5,6 @@ from .serializers import DonationSerializer
 class DonationViewSet(viewsets.ModelViewSet):
     queryset = Donation.objects.all().order_by('-created_at')
     serializer_class = DonationSerializer
-    authentication_classes = [] # Allow public creation without CSRF token
 
     def get_permissions(self):
         if self.action == 'create':
