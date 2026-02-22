@@ -5,6 +5,7 @@ class Appointment(models.Model):
         ('PENDING', 'Pending'),
         ('CONFIRMED', 'Confirmed'),
         ('CANCELLED', 'Cancelled'),
+        ('RESCHEDULED', 'Rescheduled'),
     ]
 
     name = models.CharField(max_length=200)

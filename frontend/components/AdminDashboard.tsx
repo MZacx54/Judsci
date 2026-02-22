@@ -92,7 +92,7 @@ const AdminDashboard: React.FC = () => {
   }, [token]);
 
   // Handle Booking Status Update
-  const handleBookingAction = async (id: number, action: 'CONFIRMED' | 'CANCELLED') => {
+  const handleBookingAction = async (id: number, action: 'CONFIRMED' | 'CANCELLED' | 'RESCHEDULED') => {
     try {
       const response = await fetch(`${API_ENDPOINTS.BOOKINGS}${id}/`, {
         method: 'PATCH',
@@ -340,16 +340,41 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-8 py-6">
                             <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase ${b.status === 'PENDING' ? 'bg-yellow-50 text-yellow-600 border border-yellow-100' :
                               b.status === 'CONFIRMED' ? 'bg-green-50 text-green-600 border border-green-100' :
-                                'bg-red-50 text-red-600 border border-red-100'
+                                b.status === 'RESCHEDULED' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                                  'bg-red-50 text-red-600 border border-red-100'
                               }`}>{b.status}</span>
                           </td>
                           <td className="px-8 py-6">
                             <div className="flex gap-2">
                               {b.status === 'PENDING' && (
                                 <>
-                                  <button onClick={() => handleBookingAction(b.id, 'CONFIRMED')} className="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-700 hover:text-white transition-all border border-green-100"> Approve </button>
-                                  <button onClick={() => handleBookingAction(b.id, 'CANCELLED')} className="p-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-700 hover:text-white transition-all border border-red-100"> Reject </button>
+                                  <button
+                                    onClick={() => handleBookingAction(b.id, 'CONFIRMED')}
+                                    className="px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-lg hover:bg-green-800 transition-colors"
+                                  >
+                                    Confirm
+                                  </button>
+                                  <button
+                                    onClick={() => handleBookingAction(b.id, 'RESCHEDULED')}
+                                    className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors"
+                                  >
+                                    Reschedule
+                                  </button>
+                                  <button
+                                    onClick={() => handleBookingAction(b.id, 'CANCELLED')}
+                                    className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                                  >
+                                    Reject
+                                  </button>
                                 </>
+                              )}
+                              {b.status === 'RESCHEDULED' && (
+                                <button
+                                  onClick={() => handleBookingAction(b.id, 'CONFIRMED')}
+                                  className="px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-lg hover:bg-green-800 transition-colors"
+                                >
+                                  Confirm Final
+                                </button>
                               )}
                             </div>
                           </td>

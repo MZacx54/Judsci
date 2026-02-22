@@ -145,6 +145,22 @@ Please contact us directly if you would like to reschedule.
 Regards,
 JUDSCI Bauchi Team
 """
+            elif new_status == 'RESCHEDULED':
+                subject = f"Appointment Rescheduled: JUDSCI Bauchi - {appointment.date}"
+                message = f"""Dear {appointment.name},
+
+Your appointment with JUDSCI Bauchi has been RESCHEDULED.
+
+New Details:
+Date: {appointment.date}
+Time: {appointment.time}
+Location: JUDSCI Bauchi Secretariat
+
+We look forward to seeing you at the new time.
+
+Regards,
+JUDSCI Bauchi Team
+"""
 
             if subject and message:
                 send_async_email(
