@@ -8,23 +8,37 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import resend
+
 def send_async_email(subject, body, to_email, reply_to=None):
     """
-    Sends an email in a background thread with logging and proper headers.
+    Sends an email in a background thread using the Resend HTTPS API.
     """
     def _send():
         try:
-            email = EmailMessage(
-                subject=subject,
-                body=body,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=to_email,
-                reply_to=reply_to
-            )
-            email.send(fail_silently=False)
-            logger.info(f"Email sent successfully to {to_email}")
+            resend.api_key = settings.RESEND_API_KEY
+            
+            # Resend requires 'from' to be formatted, typically "Name <email>"
+            # For simplicity, we just use the email set in settings
+            params = {
+                "from": settings.DEFAULT_FROM_EMAIL,
+                "to": to_email,
+                "subject": subject,
+                "html": body.replace('\n', '<br>'),
+                "text": body,
+            }
+            
+            if reply_to:
+                # Resend expects a single string or list of strings for reply_to
+                if isinstance(reply_to, list):
+                    params["reply_to"] = reply_to[0]
+                else:
+                    params["reply_to"] = reply_to
+
+            response = resend.Emails.send(params)
+            logger.info(f"Resend API success. Email sent to {to_email}. Response: {response}")
         except Exception as e:
-            logger.error(f"Failed to send email to {to_email}: {str(e)}")
+            logger.error(f"Failed to send email via Resend to {to_email}: {str(e)}")
 
     email_thread = threading.Thread(target=_send)
     email_thread.start()

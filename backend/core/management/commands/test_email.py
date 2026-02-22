@@ -15,64 +15,40 @@ class Command(BaseCommand):
         port = settings.EMAIL_PORT
         
         self.stdout.write(f"--- DIAGNOSTICS START ---")
-        self.stdout.write(f"Testing connectivity to {host}...")
+        self.stdout.write(f"Testing connectivity to Resend API...")
 
-        # 1. DNS Resolution
         try:
-            import socket
-            ip_address = socket.gethostbyname(host)
-            self.stdout.write(self.style.SUCCESS(f"✔ DNS Resolved: {host} -> {ip_address}"))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f"✘ DNS Resolution Failed: {e}"))
-            return
-
-        # 2. Socket Connection Test (Port 465)
-        self.stdout.write(f"Testing connection to {host}:465 (SSL)...")
-        try:
-            sock = socket.create_connection((host, 465), timeout=5)
-            sock.close()
-            self.stdout.write(self.style.SUCCESS(f"✔ Connection to port 465 SUCCESSFUL"))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f"✘ Connection to port 465 FAILED: {e}"))
-
-        # 3. Socket Connection Test (Port 587)
-        self.stdout.write(f"Testing connection to {host}:587 (STARTTLS)...")
-        try:
-            sock = socket.create_connection((host, 587), timeout=5)
-            sock.close()
-            self.stdout.write(self.style.SUCCESS(f"✔ Connection to port 587 SUCCESSFUL"))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f"✘ Connection to port 587 FAILED: {e}"))
-
-        self.stdout.write(f"--- DIAGNOSTICS END ---")
-        
-        # 4. Attempt Email Send
-        subject = 'Test Email from JUDSCI Bauchi'
-        body = f"""
+            import resend
+            resend.api_key = settings.RESEND_API_KEY
+            
+            if not resend.api_key or resend.api_key == 'your_resend_api_key_here':
+                self.stdout.write(self.style.ERROR(f"[FAIL] RESEND_API_KEY is not configured in .env"))
+                return
+                
+            self.stdout.write(f"API Key configured. Attempting to send email to {recipient}...")
+            
+            subject = 'Test Email from JUDSCI Bauchi (via Resend API)'
+            body = f"""
 This is a test email from the JUDSCI Bauchi backend.
 
 Configuration:
-EMAIL_HOST: {settings.EMAIL_HOST}
-EMAIL_PORT: {settings.EMAIL_PORT}
-EMAIL_USE_SSL: {settings.EMAIL_USE_SSL}
-EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}
-EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}
+RESEND_API_KEY: Configured
 DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}
 
-If you received this, your email configuration is working correctly.
+If you received this, your Resend API configuration is working correctly and bypassing SMTP.
 """
-        
-        self.stdout.write(f"\nAttempting to send email to {recipient} using configured settings...")
-        
-        try:
-            email = EmailMessage(
-                subject=subject,
-                body=body,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[recipient],
-                reply_to=[settings.EMAIL_HOST_USER]
-            )
-            email.send(fail_silently=False)
-            self.stdout.write(self.style.SUCCESS(f"✔ Successfully sent test email to {recipient}"))
+            params = {
+                "from": settings.DEFAULT_FROM_EMAIL,
+                "to": [recipient],
+                "subject": subject,
+                "html": body.replace('\n', '<br>'),
+                "text": body,
+            }
+
+            response = resend.Emails.send(params)
+            self.stdout.write(self.style.SUCCESS(f"[OK] Successfully sent test email to {recipient}. Resend ID: {response.get('id')}"))
+            
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"✘ Failed to send email: {str(e)}"))
+            self.stdout.write(self.style.ERROR(f"[FAIL] Failed to send email via Resend: {str(e)}"))
+            
+        self.stdout.write(f"--- DIAGNOSTICS END ---")
