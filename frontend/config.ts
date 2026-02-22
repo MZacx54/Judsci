@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
   RESOURCES: `${API_BASE_URL}/api/resources/`,
   DONATIONS: `${API_BASE_URL}/api/donations/`,
   STATS: `${API_BASE_URL}/api/impact-stats/`,
+  ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/api/admin/dashboard-stats/`,
   PHOTOS: `${API_BASE_URL}/api/photos/`,
   TOKEN: `${API_BASE_URL}/api/token/`,
   TOKEN_REFRESH: `${API_BASE_URL}/api/token/refresh/`,

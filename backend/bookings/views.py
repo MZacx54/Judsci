@@ -85,6 +85,9 @@ JUDSCI Bauchi Team
         )
 
         # 2. Background Alert to Admin
+        admin_dashboard_url = "https://www.judsci.org.ng/#admin"
+        django_admin_url = "https://www.judsci.org.ng/admin"
+
         admin_msg = f"""New appointment request received.
 
 Name: {appointment.name}
@@ -95,12 +98,14 @@ Phone: {appointment.phone}
 Email: {appointment.email}
 
 Please log in to the admin dashboard to Approve or Reject this request.
+React Dashboard: {admin_dashboard_url}
+Django Admin: {django_admin_url}
 """
         # Reply-To set to user's email so admin can hit reply to contact user
         send_async_email(
             subject=f"New Booking Request: {appointment.name}", 
             body=admin_msg, 
-            to_email=[settings.EMAIL_HOST_USER],
+            to_email=settings.ADMIN_NOTIFICATION_EMAILS,
             reply_to=[appointment.email]
         )
 

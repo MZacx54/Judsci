@@ -212,6 +212,9 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='support@judsci.org.ng')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# Admin Notification Emails (Comma-separated in .env)
+ADMIN_NOTIFICATION_EMAILS = env.list('ADMIN_NOTIFICATION_EMAILS', default=[EMAIL_HOST_USER])
+
 # Resend API Configuration
 RESEND_API_KEY = env('RESEND_API_KEY', default='')
 # Default primary key field type

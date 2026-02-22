@@ -32,49 +32,29 @@ const AdminDashboard: React.FC = () => {
         'Authorization': `Bearer ${token}`
       };
 
-      const [bookingsRes, donationsRes, photosRes, programsRes] = await Promise.all([
+      const [bookingsRes, donationsRes, photosRes, statsRes] = await Promise.all([
         fetch(API_ENDPOINTS.BOOKINGS, { headers }),
         fetch(API_ENDPOINTS.DONATIONS, { headers }),
         fetch(API_ENDPOINTS.PHOTOS),
-        fetch(`${API_ENDPOINTS.PROGRAMS}`)
+        fetch(API_ENDPOINTS.ADMIN_DASHBOARD_STATS, { headers })
       ]);
 
-      if (bookingsRes.status === 401 || donationsRes.status === 401) {
+      if (bookingsRes.status === 401 || donationsRes.status === 401 || statsRes.status === 401) {
         const refreshed = await refreshAccessToken();
         if (refreshed) return fetchAdminData();
         return;
       }
 
-      if (bookingsRes.ok && donationsRes.ok && photosRes.ok && programsRes.ok) {
+      if (bookingsRes.ok && donationsRes.ok && photosRes.ok && statsRes.ok) {
         const bookingsData: Booking[] = await bookingsRes.json();
         const donationsData: Donation[] = await donationsRes.json();
         const photosData: Photo[] = await photosRes.json();
-        const programsData = await programsRes.json();
+        const statsData = await statsRes.json();
 
         setBookings(bookingsData);
         setDonations(donationsData);
         setGalleryPhotos(photosData);
-
-        // Stats calculation
-        const pending = bookingsData.filter(b => b.status === 'PENDING').length;
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        const monthlyTotal = donationsData
-          .filter(d => {
-            const dDate = new Date(d.created_at);
-            return d.status === 'SUCCESS' &&
-              dDate.getMonth() === currentMonth &&
-              dDate.getFullYear() === currentYear;
-          })
-          .reduce((sum, d) => sum + parseFloat(d.amount), 0);
-
-        setStats({
-          pendingBookings: pending,
-          monthlyDonations: monthlyTotal,
-          activePrograms: programsData.length
-        });
+        setStats(statsData);
       }
     } catch (error) {
       console.error("Failed to fetch admin data:", error);

@@ -43,8 +43,11 @@ from django.conf import settings
 from django.urls import re_path
 from django.views.static import serve
 
+from core.dashboard_views import AdminDashboardStatsView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/admin/dashboard-stats/', AdminDashboardStatsView.as_view(), name='admin-dashboard-stats'),
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
