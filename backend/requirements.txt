@@ -8,3 +8,5 @@ whitenoise
 gunicorn
 psycopg2-binary
 resend==2.22.0
+cloudinary
+django-cloudinary-storage

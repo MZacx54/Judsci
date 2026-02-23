@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third party apps
+    'cloudinary_storage',
+    'cloudinary',
     'rest_framework',
     'corsheaders',
 
@@ -163,14 +165,26 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 MEDIA_URL = '/media/'
+# MEDIA_ROOT is not technically used by Cloudinary storage but left for compatibility
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': env('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+}
+# Alternatively, if providing a single URL:
+if env('CLOUDINARY_URL', default=''):
+    import cloudinary
+    cloudinary.config(cloudinary_url=env('CLOUDINARY_URL'))
 
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = DEBUG # True only in debug, more restrictive in prod
