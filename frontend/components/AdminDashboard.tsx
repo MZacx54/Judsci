@@ -94,25 +94,41 @@ const AdminDashboard: React.FC = () => {
 
   // Handle Booking Status Update
   const handleBookingAction = async (id: number, action: 'CONFIRMED' | 'CANCELLED' | 'RESCHEDULED') => {
-    try {
+    const performUpdate = async (currentToken: string) => {
       const response = await fetch(`${API_ENDPOINTS.BOOKINGS}${id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${currentToken}`
         },
         body: JSON.stringify({ status: action })
       });
+      return response;
+    };
+
+    try {
+      let response = await performUpdate(token || '');
+
+      if (response.status === 401) {
+        console.warn('Booking action unauthorized. Refreshing token...');
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          const newToken = localStorage.getItem('jdpc_access_token') || '';
+          response = await performUpdate(newToken);
+        }
+      }
 
       if (response.ok) {
         setBookings(prev => prev.map(b => b.id === id ? { ...b, status: action } : b));
         alert(`Booking ${action.toLowerCase()} successfully! Email notification sent.`);
       } else {
-        throw new Error('Update failed');
+        const errData = await response.json().catch(() => ({}));
+        console.error('Update failed server response:', errData);
+        throw new Error(errData.detail || 'Update failed');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update failed:', error);
-      alert('Failed to update booking status. Session may have expired.');
+      alert(`Failed to update booking status: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -184,6 +200,13 @@ const AdminDashboard: React.FC = () => {
     } catch (error) {
       console.error('Delete failed:', error);
     }
+  };
+
+  const formatImageUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    const base = API_ENDPOINTS.PROGRAMS.split('/api/')[0];
+    return `${base}${url}`;
   };
 
   const formatCurrency = (amount: number) => {
@@ -322,7 +345,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="flex justify-between items-center mt-1">
                           <div className="text-[10px] font-bold text-gray-400">{new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                           <div className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase ${act.status === 'PENDING' ? 'bg-yellow-50 text-yellow-600' :
-                              act.status === 'SUCCESS' || act.status === 'CONFIRMED' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                            act.status === 'SUCCESS' || act.status === 'CONFIRMED' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
                             }`}>{act.status}</div>
                         </div>
                       </div>
@@ -374,9 +397,9 @@ const AdminDashboard: React.FC = () => {
                                 value={b.status}
                                 onChange={(e) => handleBookingAction(b.id, e.target.value as any)}
                                 className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase outline-none transition-all border ${b.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                                    b.status === 'CONFIRMED' ? 'bg-green-700 text-white border-transparent' :
-                                      b.status === 'RESCHEDULED' ? 'bg-blue-600 text-white border-transparent' :
-                                        'bg-gray-100 text-gray-500 border-gray-200'
+                                  b.status === 'CONFIRMED' ? 'bg-green-700 text-white border-transparent' :
+                                    b.status === 'RESCHEDULED' ? 'bg-blue-600 text-white border-transparent' :
+                                      'bg-gray-100 text-gray-500 border-gray-200'
                                   }`}
                               >
                                 <option value="PENDING">Pending</option>
@@ -416,7 +439,7 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {galleryPhotos.map(photo => (
                 <div key={photo.id} className="relative group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
-                  <img src={photo.image} alt={photo.title} className="w-full h-40 object-cover" />
+                  <img src={formatImageUrl(photo.image)} alt={photo.title} className="w-full h-40 object-cover" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
                     <button
                       onClick={() => { setCurrentPhoto(photo); setIsPhotoModalOpen(true); }}

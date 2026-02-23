@@ -75,7 +75,7 @@ const PhotoGallery: React.FC = () => {
             >
               <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
                 <img
-                  src={photo.image}
+                  src={photo.image.startsWith('http') ? photo.image : `${API_ENDPOINTS.PHOTOS.split('/api/')[0]}${photo.image}`}
                   alt={photo.title}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
