@@ -18,7 +18,7 @@ export interface ImpactStat {
 export interface Resource {
   id: string; // Django ID
   title: string;
-  type: 'Annual Report' | 'Newsletter' | 'Legal Aid' | 'Other';
+  type: 'Annual Report' | 'Newsletter' | 'Other';
   date: string;
   file: string; // URL to PDF
   cover_image?: string;

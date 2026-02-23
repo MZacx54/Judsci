@@ -2,10 +2,9 @@ from django.db import models
 
 class Resource(models.Model):
     TYPE_CHOICES = [
-        ('Annual Report', 'Annual Report'),
-        ('Newsletter', 'Newsletter'),
-        ('Legal Aid', 'Legal Aid'),
-        ('Other', 'Other'),
+        ('ANNUAL_REPORT', 'Annual Report'),
+        ('NEWSLETTER', 'Newsletter'),
+        ('OTHER', 'Other'),
     ]
 
     title = models.CharField(max_length=200)

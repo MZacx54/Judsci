@@ -43,8 +43,8 @@ const ResourceLibrary: React.FC = () => {
             <button
               onClick={() => setActiveTab('publications')}
               className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${activeTab === 'publications'
-                  ? 'bg-green-700 text-white shadow-md'
-                  : 'text-gray-500 hover:text-green-700'
+                ? 'bg-green-700 text-white shadow-md'
+                : 'text-gray-500 hover:text-green-700'
                 }`}
             >
               Publications
@@ -52,8 +52,8 @@ const ResourceLibrary: React.FC = () => {
             <button
               onClick={() => setActiveTab('gallery')}
               className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${activeTab === 'gallery'
-                  ? 'bg-green-700 text-white shadow-md'
-                  : 'text-gray-500 hover:text-green-700'
+                ? 'bg-green-700 text-white shadow-md'
+                : 'text-gray-500 hover:text-green-700'
                 }`}
             >
               Photo Gallery
@@ -75,7 +75,7 @@ const ResourceLibrary: React.FC = () => {
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">🔍</span>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {['All', 'Annual Report', 'Newsletter', 'Legal Aid'].map(f => (
+                {['All', 'Annual Report', 'Newsletter', 'Other'].map(f => (
                   <button
                     key={f}
                     onClick={() => setFilter(f)}

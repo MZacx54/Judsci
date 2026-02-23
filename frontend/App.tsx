@@ -22,31 +22,35 @@ const AppContent: React.FC = () => {
   const [selectedStory, setSelectedStory] = useState<BlogPost | null>(null);
   const { isAuthenticated } = useAuth();
 
-  React.useEffect(() => {
-    const handleHashChange = () => {
-      // Check for path based admin access first (Vercel fallback)
-      if (window.location.pathname.startsWith('/admin')) {
-        window.location.href = 'https://judsci-production-b036.up.railway.app' + window.location.pathname;
-        return;
-      }
+  const navigate = (section: AppSection) => {
+    setActiveSection(section);
+    const path = section === AppSection.HOME ? '/' : `/${section}`;
+    window.history.pushState({}, '', path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-      const hash = window.location.hash.replace('#', '');
-      if (hash === 'login') {
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace('/', '');
+      if (path === 'login') {
         setActiveSection(AppSection.LOGIN || 'login' as any);
-      } else if (hash === 'admin') {
+      } else if (path === 'admin') {
         if (!isAuthenticated) {
-          window.location.hash = '#login';
+          setActiveSection(AppSection.LOGIN || 'login' as any);
+          window.history.pushState({}, '', '/login');
         } else {
           setActiveSection(AppSection.ADMIN);
         }
-      } else if (Object.values(AppSection).includes(hash as AppSection)) {
-        setActiveSection(hash as AppSection);
+      } else if (path === '' || path === 'home') {
+        setActiveSection(AppSection.HOME);
+      } else if (Object.values(AppSection).includes(path as AppSection)) {
+        setActiveSection(path as AppSection);
       }
     };
 
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    handlePopState();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [isAuthenticated]);
 
   const handleReadStory = (post: BlogPost) => {
@@ -73,10 +77,10 @@ const AppContent: React.FC = () => {
               <ImpactCounters />
             </div>
             <BauchiMap />
-            <ProgramGrid onSelect={() => setActiveSection(AppSection.PROGRAMS)} onReadStory={handleReadStory} />
+            <ProgramGrid onSelect={() => navigate(AppSection.PROGRAMS)} onReadStory={handleReadStory} />
             <SuccessStories />
-            <PartnersList onInquire={() => setActiveSection(AppSection.BOOKINGS)} />
-            <NewsSection onReadStory={handleReadStory} onSeeAll={() => setActiveSection(AppSection.NEWS)} />
+            <PartnersList onInquire={() => navigate(AppSection.BOOKINGS)} />
+            <NewsSection onReadStory={handleReadStory} onSeeAll={() => navigate(AppSection.NEWS)} />
           </main>
         );
       case AppSection.PROGRAMS:
@@ -111,7 +115,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header
         activeSection={activeSection}
-        onNavigate={(section) => setActiveSection(section)}
+        onNavigate={(section) => navigate(section)}
       />
       <div className="flex-grow pt-16">
         {renderContent()}
@@ -130,7 +134,7 @@ const AppContent: React.FC = () => {
               <li><button onClick={() => setActiveSection(AppSection.PROGRAMS)}>Our Programs</button></li>
               <li><button onClick={() => setActiveSection(AppSection.RESOURCES)}>Library</button></li>
               <li><button onClick={() => setActiveSection(AppSection.DONATIONS)}>Donor Hub</button></li>
-              <li><button onClick={() => setActiveSection(AppSection.BOOKINGS)}>Legal Aid</button></li>
+              <li><button onClick={() => setActiveSection(AppSection.BOOKINGS)}>Consultations</button></li>
             </ul>
           </div>
           <div>

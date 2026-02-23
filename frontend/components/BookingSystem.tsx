@@ -120,7 +120,7 @@ const BookingSystem: React.FC = () => {
             <div className="relative z-10">
               <h2 className="text-3xl font-bold mb-6">Book a Consultation</h2>
               <p className="text-green-100 mb-8 leading-relaxed text-lg">
-                Schedule a face-to-face meeting with our legal experts or support team.
+                Schedule a face-to-face meeting with our support team or specialists.
               </p>
 
               <div className="space-y-6">

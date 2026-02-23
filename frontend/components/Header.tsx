@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onNavigate }) => {
     { label: 'Home', section: AppSection.HOME },
     { label: 'About Us', section: AppSection.ABOUT },
     { label: 'Programs', section: AppSection.PROGRAMS },
-    { label: 'Bookings', section: AppSection.BOOKINGS },
+    { label: 'Consultations', section: AppSection.BOOKINGS },
     { label: 'Resources', section: AppSection.RESOURCES },
     { label: 'News', section: AppSection.NEWS },
     { label: 'Donations', section: AppSection.DONATIONS },
