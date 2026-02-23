@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { API_ENDPOINTS } from '../config';
+import { API_ENDPOINTS, getMediaUrl } from '../config';
 import { Program, BlogPost } from '../types';
 
 interface ProgramGridProps {
@@ -64,7 +64,7 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
               <div className="h-56 w-full bg-gray-100 relative overflow-hidden">
                 {prog.image ? (
                   <img
-                    src={prog.image}
+                    src={getMediaUrl(prog.image)}
                     alt={`JDPC Bauchi Program: ${prog.title}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"

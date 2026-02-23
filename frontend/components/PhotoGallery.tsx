@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_ENDPOINTS } from '../config';
+import { API_ENDPOINTS, getMediaUrl } from '../config';
 
 export interface Photo {
   id: string;
@@ -75,7 +75,7 @@ const PhotoGallery: React.FC = () => {
             >
               <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
                 <img
-                  src={photo.image.startsWith('http') ? photo.image : `${API_ENDPOINTS.PHOTOS.split('/api/')[0]}${photo.image}`}
+                  src={getMediaUrl(photo.image)}
                   alt={photo.title}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
@@ -114,7 +114,7 @@ const PhotoGallery: React.FC = () => {
             onClick={e => e.stopPropagation()}
           >
             <img
-              src={selectedPhoto.image}
+              src={getMediaUrl(selectedPhoto.image)}
               alt={selectedPhoto.title}
               className="w-full h-auto rounded-lg shadow-2xl max-h-[80vh] object-contain mx-auto"
             />

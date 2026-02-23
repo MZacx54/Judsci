@@ -1,5 +1,5 @@
 import React from 'react';
-import { API_ENDPOINTS } from '../config';
+import { API_ENDPOINTS, getMediaUrl } from '../config';
 import { BlogPost } from '../types';
 
 
@@ -54,7 +54,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeA
             <article key={post.id} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all group border border-gray-100 flex flex-col h-full">
               <div className="h-64 overflow-hidden relative cursor-pointer" onClick={() => onReadStory?.(post)}>
                 <img
-                  src={post.image || `https://picsum.photos/seed/${post.slug}/800/600`}
+                  src={post.image ? getMediaUrl(post.image) : `https://picsum.photos/seed/${post.slug}/800/600`}
                   alt={`JDPC Bauchi News: ${post.title}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"

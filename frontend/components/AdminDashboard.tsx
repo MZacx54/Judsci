@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_ENDPOINTS } from '../config';
+import { API_ENDPOINTS, getMediaUrl } from '../config';
 import { Booking, Donation } from '../types';
 import { Photo } from './PhotoGallery';
 import { useAuth } from '../context/AuthContext';
@@ -202,12 +202,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const formatImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    const base = API_ENDPOINTS.PROGRAMS.split('/api/')[0];
-    return `${base}${url}`;
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
@@ -439,7 +433,7 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {galleryPhotos.map(photo => (
                 <div key={photo.id} className="relative group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
-                  <img src={formatImageUrl(photo.image)} alt={photo.title} className="w-full h-40 object-cover" />
+                  <img src={getMediaUrl(photo.image)} alt={photo.title} className="w-full h-40 object-cover" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
                     <button
                       onClick={() => { setCurrentPhoto(photo); setIsPhotoModalOpen(true); }}

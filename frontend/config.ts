@@ -21,4 +21,11 @@ export const API_ENDPOINTS = {
   TOKEN_REFRESH: `${API_BASE_URL}/api/token/refresh/`,
 };
 
+export const getMediaUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const base = API_ENDPOINTS.PROGRAMS.split('/api/')[0];
+  return `${base}${url}`;
+};
+
 export default API_BASE_URL;
