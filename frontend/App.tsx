@@ -93,8 +93,6 @@ const AppContent: React.FC = () => {
         );
       case AppSection.ABOUT:
         return <AboutSection />;
-      case AppSection.ADMIN:
-        return isAuthenticated ? <AdminDashboard /> : <Login />;
       default:
         return <Hero onAction={() => setActiveSection(AppSection.DONATIONS)} />;
     }

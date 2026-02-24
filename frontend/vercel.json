@@ -5,16 +5,8 @@
             "destination": "https://judsci-production-b036.up.railway.app/api/:path*"
         },
         {
-            "source": "/admin",
-            "destination": "https://judsci-production-b036.up.railway.app/admin/"
-        },
-        {
-            "source": "/admin/",
-            "destination": "https://judsci-production-b036.up.railway.app/admin/"
-        },
-        {
-            "source": "/admin/:path*",
-            "destination": "https://judsci-production-b036.up.railway.app/admin/:path*"
+            "source": "/admin(.*)",
+            "destination": "https://judsci-production-b036.up.railway.app/admin$1"
         },
         {
             "source": "/media/:path*",
