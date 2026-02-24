@@ -180,30 +180,10 @@ CLOUDINARY_URL = env('CLOUDINARY_URL', default='')
 
 if CLOUDINARY_URL:
     import cloudinary
-    # Format: cloudinary://<api_key>:<api_secret>@<cloud_name>
-    try:
-        parts = CLOUDINARY_URL.split('://')[1]
-        auth_part, cloud_name = parts.split('@')
-        api_key, api_secret = auth_part.split(':')
-        
-        CLOUDINARY_STORAGE = {
-            'CLOUD_NAME': cloud_name,
-            'API_KEY': api_key,
-            'API_SECRET': api_secret,
-            'SECURE': True
-        }
-        cloudinary.config(
-            cloud_name=cloud_name,
-            api_key=api_key,
-            api_secret=api_secret,
-            secure=True
-        )
-    except Exception:
-        # Fallback if URL is malformed but exists
-        CLOUDINARY_STORAGE = {
-            'CLOUDINARY_URL': CLOUDINARY_URL
-        }
-        cloudinary.config(cloudinary_url=CLOUDINARY_URL)
+    cloudinary.config(cloudinary_url=CLOUDINARY_URL)
+    CLOUDINARY_STORAGE = {
+        'CLOUDINARY_URL': CLOUDINARY_URL
+    }
 else:
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),

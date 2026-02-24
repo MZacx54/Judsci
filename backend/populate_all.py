@@ -148,9 +148,13 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         
         img_path = images_dir / image_name
         if img_path.exists():
-            with open(img_path, 'rb') as f:
-                post.image.save(image_name, File(f), save=True)
-            print(f"Created News: {item['title']} (with image)")
+            try:
+                with open(img_path, 'rb') as f:
+                    post.image.save(image_name, File(f), save=True)
+                print(f"Created News: {item['title']} (with image)")
+            except Exception as e:
+                print(f"FAILED to upload image for News {item['title']}: {e}")
+                post.save() # Save without image if upload fails
         else:
             print(f"Created News: {item['title']} (NO image found: {image_name})")
 
@@ -181,14 +185,17 @@ Through JUDSCI's various interventions, many women have gained financial indepen
     pdf_path = assets_dir / pdf_name
     
     if pdf_path.exists():
-        with open(pdf_path, 'rb') as f:
-            Resource.objects.create(
-                title="Annual Narrative Report 2023",
-                type="Annual Report",
-                date=timezone.now().date(),
-                file=File(f, name=pdf_name)
-            )
-        print("Created Annual Report Resource")
+        try:
+            with open(pdf_path, 'rb') as f:
+                Resource.objects.create(
+                    title="Annual Narrative Report 2023",
+                    type="Annual Report",
+                    date=timezone.now().date(),
+                    file=File(f, name=pdf_name)
+                )
+            print("Created Annual Report Resource")
+        except Exception as e:
+            print(f"FAILED to upload PDF Resource: {e}")
     else:
         print(f"PDF not found at {pdf_path}")
 
