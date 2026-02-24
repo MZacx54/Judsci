@@ -180,11 +180,13 @@ CLOUDINARY_URL = env('CLOUDINARY_URL', default='')
 
 if CLOUDINARY_URL:
     import cloudinary
+    print(f"DEBUG: Found CLOUDINARY_URL in settings (length: {len(CLOUDINARY_URL)})")
     cloudinary.config(cloudinary_url=CLOUDINARY_URL)
     CLOUDINARY_STORAGE = {
         'CLOUDINARY_URL': CLOUDINARY_URL
     }
 else:
+    print("DEBUG: CLOUDINARY_URL not found in settings, using individual keys")
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
         'API_KEY': env('CLOUDINARY_API_KEY', default=''),
