@@ -5,8 +5,18 @@ from django.utils import timezone
 from datetime import timedelta
 
 # Setup Django environment - Updated 2026-02-08 19:30
+import environ
+env = environ.Env()
+# Setup Django environment - Updated 2026-02-08 19:30
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 django.setup()
+
+# Explicitly configure Cloudinary for the script environment if URL is present
+c_url = os.environ.get('CLOUDINARY_URL') or env('CLOUDINARY_URL', default='')
+if c_url:
+    import cloudinary
+    cloudinary.config(cloudinary_url=c_url)
+
 
 from pathlib import Path
 from core.models import Program
@@ -64,7 +74,7 @@ def populate():
         {
             "title": "Prison Apostolate",
             "slug": "prison-apostolate",
-            "description": "We advocate for the rights and dignity of inmates by providing legal aid services, welfare support, and spiritual guidance. Our mission is to promote justice and human rights within the correctional facilities across the Bauchi Diocese.",
+            "description": "We advocate for the rights and dignity of inmates by providing support services, welfare assistance, and spiritual guidance. Our mission is to promote justice and human rights within the correctional facilities across the Bauchi Diocese.",
             "icon": "⚖️",
             "color": "bg-red-600",
         },

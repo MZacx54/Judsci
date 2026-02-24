@@ -176,15 +176,41 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Cloudinary Configuration
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY': env('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
-}
-# Alternatively, if providing a single URL:
-if env('CLOUDINARY_URL', default=''):
+CLOUDINARY_URL = env('CLOUDINARY_URL', default='')
+
+if CLOUDINARY_URL:
     import cloudinary
-    cloudinary.config(cloudinary_url=env('CLOUDINARY_URL'))
+    # Format: cloudinary://<api_key>:<api_secret>@<cloud_name>
+    try:
+        parts = CLOUDINARY_URL.split('://')[1]
+        auth_part, cloud_name = parts.split('@')
+        api_key, api_secret = auth_part.split(':')
+        
+        CLOUDINARY_STORAGE = {
+            'CLOUD_NAME': cloud_name,
+            'API_KEY': api_key,
+            'API_SECRET': api_secret,
+            'SECURE': True
+        }
+        cloudinary.config(
+            cloud_name=cloud_name,
+            api_key=api_key,
+            api_secret=api_secret,
+            secure=True
+        )
+    except Exception:
+        # Fallback if URL is malformed but exists
+        CLOUDINARY_STORAGE = {
+            'CLOUDINARY_URL': CLOUDINARY_URL
+        }
+        cloudinary.config(cloudinary_url=CLOUDINARY_URL)
+else:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
+        'API_KEY': env('CLOUDINARY_API_KEY', default=''),
+        'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+        'SECURE': True
+    }
 
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = DEBUG # True only in debug, more restrictive in prod
