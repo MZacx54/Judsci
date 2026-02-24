@@ -43,6 +43,12 @@ if not DEBUG:
 
 # Security Configuration for Railway/Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
 
 # Ensure all origins have a scheme (http:// or https://)
 raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app', 'https://judsci.org.ng', 'https://www.judsci.org.ng', 'https://*.vercel.app'])
