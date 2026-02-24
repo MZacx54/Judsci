@@ -51,10 +51,12 @@ CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 
 # Ensure all origins have a scheme (http:// or https://)
-raw_csrf_origins = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.railway.app', 'https://judsci.org.ng', 'https://www.judsci.org.ng', 'https://*.vercel.app'])
 CSRF_TRUSTED_ORIGINS = [
-    origin if origin.startswith(('http://', 'https://')) else f'https://{origin}'
-    for origin in raw_csrf_origins
+    'https://judsci.org.ng',
+    'https://www.judsci.org.ng',
+    'https://judsci-production-b036.up.railway.app',
+    'http://localhost:3000',
+    'https://localhost:3000'
 ]
 
 
@@ -182,21 +184,22 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Cloudinary Configuration
-CLOUDINARY_URL = env('CLOUDINARY_URL', default='')
+# Use direct os.environ to ensure Railway detects these properly
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') or env('CLOUDINARY_URL', default='')
 
 if CLOUDINARY_URL:
     import cloudinary
-    print(f"DEBUG: Found CLOUDINARY_URL in settings (length: {len(CLOUDINARY_URL)})")
+    print(f"DEBUG: Found CLOUDINARY_URL (length: {len(CLOUDINARY_URL)})")
     cloudinary.config(cloudinary_url=CLOUDINARY_URL)
     CLOUDINARY_STORAGE = {
         'CLOUDINARY_URL': CLOUDINARY_URL
     }
 else:
-    print("DEBUG: CLOUDINARY_URL not found in settings, using individual keys")
+    print("DEBUG: CLOUDINARY_URL not found, using individual keys from env")
     CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
-        'API_KEY': env('CLOUDINARY_API_KEY', default=''),
-        'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME') or env('CLOUDINARY_CLOUD_NAME', default=''),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY') or env('CLOUDINARY_API_KEY', default=''),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET') or env('CLOUDINARY_API_SECRET', default=''),
         'SECURE': True
     }
 
