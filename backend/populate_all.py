@@ -20,7 +20,7 @@ if c_url:
 
 from pathlib import Path
 from core.models import Program
-from impact.models import ImpactStat
+from impact.models import ImpactStat, ImpactLocation
 from news.models import BlogPost
 from resources.models import Resource
 from gallery.models import Photo
@@ -225,6 +225,31 @@ Through JUDSCI's various interventions, many women have gained financial indepen
                 print(f"Gallery Image NOT found: {filename}")
         except Exception as e:
             print(f"Error adding {filename} to Gallery: {e}")
+
+    # --- Impact Stats ---
+    ImpactStat.objects.all().delete()
+    print("Populating Impact Stats...")
+    stats_data = [
+        {"label": "Boreholes Constructed", "value": 150, "suffix": "+", "icon": "droplets"},
+        {"label": "People Reached", "value": 25000, "suffix": "+", "icon": "users"},
+        {"label": "Peace Clubs Established", "value": 45, "suffix": "", "icon": "peace"},
+        {"label": "Women Empowered", "value": 1200, "suffix": "+", "icon": "woman"},
+    ]
+    for s_data in stats_data:
+        ImpactStat.objects.create(**s_data)
+        print(f"Created Stat: {s_data['label']}")
+
+    # --- Impact Locations ---
+    ImpactLocation.objects.all().delete()
+    print("Populating Impact Locations...")
+    locations_data = [
+        {"title": "Bauchi City Hub", "description": "LGA HQ and coordination center for WASH projects.", "latitude": 10.3158, "longitude": 9.8442},
+        {"title": "Bogoro Outreach", "description": "Active Peace Building and Agriculture training site.", "latitude": 9.6000, "longitude": 9.5000},
+        {"title": "Gombe Field Office", "description": "Regional hub for empowerment programs in Gombe State.", "latitude": 10.2897, "longitude": 11.1673},
+    ]
+    for l_data in locations_data:
+        ImpactLocation.objects.create(**l_data)
+        print(f"Created Location: {l_data['title']}")
 
     print("Population Complete!")
 
