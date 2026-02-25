@@ -52,16 +52,12 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_USE_SESSIONS = True  # More robust for proxied environments
 CSRF_COOKIE_DOMAIN = '.judsci.org.ng'
 SESSION_COOKIE_DOMAIN = '.judsci.org.ng'
-
-# Ensure all origins have a scheme (http:// or https://)
 CSRF_TRUSTED_ORIGINS = [
     'https://judsci.org.ng',
     'https://www.judsci.org.ng',
     'https://*.judsci.org.ng',
     'https://*.railway.app',
     'https://judsci-production-b036.up.railway.app',
-    'http://localhost:3000',
-    'https://localhost:3000'
 ]
 
 
@@ -189,15 +185,26 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Cloudinary Configuration
-# Use direct os.environ to ensure Railway detects these properly
+# Use direct os.environ and manual parsing to ensure Railway detects these properly
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') or env('CLOUDINARY_URL', default='')
 
 if CLOUDINARY_URL:
     import cloudinary
+    import re
+    # Pattern: cloudinary://<api_key>:<api_secret>@<cloud_name>
+    match = re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', CLOUDINARY_URL)
+    if match:
+        CLOUDINARY_STORAGE = {
+            'CLOUD_NAME': match.group(3),
+            'API_KEY': match.group(1),
+            'API_SECRET': match.group(2),
+            'SECURE': True
+        }
+    else:
+        CLOUDINARY_STORAGE = {
+            'CLOUDINARY_URL': CLOUDINARY_URL
+        }
     cloudinary.config(cloudinary_url=CLOUDINARY_URL)
-    CLOUDINARY_STORAGE = {
-        'CLOUDINARY_URL': CLOUDINARY_URL
-    }
 else:
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME') or env('CLOUDINARY_CLOUD_NAME', default=''),

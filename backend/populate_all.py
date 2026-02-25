@@ -23,6 +23,7 @@ from core.models import Program
 from impact.models import ImpactStat
 from news.models import BlogPost
 from resources.models import Resource
+from gallery.models import Photo
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -198,6 +199,32 @@ Through JUDSCI's various interventions, many women have gained financial indepen
             print(f"FAILED to upload PDF Resource: {e}")
     else:
         print(f"PDF not found at {pdf_path}")
+
+    # --- Photo Gallery ---
+    Photo.objects.all().delete()
+    print("Populating Photo Gallery...")
+    gallery_images = [
+        {"title": "Borehole Commissioning", "category": "WASH", "filename": "Borehole Commissioning Pictures (49).JPG.jpeg", "caption": "Official commissioning of a new community borehole."},
+        {"title": "Community Meeting", "category": "WASH", "filename": "Borehole Commissioning Pictures (44).JPG.jpeg", "caption": "Consultations with community leaders."},
+        {"title": "Peace Club Session", "category": "Peace Building", "filename": "GSS Bogoro LGA Peace Club members (24).JPG.jpeg", "caption": "Students participating in peace advocacy."},
+        {"title": "Vocational Training", "category": "Empowerment", "filename": "IMG_1849.JPG.jpeg", "caption": "Youth learning new skills for economic independence."},
+        {"title": "Prison Visit", "category": "Prison Apostolate", "filename": "IMG_20250909_093607.jpg.jpeg", "caption": "Providing support and guidance at correctional facilities."},
+        {"title": "Project Inspection", "category": "WASH", "filename": "Borehole Commissioning Pictures (37).JPG.jpeg", "caption": "Technical inspection of WASH facilities."},
+    ]
+
+    for img_data in gallery_images:
+        filename = img_data.pop('filename')
+        try:
+            photo = Photo.objects.create(**img_data)
+            img_path = images_dir / filename
+            if img_path.exists():
+                with open(img_path, 'rb') as f:
+                    photo.image.save(filename, File(f), save=True)
+                print(f"Added to Gallery: {img_data['title']}")
+            else:
+                print(f"Gallery Image NOT found: {filename}")
+        except Exception as e:
+            print(f"Error adding {filename} to Gallery: {e}")
 
     print("Population Complete!")
 
