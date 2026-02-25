@@ -49,11 +49,16 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
+CSRF_USE_SESSIONS = True  # More robust for proxied environments
+CSRF_COOKIE_DOMAIN = '.judsci.org.ng'
+SESSION_COOKIE_DOMAIN = '.judsci.org.ng'
 
 # Ensure all origins have a scheme (http:// or https://)
 CSRF_TRUSTED_ORIGINS = [
     'https://judsci.org.ng',
     'https://www.judsci.org.ng',
+    'https://*.judsci.org.ng',
+    'https://*.railway.app',
     'https://judsci-production-b036.up.railway.app',
     'http://localhost:3000',
     'https://localhost:3000'
