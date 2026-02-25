@@ -194,13 +194,11 @@ CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') or env('CLOUDINARY_URL', defau
 
 if CLOUDINARY_URL:
     import cloudinary
-    print(f"DEBUG: Found CLOUDINARY_URL (length: {len(CLOUDINARY_URL)})")
     cloudinary.config(cloudinary_url=CLOUDINARY_URL)
     CLOUDINARY_STORAGE = {
         'CLOUDINARY_URL': CLOUDINARY_URL
     }
 else:
-    print("DEBUG: CLOUDINARY_URL not found, using individual keys from env")
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME') or env('CLOUDINARY_CLOUD_NAME', default=''),
         'API_KEY': os.environ.get('CLOUDINARY_API_KEY') or env('CLOUDINARY_API_KEY', default=''),
