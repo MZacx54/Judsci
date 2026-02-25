@@ -36,8 +36,18 @@ def populate():
 
     print(f"Starting population from: {base_dir}")
     print(f"Expecting assets at: {assets_dir}")
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Assets dir exists: {assets_dir.exists()}")
+    if assets_dir.exists():
+        print(f"Contents of assets: {os.listdir(assets_dir)}")
+    
+    # Check Cloudinary env
+    c_url = os.environ.get('CLOUDINARY_URL')
+    print(f"DEBUG: CLOUDINARY_URL present in os.environ: {bool(c_url)}")
+    if not c_url:
+        print(f"DEBUG: Individual keys: NAME={bool(os.environ.get('CLOUDINARY_CLOUD_NAME'))}, KEY={bool(os.environ.get('CLOUDINARY_API_KEY'))}")
 
-    print("--- POPULATION SCRIPT V1.1 (FIXED IMPORTS) ---")
+    print("--- POPULATION SCRIPT V1.2 (VERBOSE) ---")
     print(f"DEBUG: Program model available: {Program}")
     print("Populating Database with fresh initial content...")
 
