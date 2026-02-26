@@ -206,10 +206,11 @@ if CLOUDINARY_URL:
         }
     cloudinary.config(cloudinary_url=CLOUDINARY_URL)
 else:
+    # Adding direct credentials as fallbacks since Railway Variables are missing
     CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME') or env('CLOUDINARY_CLOUD_NAME', default=''),
-        'API_KEY': os.environ.get('CLOUDINARY_API_KEY') or env('CLOUDINARY_API_KEY', default=''),
-        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET') or env('CLOUDINARY_API_SECRET', default=''),
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME') or env('CLOUDINARY_CLOUD_NAME', default='dz1ilxybl'),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY') or env('CLOUDINARY_API_KEY', default='469466869655123'),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET') or env('CLOUDINARY_API_SECRET', default='_iPb9CtmAx823Xl_w4LtdiayQ44'),
         'SECURE': True
     }
 
