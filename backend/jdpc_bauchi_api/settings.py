@@ -34,12 +34,11 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 # Always allow railway subdomains and custom domain in prod
-if not DEBUG:
-    ALLOWED_HOSTS += ['.railway.app', 'judsci.org.ng', 'www.judsci.org.ng']
+ALLOWED_HOSTS += ['.railway.app', 'judsci.org.ng', 'www.judsci.org.ng', 'judsci-production-b036.up.railway.app']
 
 # Security Configuration for Railway/Proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
