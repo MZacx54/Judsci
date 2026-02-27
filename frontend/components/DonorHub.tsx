@@ -180,26 +180,22 @@ const DonorHub: React.FC = () => {
               <div className="space-y-6 text-sm">
                 <div>
                   <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Bank Name</p>
-                  <p className="font-bold text-lg">Zenith Bank PLC</p>
+                  <p className="font-bold text-lg">Union Bank</p>
                 </div>
                 <div>
                   <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Account Name</p>
-                  <p className="font-bold">JUDSCI BAUCHI</p>
+                  <p className="font-bold">Justice Dev and Social Cohesion Initiative</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Currency (USD) *</p>
-                    <p className="font-mono font-bold tracking-tighter">5071192809</p>
-                  </div>
-                  <div>
-                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Currency (NGN) *</p>
-                    <p className="font-mono font-bold tracking-tighter">1014167683</p>
+                    <p className="text-green-300 font-black uppercase tracking-widest text-[10px] mb-1">Account Number (NGN) *</p>
+                    <p className="font-mono font-bold tracking-tighter">0076017031</p>
                   </div>
                 </div>
                 <p className="text-[10px] text-green-400 italic">* Please verify account details with our office before making large wire transfers.</p>
                 <div className="pt-4 border-t border-white/10">
                   <p className="text-green-200 italic leading-relaxed">
-                    For International SWIFT/IBAN details, please contact our team at <strong>support@judsci.org.ng</strong>
+                    For International SWIFT/IBAN or USD details, please contact our team at <strong>support@judsci.org.ng</strong>
                   </p>
                 </div>
               </div>
