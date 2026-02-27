@@ -254,7 +254,7 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Admin Notification Emails (Comma-separated in .env)
-ADMIN_NOTIFICATION_EMAILS = [email.strip() for email in env.list('ADMIN_NOTIFICATION_EMAILS', default=[EMAIL_HOST_USER])]
+ADMIN_NOTIFICATION_EMAILS = [email.strip() for email in env.list('ADMIN_NOTIFICATION_EMAILS', default=['support@judsci.org.ng', 'meshachzax@gmail.com'])]
 
 # Resend API Configuration
 RESEND_API_KEY = env('RESEND_API_KEY', default='')
