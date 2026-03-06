@@ -4,7 +4,7 @@ import { Resource } from '../types';
 import PhotoGallery from './PhotoGallery';
 
 const ResourceLibrary: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'publications' | 'gallery'>('publications');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'publications'>('gallery');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('All');
   const [resources, setResources] = useState<Resource[]>([]);
@@ -41,15 +41,6 @@ const ResourceLibrary: React.FC = () => {
         <div className="flex justify-center mb-12">
           <div className="bg-white p-1 rounded-full shadow-sm border border-gray-100 inline-flex">
             <button
-              onClick={() => setActiveTab('publications')}
-              className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${activeTab === 'publications'
-                ? 'bg-green-700 text-white shadow-md'
-                : 'text-gray-500 hover:text-green-700'
-                }`}
-            >
-              Publications
-            </button>
-            <button
               onClick={() => setActiveTab('gallery')}
               className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${activeTab === 'gallery'
                 ? 'bg-green-700 text-white shadow-md'
@@ -57,6 +48,15 @@ const ResourceLibrary: React.FC = () => {
                 }`}
             >
               Photo Gallery
+            </button>
+            <button
+              onClick={() => setActiveTab('publications')}
+              className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${activeTab === 'publications'
+                ? 'bg-green-700 text-white shadow-md'
+                : 'text-gray-500 hover:text-green-700'
+                }`}
+            >
+              Publications
             </button>
           </div>
         </div>

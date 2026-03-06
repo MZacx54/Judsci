@@ -122,6 +122,7 @@ const AppContent: React.FC = () => {
               <li><button onClick={() => setActiveSection(AppSection.RESOURCES)}>Library</button></li>
               <li><button onClick={() => setActiveSection(AppSection.DONATIONS)}>Donor Hub</button></li>
               <li><button onClick={() => setActiveSection(AppSection.BOOKINGS)}>Consultations</button></li>
+              <li><a href="https://judsci.org.ng/admin/" className="hover:text-green-500 transition-colors">Admin Login</a></li>
             </ul>
           </div>
           <div>
