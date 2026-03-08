@@ -16,6 +16,8 @@ import StoryDetail from './components/StoryDetail';
 import PartnersList from './components/PartnersList';
 import { AppSection, BlogPost } from './types';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import SEO from './components/SEO';
+import { getMediaUrl } from './config';
 
 const AppContent: React.FC = () => {
   const [activeSection, setActiveSection] = useState<AppSection>(AppSection.HOME);
@@ -55,6 +57,7 @@ const AppContent: React.FC = () => {
       case AppSection.HOME:
         return (
           <main>
+            <SEO />
             <Hero
               onDonate={() => setActiveSection(AppSection.DONATIONS)}
               onExplore={() => {
@@ -73,26 +76,65 @@ const AppContent: React.FC = () => {
           </main>
         );
       case AppSection.PROGRAMS:
-        return <ProgramGrid fullView={true} onReadStory={handleReadStory} />;
+        return (
+          <>
+            <SEO title="Our Programs - JUDSCI Bauchi" description="Explore JUDSCI Bauchi's comprehensive programs including WASH, Peace Building, Sustainable Agriculture, and more." url="https://judsci.org.ng/programs" />
+            <ProgramGrid fullView={true} onReadStory={handleReadStory} />
+          </>
+        );
       case AppSection.BOOKINGS:
-        return <BookingSystem />;
+        return (
+          <>
+            <SEO title="Schedule a Consultation - JUDSCI Bauchi" description="Request a meeting or legal consultation with the Justice Development and Social Cohesion Initiative in Bauchi." url="https://judsci.org.ng/bookings" />
+            <BookingSystem />
+          </>
+        );
       case AppSection.RESOURCES:
-        return <ResourceLibrary />;
+        return (
+          <>
+            <SEO title="Resource Library & Gallery - JUDSCI Bauchi" description="Access our publications, annual reports, and visual stories from communities in the Bauchi Diocese." url="https://judsci.org.ng/resources" />
+            <ResourceLibrary />
+          </>
+        );
       case AppSection.DONATIONS:
-        return <DonorHub />;
+        return (
+          <>
+            <SEO title="Donate Now - JUDSCI Bauchi" description="Support our mission. Your donations provide clean water, promote peace, and empower women in Bauchi and Gombe states." url="https://judsci.org.ng/donations" />
+            <DonorHub />
+          </>
+        );
       case AppSection.NEWS:
-        return <NewsSection fullView={true} onReadStory={handleReadStory} />;
+        return (
+          <>
+            <SEO title="News & Impact Stories - JUDSCI Bauchi" description="Read the latest updates and success stories from our interventions in Bauchi and Gombe." url="https://judsci.org.ng/news" />
+            <NewsSection fullView={true} onReadStory={handleReadStory} />
+          </>
+        );
       case AppSection.NEWS_DETAIL:
         return selectedStory ? (
-          <StoryDetail
-            post={selectedStory}
-            onBack={() => setActiveSection(AppSection.NEWS)}
-          />
+          <>
+            <SEO
+              title={`${selectedStory.title} - JUDSCI Bauchi`}
+              description={selectedStory.excerpt}
+              image={getMediaUrl(selectedStory.image)}
+              type="article"
+              url={`https://judsci.org.ng/news/${selectedStory.id}`}
+            />
+            <StoryDetail
+              post={selectedStory}
+              onBack={() => setActiveSection(AppSection.NEWS)}
+            />
+          </>
         ) : (
           <NewsSection fullView={true} onReadStory={handleReadStory} />
         );
       case AppSection.ABOUT:
-        return <AboutSection />;
+        return (
+          <>
+            <SEO title="About Us - JUDSCI Bauchi" description="Learn about the Justice Development and Social Cohesion Initiative (JDPC Bauchi) and our mandate across the Bauchi Diocese." url="https://judsci.org.ng/about" />
+            <AboutSection />
+          </>
+        );
       default:
         return <Hero onAction={() => setActiveSection(AppSection.DONATIONS)} />;
     }
