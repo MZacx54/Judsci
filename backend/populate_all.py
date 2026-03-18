@@ -214,12 +214,43 @@ Through JUDSCI's various interventions, many women have gained financial indepen
     Photo.objects.all().delete()
     print("Populating Photo Gallery...")
     gallery_images = [
-        {"title": "Borehole Commissioning", "category": "WASH", "filename": "Borehole Commissioning Pictures (49).JPG.jpeg", "caption": "Official commissioning of a new community borehole."},
-        {"title": "Community Meeting", "category": "WASH", "filename": "Borehole Commissioning Pictures (44).JPG.jpeg", "caption": "Consultations with community leaders."},
-        {"title": "Peace Club Session", "category": "Peace Building", "filename": "GSS Bogoro LGA Peace Club members (24).JPG.jpeg", "caption": "Students participating in peace advocacy."},
-        {"title": "Vocational Training", "category": "Empowerment", "filename": "IMG_1849.JPG.jpeg", "caption": "Youth learning new skills for economic independence."},
-        {"title": "Prison Visit", "category": "Prison Apostolate", "filename": "IMG_20250909_093607.jpg.jpeg", "caption": "Providing support and guidance at correctional facilities."},
-        {"title": "Project Inspection", "category": "WASH", "filename": "Borehole Commissioning Pictures (37).JPG.jpeg", "caption": "Technical inspection of WASH facilities."},
+        # --- WASH ---
+        {"title": "Borehole Commissioning", "category": "WASH", "filename": "Borehole Commissioning Pictures (49).JPG.jpeg", "caption": "Official commissioning of a new motorized borehole providing clean water to over 350 households in Rijin Gani."},
+        {"title": "Sanitation Training Session", "category": "WASH", "filename": "Borehole Commissioning Pictures (44).JPG.jpeg", "caption": "JUDSCI team conducting hygiene and sanitation sensitization in rural communities."},
+        {"title": "Technical Inspection", "category": "WASH", "filename": "Borehole Commissioning Pictures (37).JPG.jpeg", "caption": "Quality assurance and technical inspection of newly constructed WASH infrastructure."},
+
+        # --- PEACE BUILDING ---
+        {"title": "Peace Club Launch", "category": "PEACE_BUILDING", "filename": "GSS Bogoro LGA Peace Club members (24).JPG.jpeg", "caption": "Students of GSS Bogoro participating in the launch of the community Peace Club."},
+        {"title": "Youth Peace Dialogue", "category": "PEACE_BUILDING", "filename": "GSS Bogoro LGA Peace Club members (30).JPG.jpeg", "caption": "Interfaith youth leaders engaging in dialogue to foster religious tolerance."},
+        {"title": "Conflict Resolution Workshop", "category": "PEACE_BUILDING", "filename": "GSS Bogoro LGA Peace Club members (31).JPG.jpeg", "caption": "Training community members on sustainable conflict resolution techniques."},
+        {"title": "Inter-community Peace Sports Festival", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0004.jpg.jpeg", "caption": "Kick-off ceremony for the North-Gombe State Inter-community Peace Sport Festival 2023."},
+        {"title": "Sports for Unity", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0023.jpg.jpeg", "caption": "Youth teams competing in unity during the regional Peace Sports event."},
+        {"title": "Peace Advocacy through Sports", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0032.jpg.jpeg", "caption": "Using sports as a tool for bridge-building between diverse ethnic groups."},
+        {"title": "Harmony Dialogue Session", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0034.jpg.jpeg", "caption": "Community elders discussing shared resources and harmony."},
+
+        # --- EMPOWERMENT ---
+        {"title": "Vocational Skills Center", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0085.jpg.jpeg", "caption": "Ongoing vocational skills training for vulnerable women and youth."},
+        {"title": "Entrepreneurship Workshop", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0039.jpg.jpeg", "caption": "Empowering women with entrepreneurship and business management skills."},
+        {"title": "Youth Skills Acquisition", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0040.jpg.jpeg", "caption": "Empowering the next generation through practical vocational training."},
+        {"title": "Graduation Ceremony", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0065.jpg.jpeg", "caption": "Celebrating the graduation of empowerment program beneficiaries."},
+        {"title": "Tailoring and Design training", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0069.jpg.jpeg", "caption": "Women learning professional tailoring skills for economic independence."},
+        {"title": "Women Empowerment Outreach", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0072.jpg.jpeg", "caption": "Field outreach program focused on female economic inclusion."},
+        {"title": "Financial Literacy Session", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0078.jpg.jpeg", "caption": "Village Savings and Loan Association (VSLA) training for rural women."},
+        {"title": "Group Empowerment Training", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0080.jpg.jpeg", "caption": "Interactive group training session for local empowerment groups."},
+        {"title": "Community Leadership Outreach", "category": "EMPOWERMENT", "filename": "IMG_1843.JPG.jpeg", "caption": "Engaging community leaders on women's rights and economic participation."},
+        {"title": "Youth Leadership Summit", "category": "EMPOWERMENT", "filename": "IMG_1849.JPG.jpeg", "caption": "Empowering youth leaders with global advocacy skills."},
+        {"title": "Economic Resilience Session", "category": "EMPOWERMENT", "filename": "IMG_1866.JPG.jpeg", "caption": "Building resilience through diversified income generation training."},
+
+        # --- PRISON APOSTOLATE ---
+        {"title": "Prison Visitation", "category": "PRISON_APOSTOLATE", "filename": "IMG_20250909_093607.jpg.jpeg", "caption": "Welfare support and counseling visit to a correctional facility in Bauchi."},
+        {"title": "Legal Aid Outreach", "category": "PRISON_APOSTOLATE", "filename": "IMG_20250909_093613.jpg.jpeg", "caption": "Providing legal guidance and human rights awareness to inmates."},
+        {"title": "Inmate Support Program", "category": "PRISON_APOSTOLATE", "filename": "IMG_20250909_093705.jpg.jpeg", "caption": "Donation of welfare materials and essential supplies to correctional centers."},
+
+        # --- SUSTAINABLE AGRIC ---
+        {"title": "Modern Farming Demo", "category": "SUSTAINABLE_AGRIC", "filename": "sustainable_agric.jpg", "caption": "Demonstrating sustainable agricultural techniques to improve food security."},
+
+        # --- GENERAL ---
+        {"title": "Stakeholder Engagement", "category": "GENERAL", "filename": "IMG-20200310-WA0004.jpg.jpeg", "caption": "JUDSCI Bauchi coordinating with local stakeholders on regional development."},
     ]
 
     for img_data in gallery_images:
