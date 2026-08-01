@@ -52,7 +52,10 @@ def populate():
     print("Populating Database with fresh initial content...")
 
     # --- Programs ---
-    Program.objects.all().delete()
+    try:
+        Program.objects.all().delete()
+    except Exception as e:
+        print(f"Notice during program delete: {e}")
     programs_data = [
         {
             "title": "Water, Sanitation and Hygiene (WASH)",
