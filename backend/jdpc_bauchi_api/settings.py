@@ -37,10 +37,12 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key-change-me')
 DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
-# Always allow railway subdomains and custom domain in prod
-ALLOWED_HOSTS += ['.railway.app', 'judsci.org.ng', 'www.judsci.org.ng', 'judsci-production-b036.up.railway.app']
+ALLOWED_HOSTS += ['.railway.app', '.onrender.com', 'judsci.org.ng', 'www.judsci.org.ng', 'judsci.onrender.com', '*']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Security Configuration for Railway/Proxy
+# Security Configuration for Proxy/Render
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
@@ -56,8 +58,11 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.judsci.org.ng',
     'https://*.judsci.org.ng',
     'https://*.railway.app',
-    'https://judsci-production-b036.up.railway.app',
+    'https://*.onrender.com',
+    'https://*.vercel.app',
 ]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 
 # Application definition
@@ -214,11 +219,12 @@ else:
     }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG # True only in debug, more restrictive in prod
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:3000'])
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 if not DEBUG:
     CORS_ALLOWED_ORIGIN_REGEXES = [
         r"^https://.*\.railway\.app$",
+        r"^https://.*\.onrender\.com$",
         r"^https://.*\.vercel\.app$",
         r"^https://(www\.)?judsci\.org\.ng$",
     ]
