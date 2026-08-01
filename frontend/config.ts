@@ -1,12 +1,9 @@
-const rawUrl = import.meta.env.VITE_API_URL || '';
+const rawUrl = import.meta.env.VITE_API_URL || 'https://judsci.onrender.com';
 // Remove trailing slash if present
 const API_BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
 
 console.log('--- JDPC DEBUG: API Connectivity ---');
-console.log('Configured Backend URL:', API_BASE_URL || 'NONE (Using relative paths)');
-if (!API_BASE_URL) {
-  console.warn('WARNING: VITE_API_URL is empty. Requests will hit the Vercel domain and likely fail with SyntaxError.');
-}
+console.log('Configured Backend URL:', API_BASE_URL);
 
 export const API_ENDPOINTS = {
   PROGRAMS: `${API_BASE_URL}/api/programs/`,
