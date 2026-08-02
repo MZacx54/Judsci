@@ -11,11 +11,7 @@ env = environ.Env()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 django.setup()
 
-# Explicitly configure Cloudinary for the script environment if URL is present
-c_url = os.environ.get('CLOUDINARY_URL') or env('CLOUDINARY_URL', default='')
-if c_url:
-    import cloudinary
-    cloudinary.config(cloudinary_url=c_url)
+
 
 
 from pathlib import Path

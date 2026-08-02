@@ -176,45 +176,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 MEDIA_URL = '/media/'
-# MEDIA_ROOT is not technically used by Cloudinary storage but left for compatibility
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# Cloudinary Configuration
-# Use direct os.environ and manual parsing to ensure Railway detects these properly
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') or env('CLOUDINARY_URL', default='')
-
-if CLOUDINARY_URL:
-    import cloudinary
-    import re
-    # Pattern: cloudinary://<api_key>:<api_secret>@<cloud_name>
-    match = re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', CLOUDINARY_URL)
-    if match:
-        CLOUDINARY_STORAGE = {
-            'CLOUD_NAME': match.group(3),
-            'API_KEY': match.group(1),
-            'API_SECRET': match.group(2),
-            'SECURE': True
-        }
-    else:
-        CLOUDINARY_STORAGE = {
-            'CLOUDINARY_URL': CLOUDINARY_URL
-        }
-    cloudinary.config(cloudinary_url=CLOUDINARY_URL)
-else:
-    # Adding direct credentials as fallbacks since Railway Variables are missing
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME') or env('CLOUDINARY_CLOUD_NAME', default='dz1ilxybl'),
-        'API_KEY': os.environ.get('CLOUDINARY_API_KEY') or env('CLOUDINARY_API_KEY', default='469466869655123'),
-        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET') or env('CLOUDINARY_API_SECRET', default='_iPb9CtmAx823Xl_w4LtdiayQ44'),
-        'SECURE': True
-    }
 
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True
