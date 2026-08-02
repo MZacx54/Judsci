@@ -3,6 +3,7 @@ from .models import ImpactStat, ImpactLocation
 from .serializers import ImpactStatSerializer, ImpactLocationSerializer
 
 class ImpactStatViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ImpactStat.objects.all()
     serializer_class = ImpactStatSerializer
 
     def get_queryset(self):
@@ -12,6 +13,7 @@ class ImpactStatViewSet(viewsets.ReadOnlyModelViewSet):
             return ImpactStat.objects.none()
 
 class ImpactLocationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ImpactLocation.objects.all()
     serializer_class = ImpactLocationSerializer
 
     def get_queryset(self):

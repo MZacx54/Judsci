@@ -30,14 +30,14 @@ from rest_framework_simplejwt.views import (
 )
 
 router = routers.DefaultRouter()
-router.register(r'impact-stats', ImpactStatViewSet)
-router.register(r'impact-locations', ImpactLocationViewSet)
-router.register(r'programs', ProgramViewSet)
-router.register(r'posts', BlogPostViewSet)
-router.register(r'bookings', AppointmentViewSet)
-router.register(r'donations', DonationViewSet)
-router.register(r'resources', ResourceViewSet)
-router.register(r'photos', PhotoViewSet)
+router.register(r'impact-stats', ImpactStatViewSet, basename='impact-stat')
+router.register(r'impact-locations', ImpactLocationViewSet, basename='impact-location')
+router.register(r'programs', ProgramViewSet, basename='program')
+router.register(r'posts', BlogPostViewSet, basename='post')
+router.register(r'bookings', AppointmentViewSet, basename='booking')
+router.register(r'donations', DonationViewSet, basename='donation')
+router.register(r'resources', ResourceViewSet, basename='resource')
+router.register(r'photos', PhotoViewSet, basename='photo')
 
 from django.conf import settings
 from django.urls import re_path

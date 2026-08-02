@@ -4,6 +4,7 @@ from .serializers import ProgramSerializer
 from django.db import connection
 
 class ProgramViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Program.objects.all()
     serializer_class = ProgramSerializer
     lookup_field = 'slug'
 
