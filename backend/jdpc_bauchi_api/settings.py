@@ -103,10 +103,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'jdpc_bauchi_api.urls'
 
+FRONTEND_DIST_DIR = BASE_DIR.parent / 'frontend' / 'dist'
+if not FRONTEND_DIST_DIR.exists():
+    FRONTEND_DIST_DIR = BASE_DIR / 'frontend' / 'dist'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [FRONTEND_DIST_DIR] if FRONTEND_DIST_DIR.exists() else [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -173,6 +177,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [FRONTEND_DIST_DIR] if FRONTEND_DIST_DIR.exists() else []
 
 STORAGES = {
     "default": {

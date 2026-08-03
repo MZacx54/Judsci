@@ -45,26 +45,9 @@ from django.views.static import serve
 
 from core.dashboard_views import AdminDashboardStatsView
 
-from django.http import JsonResponse
-
-def api_root_welcome(request):
-    return JsonResponse({
-        "status": "online",
-        "name": "JUDSCI Bauchi Digital API Backend",
-        "message": "Welcome to JUDSCI Bauchi API Portal",
-        "endpoints": {
-            "api_root": "/api/",
-            "admin_portal": "/admin/",
-            "programs": "/api/programs/",
-            "posts": "/api/posts/",
-            "impact_stats": "/api/impact-stats/",
-            "resources": "/api/resources/",
-            "photos": "/api/photos/",
-        }
-    })
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', api_root_welcome, name='api-root-welcome'),
     path('admin/', admin.site.urls),
     path('api/admin/dashboard-stats/', AdminDashboardStatsView.as_view(), name='admin-dashboard-stats'),
     path('api/', include(router.urls)),
@@ -72,6 +55,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 
 # Admin Interface Customization
