@@ -70,6 +70,11 @@ def populate():
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
+            try:
+                cursor.execute("ALTER TABLE core_program ALTER COLUMN summary DROP NOT NULL;")
+                cursor.execute("ALTER TABLE core_program ALTER COLUMN summary SET DEFAULT '';")
+            except Exception:
+                pass
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS impact_impactstat (
@@ -215,8 +220,11 @@ def populate():
     ]
 
     for p_data in programs_data:
-        Program.objects.create(**p_data)
-        print(f"Created/Reset Program: {p_data['title']}")
+        try:
+            Program.objects.create(**p_data)
+            print(f"Created/Reset Program: {p_data['title']}")
+        except Exception as e:
+            print(f"Notice creating Program {p_data['title']}: {e}")
 
     # --- News & Blog Posts ---
     BlogPost.objects.all().delete()
