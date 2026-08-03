@@ -76,11 +76,20 @@ def populate():
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS body TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS author VARCHAR(100) DEFAULT '';")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS published_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
+
+            cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
+            cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'ANNUAL_REPORT';")
+            cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS date DATE DEFAULT CURRENT_DATE;")
+            cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS file VARCHAR(255);")
+            cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255);")
+            cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
 
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT '';")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS caption TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
+            cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
     except Exception as e:
         print(f"Schema sync notice: {e}")
 
