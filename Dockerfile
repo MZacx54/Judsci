@@ -23,5 +23,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# Start script: Run migrations, then population (idempotent), then start server
-CMD ["sh", "-c", "python manage.py makemigrations --noinput && python manage.py migrate --noinput && python populate_all.py || echo 'Setup failed but continuing...'; gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py makemigrations --noinput && python manage.py migrate --run-syncdb --noinput && python populate_all.py && gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000"]

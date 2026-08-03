@@ -14,10 +14,3 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 
 application = get_wsgi_application()
-
-# Execute database auto-healing, migrations, table creation, and population on boot
-try:
-    import populate_all
-    populate_all.populate()
-except Exception as e:
-    print(f"WSGI Auto-Populate notice: {e}")
