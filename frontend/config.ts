@@ -1,5 +1,6 @@
-const rawUrl = import.meta.env.VITE_API_URL || 'https://judsci.onrender.com';
-// Remove trailing slash if present
+const isBrowser = typeof window !== 'undefined';
+const defaultUrl = isBrowser ? window.location.origin : 'https://judsci.onrender.com';
+const rawUrl = import.meta.env.VITE_API_URL || defaultUrl;
 const API_BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
 
 console.log('--- JDPC DEBUG: API Connectivity ---');
@@ -21,8 +22,8 @@ export const API_ENDPOINTS = {
 export const getMediaUrl = (url: string) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  const base = API_ENDPOINTS.PROGRAMS.split('/api/')[0];
-  return `${base}${url}`;
+  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  return `${API_BASE_URL}${cleanUrl}`;
 };
 
 export default API_BASE_URL;

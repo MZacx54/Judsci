@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { API_ENDPOINTS, getMediaUrl } from '../config';
 import { Program, BlogPost } from '../types';
@@ -9,28 +8,75 @@ interface ProgramGridProps {
   onReadStory?: (post: BlogPost) => void;
 }
 
+const DEFAULT_PROGRAMS: Program[] = [
+  {
+    id: 1,
+    title: "Water, Sanitation and Hygiene (WASH)",
+    slug: "wash",
+    icon: "💧",
+    color: "bg-blue-500",
+    description: "Our WASH interventions focus on the provision of potable water through the construction of boreholes and wells, sensitization on sanitation and hygiene, and VIP latrines with support from Misereor.",
+    full_content: "Our WASH interventions focus on the provision of potable water..."
+  },
+  {
+    id: 2,
+    title: "Peace Building & Conflict Resolution",
+    slug: "peace-building",
+    icon: "🕊️",
+    color: "bg-green-600",
+    description: "We facilitate inclusive dialogue sessions, establish interfaith peace structures, and create Peace Clubs in schools to foster social and religious tolerance across Bauchi and Gombe States.",
+    full_content: "We facilitate inclusive dialogue sessions..."
+  },
+  {
+    id: 3,
+    title: "Sustainable Agriculture",
+    slug: "agriculture",
+    icon: "🌱",
+    color: "bg-emerald-600",
+    description: "We promote sustainable agricultural practices to improve food security and economic resilience for local farmers across rural communities.",
+    full_content: "We promote sustainable agricultural practices..."
+  },
+  {
+    id: 4,
+    title: "Women and Youth Empowerment",
+    slug: "empowerment",
+    icon: "👩‍🚀",
+    color: "bg-orange-500",
+    description: "Empowering women and youth through vocational skills training, entrepreneurship development, and advocacy for economic independence.",
+    full_content: "Empowering women and youth..."
+  },
+  {
+    id: 5,
+    title: "Prison Apostolate",
+    slug: "prison-apostolate",
+    icon: "⚖️",
+    color: "bg-red-600",
+    description: "We advocate for the rights and dignity of inmates by providing support services, welfare assistance, and spiritual guidance within correctional facilities.",
+    full_content: "We advocate for the rights and dignity of inmates..."
+  }
+];
+
 const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadStory }) => {
-  const [programs, setPrograms] = React.useState<Program[]>([]);
+  const [programs, setPrograms] = React.useState<Program[]>(DEFAULT_PROGRAMS);
   const [posts, setPosts] = React.useState<BlogPost[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // Fetch both programs and posts to allow linking
     Promise.all([
-      fetch(API_ENDPOINTS.PROGRAMS).then(res => res.json()),
-      fetch(API_ENDPOINTS.POSTS).then(res => res.json())
+      fetch(API_ENDPOINTS.PROGRAMS).then(res => res.json()).catch(() => null),
+      fetch(API_ENDPOINTS.POSTS).then(res => res.json()).catch(() => null)
     ]).then(([progData, postData]) => {
-      setPrograms(progData);
-      setPosts(postData);
-      setIsLoading(false);
+      if (Array.isArray(progData) && progData.length > 0) {
+        setPrograms(progData);
+      }
+      if (Array.isArray(postData)) {
+        setPosts(postData);
+      }
     }).catch(err => {
       console.error("Failed to fetch data:", err);
-      setIsLoading(false);
     });
   }, []);
 
   const handleProgramClick = (prog: Program) => {
-    // Try to find a blog post with the same category/title or slug
     const matchingPost = posts.find(p =>
       p.category.toLowerCase().includes(prog.title.toLowerCase().substring(0, 5)) ||
       p.slug.includes(prog.slug)
@@ -42,9 +88,6 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
       onSelect();
     }
   };
-
-  if (isLoading) return <div className="py-20 text-center text-gray-400">Loading programs...</div>;
-  if (programs.length === 0) return null;
 
   return (
     <section className={`py-16 md:py-32 ${fullView ? 'bg-gray-50' : 'bg-white'}`}>
@@ -65,14 +108,17 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
                 {prog.image ? (
                   <img
                     src={getMediaUrl(prog.image)}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${prog.slug || prog.id}/800/600`;
+                    }}
                     alt={`JDPC Bauchi Program: ${prog.title}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
                     decoding="async"
                   />
                 ) : (
-                  <div className={`w-full h-full ${prog.color} opacity-20 flex items-center justify-center text-5xl`}>
-                    {prog.icon}
+                  <div className={`w-full h-full ${prog.color || 'bg-green-600'} opacity-20 flex items-center justify-center text-5xl`}>
+                    {prog.icon || '📌'}
                   </div>
                 )}
               </div>

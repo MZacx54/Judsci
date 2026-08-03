@@ -403,13 +403,19 @@ Through JUDSCI's various interventions, many women have gained financial indepen
 
     print("Population Complete!")
 
-    # --- Create Superuser ---
-    admin_user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@judsci.org.ng', 'is_staff': True, 'is_superuser': True})
-    admin_user.set_password('Admin@12345')
-    admin_user.is_staff = True
-    admin_user.is_superuser = True
-    admin_user.save()
-    print("Created/Updated Superuser: admin / Admin@12345")
+    # --- Create Superuser Accounts ---
+    for uname in ['admin', 'judsci_admin']:
+        try:
+            u, _ = User.objects.get_or_create(username=uname)
+            u.email = f"{uname}@judsci.org.ng"
+            u.set_password('Admin@12345')
+            u.is_staff = True
+            u.is_superuser = True
+            u.is_active = True
+            u.save()
+            print(f"FORCED RESET SUPERUSER: username={uname} password=Admin@12345 (active=True, staff=True)")
+        except Exception as e:
+            print(f"Error resetting superuser {uname}: {e}")
 
 if __name__ == '__main__':
     populate()

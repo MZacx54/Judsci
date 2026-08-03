@@ -2,32 +2,60 @@ import React from 'react';
 import { API_ENDPOINTS, getMediaUrl } from '../config';
 import { BlogPost } from '../types';
 
-
 interface NewsSectionProps {
   fullView?: boolean;
   onReadStory?: (post: BlogPost) => void;
   onSeeAll?: () => void;
 }
 
+const DEFAULT_POSTS: BlogPost[] = [
+  {
+    id: 1,
+    title: "Restoring Health and Dignity through Potable Water in Rijin Gani",
+    slug: "rijin-gani-water-success",
+    category: "Success Stories",
+    summary: "How a community gained reliable access to safe drinking water and eliminated waterborne diseases through JUDSCI's intervention.",
+    body: "In Rijin Gani community of Bauchi Diocese, women and children long relied on unsafe surface water, leading to frequent waterborne diseases. JUDSCI Bauchi constructed a motorized borehole along with VIP latrines, providing clean water to over 350 households.",
+    author: "JUDSCI Media Team",
+    published_date: "2024-05-15"
+  },
+  {
+    id: 2,
+    title: "Bridging Divides through Dialogue and Interfaith Cooperation",
+    slug: "peace-building-dialogue",
+    category: "Peace Building",
+    summary: "Strengthening interfaith collaboration and community trust through inclusive dialogue sessions across the Diocese.",
+    body: "JUDSCI Bauchi intervened by facilitating inclusive dialogue sessions and strengthening interfaith and community structures across Bauchi and Gombe States.",
+    author: "JUDSCI Peace Desk",
+    published_date: "2024-06-10"
+  },
+  {
+    id: 3,
+    title: "Community-Led Sanitation: A Path to Better Health",
+    slug: "sanitation-success",
+    category: "WASH",
+    summary: "Eliminating open defecation and promoting hygiene through community ownership and behavior change.",
+    body: "JUDSCI supported the construction of VIP latrines and conducted extensive hygiene promotion sessions in rural communities.",
+    author: "JUDSCI WASH Team",
+    published_date: "2024-07-02"
+  }
+];
+
 const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeAll }) => {
-  const [posts, setPosts] = React.useState<BlogPost[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [posts, setPosts] = React.useState<BlogPost[]>(DEFAULT_POSTS);
 
   React.useEffect(() => {
     fetch(API_ENDPOINTS.POSTS)
       .then(res => res.json())
       .then(data => {
-        setPosts(data);
-        setIsLoading(false);
+        if (Array.isArray(data) && data.length > 0) {
+          setPosts(data);
+        }
       })
       .catch(err => {
-        console.error("Failed to fetch posts:", err);
-        setIsLoading(false);
+        console.error("Failed to fetch posts, using defaults:", err);
       });
   }, []);
-
-  if (isLoading) return <div className="py-20 text-center text-gray-400">Loading stories...</div>;
-  if (posts.length === 0) return null;
 
   const displayPosts = fullView ? posts : posts.slice(0, 3);
 
@@ -54,7 +82,10 @@ const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeA
             <article key={post.id} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all group border border-gray-100 flex flex-col h-full">
               <div className="h-64 overflow-hidden relative cursor-pointer" onClick={() => onReadStory?.(post)}>
                 <img
-                  src={post.image ? getMediaUrl(post.image) : `https://picsum.photos/seed/${post.slug}/800/600`}
+                  src={post.image ? getMediaUrl(post.image) : `https://picsum.photos/seed/${post.slug || post.id}/800/600`}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${post.slug || post.id}/800/600`;
+                  }}
                   alt={`JDPC Bauchi News: ${post.title}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
@@ -65,7 +96,9 @@ const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeA
                 </span>
               </div>
               <div className="p-8 flex flex-col flex-grow">
-                <div className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">{new Date(post.published_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                  {post.published_date ? new Date(post.published_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Recent'}
+                </div>
                 <h3
                   className="text-xl font-bold mb-4 group-hover:text-green-700 transition-colors cursor-pointer leading-tight"
                   onClick={() => onReadStory?.(post)}
