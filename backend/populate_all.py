@@ -47,10 +47,22 @@ def populate():
     print(f"DEBUG: Program model available: {Program}")
     print("Populating Database with fresh initial content...")
 
-    # Ensure PostgreSQL table schema is synced for Supabase
+    # Ensure PostgreSQL tables and columns exist on Supabase
     from django.db import connection
     try:
         with connection.cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS core_program (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(200) NOT NULL DEFAULT '',
+                    slug VARCHAR(200) NOT NULL DEFAULT '',
+                    icon VARCHAR(50) NOT NULL DEFAULT '📌',
+                    color VARCHAR(50) NOT NULL DEFAULT 'bg-green-500',
+                    description TEXT NOT NULL DEFAULT '',
+                    full_content TEXT NOT NULL DEFAULT '',
+                    image VARCHAR(255)
+                );
+            """)
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS slug VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS icon VARCHAR(50) DEFAULT '📌';")
@@ -59,16 +71,47 @@ def populate():
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS impact_impactstat (
+                    id SERIAL PRIMARY KEY,
+                    label VARCHAR(100) NOT NULL DEFAULT '',
+                    value INTEGER NOT NULL DEFAULT 0,
+                    suffix VARCHAR(10) NOT NULL DEFAULT '',
+                    icon VARCHAR(50) NOT NULL DEFAULT ''
+                );
+            """)
             cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS label VARCHAR(100) DEFAULT '';")
             cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS value INTEGER DEFAULT 0;")
             cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS suffix VARCHAR(10) DEFAULT '';")
             cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS icon VARCHAR(50) DEFAULT '';")
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS impact_impactlocation (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(100) NOT NULL DEFAULT '',
+                    description TEXT NOT NULL DEFAULT '',
+                    latitude NUMERIC(9,6) NOT NULL DEFAULT 0.0,
+                    longitude NUMERIC(9,6) NOT NULL DEFAULT 0.0
+                );
+            """)
             cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS title VARCHAR(100) DEFAULT '';")
             cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
-            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS latitude DECIMAL(9, 6) DEFAULT 0.0;")
-            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS longitude DECIMAL(9, 6) DEFAULT 0.0;")
+            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS latitude NUMERIC(9, 6) DEFAULT 0.0;")
+            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS longitude NUMERIC(9, 6) DEFAULT 0.0;")
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS news_blogpost (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(200) NOT NULL DEFAULT '',
+                    slug VARCHAR(200) NOT NULL DEFAULT '',
+                    category VARCHAR(50) NOT NULL DEFAULT '',
+                    summary TEXT NOT NULL DEFAULT '',
+                    body TEXT NOT NULL DEFAULT '',
+                    image VARCHAR(255),
+                    author VARCHAR(100) NOT NULL DEFAULT 'JUDSCI Admin',
+                    published_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS slug VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT '';")
@@ -78,6 +121,17 @@ def populate():
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS author VARCHAR(100) DEFAULT '';")
             cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS published_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS resources_resource (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(200) NOT NULL DEFAULT '',
+                    type VARCHAR(50) NOT NULL DEFAULT 'ANNUAL_REPORT',
+                    date DATE DEFAULT CURRENT_DATE,
+                    file VARCHAR(255),
+                    cover_image VARCHAR(255),
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
             cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'ANNUAL_REPORT';")
             cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS date DATE DEFAULT CURRENT_DATE;")
@@ -85,6 +139,16 @@ def populate():
             cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255);")
             cursor.execute("ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS gallery_photo (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(200) NOT NULL DEFAULT '',
+                    category VARCHAR(50) NOT NULL DEFAULT '',
+                    caption TEXT NOT NULL DEFAULT '',
+                    image VARCHAR(255),
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT '';")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS caption TEXT DEFAULT '';")
