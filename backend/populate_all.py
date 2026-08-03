@@ -58,6 +58,29 @@ def populate():
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
+
+            cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS label VARCHAR(100) DEFAULT '';")
+            cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS value INTEGER DEFAULT 0;")
+            cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS suffix VARCHAR(10) DEFAULT '';")
+            cursor.execute("ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS icon VARCHAR(50) DEFAULT '';")
+
+            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS title VARCHAR(100) DEFAULT '';")
+            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
+            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS latitude DECIMAL(9, 6) DEFAULT 0.0;")
+            cursor.execute("ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS longitude DECIMAL(9, 6) DEFAULT 0.0;")
+
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS slug VARCHAR(200) DEFAULT '';")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT '';")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS summary TEXT DEFAULT '';")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS body TEXT DEFAULT '';")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
+            cursor.execute("ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS author VARCHAR(100) DEFAULT '';")
+
+            cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS title VARCHAR(200) DEFAULT '';")
+            cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT '';")
+            cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS caption TEXT DEFAULT '';")
+            cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
     except Exception as e:
         print(f"Schema sync notice: {e}")
 
@@ -308,11 +331,12 @@ Through JUDSCI's various interventions, many women have gained financial indepen
     print("Population Complete!")
 
     # --- Create Superuser ---
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-        print("Created Superuser: admin / admin123")
-    else:
-        print("Superuser 'admin' already exists.")
+    admin_user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@judsci.org.ng', 'is_staff': True, 'is_superuser': True})
+    admin_user.set_password('Admin@12345')
+    admin_user.is_staff = True
+    admin_user.is_superuser = True
+    admin_user.save()
+    print("Created/Updated Superuser: admin / Admin@12345")
 
 if __name__ == '__main__':
     populate()
