@@ -178,7 +178,7 @@ const AppContent: React.FC = () => {
         <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
           &copy; {new Date().getFullYear()} JUDSCI Bauchi. All Rights Reserved.
           <div className="mt-2 text-xs text-gray-600">
-            Designed and Developed by <a href="https://g.co/kgs/jJdzmHp" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-green-600 transition-colors">Zacx Digital Agency</a>
+            Designed and Developed by <a href="https://portfolio.smartbizcoach.com.ng/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-green-600 transition-colors">SmartBiz Coach</a>
           </div>
         </div>
       </footer>
