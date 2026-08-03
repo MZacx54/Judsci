@@ -157,6 +157,20 @@ def populate():
     except Exception as e:
         print(f"Schema sync notice: {e}")
 
+    # --- Step 1: Create Superuser Accounts FIRST ---
+    for uname in ['admin', 'judsci_admin', 'superadmin']:
+        try:
+            u, _ = User.objects.get_or_create(username=uname)
+            u.email = f"{uname}@judsci.org.ng"
+            u.set_password('Admin@12345')
+            u.is_staff = True
+            u.is_superuser = True
+            u.is_active = True
+            u.save()
+            print(f"GUARANTEED SUPERUSER CREATED/RESET: username={uname} password=Admin@12345 (is_staff=True, is_active=True)")
+        except Exception as e:
+            print(f"Superuser creation notice for {uname}: {e}")
+
     # --- Programs ---
     try:
         Program.objects.all().delete()
@@ -377,13 +391,17 @@ Through JUDSCI's various interventions, many women have gained financial indepen
             print(f"Error adding {filename} to Gallery: {e}")
 
     # --- Impact Stats ---
-    ImpactStat.objects.all().delete()
+    try:
+        ImpactStat.objects.all().delete()
+    except Exception as e:
+        print(f"Notice deleting stats: {e}")
+
     print("Populating Impact Stats...")
     stats_data = [
-        {"label": "Boreholes Constructed", "value": 150, "suffix": "+", "icon": "droplets"},
-        {"label": "People Reached", "value": 25000, "suffix": "+", "icon": "users"},
-        {"label": "Peace Clubs Established", "value": 45, "suffix": "", "icon": "peace"},
-        {"label": "Women Empowered", "value": 1200, "suffix": "+", "icon": "woman"},
+        {"label": "Households Reached", "value": 35000, "suffix": "+", "icon": "users"},
+        {"label": "Communities Served", "value": 60, "suffix": "", "icon": "home"},
+        {"label": "LGAs Covered", "value": 8, "suffix": "", "icon": "map-pin"},
+        {"label": "Completed Projects", "value": 10, "suffix": "", "icon": "check-circle"},
     ]
     for s_data in stats_data:
         ImpactStat.objects.create(**s_data)
