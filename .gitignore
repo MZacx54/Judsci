@@ -8,8 +8,8 @@ db.sqlite3
 
 # JavaScript
 node_modules/
-dist/
 .env.local
+!frontend/dist/
 
 # OS
 .DS_Store

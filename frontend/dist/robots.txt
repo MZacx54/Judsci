@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://judsci.org.ng/sitemap.xml
