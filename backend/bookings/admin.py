@@ -87,9 +87,12 @@ JUDSCI Bauchi Team
 """
 
         if subject and message:
-            send_async_email(
-                subject=subject, 
-                body=message, 
-                to_email=[appointment.email],
-                reply_to=[settings.EMAIL_HOST_USER]
-            )
+            try:
+                send_async_email(
+                    subject=subject, 
+                    body=message, 
+                    to_email=[appointment.email],
+                    reply_to=[getattr(settings, 'EMAIL_HOST_USER', 'info@judsci.org.ng')]
+                )
+            except Exception as e:
+                print(f"Notice sending appointment status email: {e}")

@@ -175,6 +175,14 @@ def populate():
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS name VARCHAR(200) DEFAULT '';")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS email VARCHAR(254) DEFAULT '';")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS phone VARCHAR(20) DEFAULT '';")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS date DATE DEFAULT CURRENT_DATE;")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS time TIME DEFAULT '10:00:00';")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS reason TEXT DEFAULT '';")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDING';")
+            cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS donations_donation (
@@ -182,13 +190,19 @@ def populate():
                     donor_name VARCHAR(100) NOT NULL DEFAULT 'Anonymous',
                     email VARCHAR(254) NOT NULL DEFAULT '',
                     amount NUMERIC(12,2) NOT NULL DEFAULT 0.00,
-                    currency VARCHAR(10) NOT NULL DEFAULT 'NGN',
                     reference VARCHAR(100) NOT NULL DEFAULT '',
                     project_category VARCHAR(100) DEFAULT '',
                     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS donor_name VARCHAR(100) DEFAULT 'Anonymous';")
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS email VARCHAR(254) DEFAULT '';")
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS amount NUMERIC(12,2) DEFAULT 0.00;")
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS reference VARCHAR(100) DEFAULT '';")
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS project_category VARCHAR(100) DEFAULT '';")
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDING';")
+            cursor.execute("ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
     except Exception as e:
         print(f"Schema sync notice: {e}")
 
