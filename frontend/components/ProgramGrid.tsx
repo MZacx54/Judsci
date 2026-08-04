@@ -121,6 +121,9 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
                     {prog.icon || '📌'}
                   </div>
                 )}
+                <div className="absolute top-4 right-4 w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center text-2xl z-10 border border-gray-100">
+                  {prog.icon || '📌'}
+                </div>
               </div>
 
               <div className="p-8 flex flex-col flex-grow">

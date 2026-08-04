@@ -20,6 +20,8 @@ from impact.models import ImpactStat, ImpactLocation
 from news.models import BlogPost
 from resources.models import Resource
 from gallery.models import Photo
+from bookings.models import Appointment
+from donations.models import Donation
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -159,6 +161,34 @@ def populate():
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS caption TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
             cursor.execute("ALTER TABLE gallery_photo ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;")
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS bookings_appointment (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(200) NOT NULL DEFAULT '',
+                    email VARCHAR(254) NOT NULL DEFAULT '',
+                    phone VARCHAR(20) NOT NULL DEFAULT '',
+                    date DATE DEFAULT CURRENT_DATE,
+                    time TIME DEFAULT '10:00:00',
+                    reason TEXT NOT NULL DEFAULT '',
+                    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS donations_donation (
+                    id SERIAL PRIMARY KEY,
+                    donor_name VARCHAR(100) NOT NULL DEFAULT 'Anonymous',
+                    email VARCHAR(254) NOT NULL DEFAULT '',
+                    amount NUMERIC(12,2) NOT NULL DEFAULT 0.00,
+                    currency VARCHAR(10) NOT NULL DEFAULT 'NGN',
+                    reference VARCHAR(100) NOT NULL DEFAULT '',
+                    project_category VARCHAR(100) DEFAULT '',
+                    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
     except Exception as e:
         print(f"Schema sync notice: {e}")
 
@@ -416,16 +446,50 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         print(f"Created Stat: {s_data['label']}")
 
     # --- Impact Locations ---
-    ImpactLocation.objects.all().delete()
-    print("Populating Impact Locations...")
-    locations_data = [
-        {"title": "Bauchi City Hub", "description": "LGA HQ and coordination center for WASH projects.", "latitude": 10.3158, "longitude": 9.8442},
-        {"title": "Bogoro Outreach", "description": "Active Peace Building and Agriculture training site.", "latitude": 9.6000, "longitude": 9.5000},
-        {"title": "Gombe Field Office", "description": "Regional hub for empowerment programs in Gombe State.", "latitude": 10.2897, "longitude": 11.1673},
-    ]
-    for l_data in locations_data:
-        ImpactLocation.objects.create(**l_data)
-        print(f"Created Location: {l_data['title']}")
+    try:
+        ImpactLocation.objects.all().delete()
+        print("Populating Impact Locations...")
+        locations_data = [
+            {"title": "Bauchi City Hub", "description": "LGA HQ and coordination center for WASH projects.", "latitude": 10.3158, "longitude": 9.8442},
+            {"title": "Bogoro Outreach", "description": "Active Peace Building and Agriculture training site.", "latitude": 9.6000, "longitude": 9.5000},
+            {"title": "Gombe Field Office", "description": "Regional hub for empowerment programs in Gombe State.", "latitude": 10.2897, "longitude": 11.1673},
+        ]
+        for l_data in locations_data:
+            ImpactLocation.objects.create(**l_data)
+            print(f"Created Location: {l_data['title']}")
+    except Exception as e:
+        print(f"Notice populating locations: {e}")
+
+    # --- Sample Appointments ---
+    try:
+        if Appointment.objects.count() == 0:
+            Appointment.objects.create(
+                name="Emmanuel Garba",
+                email="emmanuel@example.com",
+                phone="+2348123456789",
+                date=timezone.now().date(),
+                time="10:00:00",
+                reason="Consultation regarding Prison Apostolate legal aid outreach in Bauchi Central.",
+                status="PENDING"
+            )
+            print("Created sample Appointment record")
+    except Exception as e:
+        print(f"Notice creating sample appointment: {e}")
+
+    # --- Sample Donations ---
+    try:
+        if Donation.objects.count() == 0:
+            Donation.objects.create(
+                donor_name="Misereor Partner Support",
+                email="donor@example.org",
+                amount=250000.00,
+                reference="REF-JUDSCI-2024-001",
+                project_category="WASH Interventions",
+                status="SUCCESS"
+            )
+            print("Created sample Donation record")
+    except Exception as e:
+        print(f"Notice creating sample donation: {e}")
 
     print("Population Complete!")
 
