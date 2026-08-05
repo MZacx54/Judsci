@@ -66,19 +66,20 @@ const BookingSystem: React.FC = () => {
 
     setLoading(true);
     try {
+      const formattedTime = selectedTime.includes(':') && selectedTime.split(':').length === 2 ? `${selectedTime}:00` : selectedTime;
       const res = await fetch(API_ENDPOINTS.BOOKINGS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
           date: dateStr,
-          time: selectedTime,
+          time: formattedTime,
         }),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok || res.status === 201 || res.status === 200) {
         setSubmitted(true);
         setTimeout(() => {
           setSubmitted(false);
