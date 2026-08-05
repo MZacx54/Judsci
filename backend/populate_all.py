@@ -3,18 +3,14 @@ import django
 from django.core.files import File
 from django.utils import timezone
 from datetime import timedelta
+from pathlib import Path
 
-# Setup Django environment - Updated 2026-02-08 19:30
+# Setup Django environment
 import environ
 env = environ.Env()
-# Setup Django environment - Updated 2026-02-08 19:30
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jdpc_bauchi_api.settings')
 django.setup()
 
-
-
-
-from pathlib import Path
 from core.models import Program
 from impact.models import ImpactStat, ImpactLocation
 from news.models import BlogPost
@@ -27,27 +23,11 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 def populate():
-    # Get absolute path to the backend directory
     base_dir = Path(__file__).resolve().parent
     assets_dir = base_dir / 'assets'
     images_dir = assets_dir / 'Images'
 
-    print(f"Starting population from: {base_dir}")
-    print(f"Expecting assets at: {assets_dir}")
-    print(f"Current working directory: {os.getcwd()}")
-    print(f"Assets dir exists: {assets_dir.exists()}")
-    if assets_dir.exists():
-        print(f"Contents of assets: {os.listdir(assets_dir)}")
-    
-    # Check Cloudinary env
-    c_url = os.environ.get('CLOUDINARY_URL')
-    print(f"DEBUG: CLOUDINARY_URL present in os.environ: {bool(c_url)}")
-    if not c_url:
-        print(f"DEBUG: Individual keys: NAME={bool(os.environ.get('CLOUDINARY_CLOUD_NAME'))}, KEY={bool(os.environ.get('CLOUDINARY_API_KEY'))}")
-
-    print("--- POPULATION SCRIPT V1.2 (VERBOSE) ---")
-    print(f"DEBUG: Program model available: {Program}")
-    print("Populating Database with fresh initial content...")
+    print("--- POPULATION SCRIPT V2.0 (SAFE UPDATE OR CREATE) ---")
 
     # Ensure PostgreSQL tables and columns exist on Supabase
     from django.db import connection
@@ -75,6 +55,11 @@ def populate():
             try:
                 cursor.execute("ALTER TABLE core_program ALTER COLUMN summary DROP NOT NULL;")
                 cursor.execute("ALTER TABLE core_program ALTER COLUMN summary SET DEFAULT '';")
+            except Exception:
+                pass
+            try:
+                cursor.execute("ALTER TABLE core_program ALTER COLUMN full_content DROP NOT NULL;")
+                cursor.execute("ALTER TABLE core_program ALTER COLUMN full_content SET DEFAULT '';")
             except Exception:
                 pass
 
@@ -220,11 +205,7 @@ def populate():
         except Exception as e:
             print(f"Superuser creation notice for {uname}: {e}")
 
-    # --- Programs ---
-    try:
-        Program.objects.all().delete()
-    except Exception as e:
-        print(f"Notice during program delete: {e}")
+    # --- Programs (Using update_or_create) ---
     programs_data = [
         {
             "title": "Water, Sanitation and Hygiene (WASH)",
@@ -270,14 +251,13 @@ def populate():
 
     for p_data in programs_data:
         try:
-            Program.objects.create(**p_data)
-            print(f"Created/Reset Program: {p_data['title']}")
+            slug = p_data.pop('slug')
+            prog, _ = Program.objects.update_or_create(slug=slug, defaults=p_data)
+            print(f"Created/Updated Program: {prog.title}")
         except Exception as e:
-            print(f"Notice creating Program {p_data['title']}: {e}")
+            print(f"Notice updating Program {p_data.get('title')}: {e}")
 
-    # --- News & Blog Posts ---
-    BlogPost.objects.all().delete()
-    
+    # --- News & Blog Posts (Using update_or_create) ---
     news_items = [
         {
             "title": "Restoring Health and Dignity through Potable Water in Rijin Gani",
@@ -331,24 +311,21 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         }
     ]
 
-    # Assets directories are already defined above
-
     for item in news_items:
         image_name = item.pop('image')
-        post = BlogPost.objects.create(**item)
-        
-        img_path = images_dir / image_name
-        if img_path.exists():
-            try:
-                with open(img_path, 'rb') as f:
-                    post.image.save(image_name, File(f), save=True)
-                print(f"Created News: {item['title']} (with image)")
-            except Exception as e:
-                print(f"FAILED to upload image for News {item['title']}: {e}")
-                post.save() # Save without image if upload fails
-        else:
-            print(f"Created News: {item['title']} (NO image found: {image_name})")
-
+        slug = item.pop('slug')
+        try:
+            post, created = BlogPost.objects.update_or_create(slug=slug, defaults=item)
+            img_path = images_dir / image_name
+            if img_path.exists() and not post.image:
+                try:
+                    with open(img_path, 'rb') as f:
+                        post.image.save(image_name, File(f), save=True)
+                except Exception as e:
+                    print(f"Notice saving image for News {slug}: {e}")
+            print(f"Created/Updated News: {post.title}")
+        except Exception as e:
+            print(f"Notice creating News {slug}: {e}")
 
     # --- Map Images to Programs ---
     image_map = {
@@ -361,45 +338,40 @@ Through JUDSCI's various interventions, many women have gained financial indepen
 
     for slug, filename in image_map.items():
         try:
-            program = Program.objects.get(slug=slug)
-            img_path = images_dir / filename
-            if img_path.exists():
-                with open(img_path, 'rb') as f:
-                    program.image.save(filename, File(f), save=True)
-                print(f"Added image to Program: {slug}")
+            program = Program.objects.filter(slug=slug).first()
+            if program and not program.image:
+                img_path = images_dir / filename
+                if img_path.exists():
+                    with open(img_path, 'rb') as f:
+                        program.image.save(filename, File(f), save=True)
+                    print(f"Added image to Program: {slug}")
         except Exception as e:
             print(f"Error adding image to {slug}: {e}")
 
-    # --- Resources ---
-    Resource.objects.all().delete()
+    # --- Resources (Using get_or_create) ---
     pdf_name = "ANNUAL NARRATIVE REPORT 2023 (1).pdf"
     pdf_path = assets_dir / pdf_name
-    
-    if pdf_path.exists():
-        try:
+    try:
+        res, created = Resource.objects.get_or_create(
+            title="Annual Narrative Report 2023",
+            defaults={
+                "type": "Annual Report",
+                "date": timezone.now().date()
+            }
+        )
+        if pdf_path.exists() and not res.file:
             with open(pdf_path, 'rb') as f:
-                Resource.objects.create(
-                    title="Annual Narrative Report 2023",
-                    type="Annual Report",
-                    date=timezone.now().date(),
-                    file=File(f, name=pdf_name)
-                )
-            print("Created Annual Report Resource")
-        except Exception as e:
-            print(f"FAILED to upload PDF Resource: {e}")
-    else:
-        print(f"PDF not found at {pdf_path}")
+                res.file.save(pdf_name, File(f), save=True)
+        print("Created/Verified Annual Report Resource")
+    except Exception as e:
+        print(f"Notice creating Resource: {e}")
 
-    # --- Photo Gallery ---
-    Photo.objects.all().delete()
+    # --- Photo Gallery (Using get_or_create) ---
     print("Populating Photo Gallery...")
     gallery_images = [
-        # --- WASH ---
         {"title": "Borehole Commissioning", "category": "WASH", "filename": "Borehole Commissioning Pictures (49).JPG.jpeg", "caption": "Official commissioning of a new motorized borehole providing clean water to over 350 households in Rijin Gani."},
         {"title": "Sanitation Training Session", "category": "WASH", "filename": "Borehole Commissioning Pictures (44).JPG.jpeg", "caption": "JUDSCI team conducting hygiene and sanitation sensitization in rural communities."},
         {"title": "Technical Inspection", "category": "WASH", "filename": "Borehole Commissioning Pictures (37).JPG.jpeg", "caption": "Quality assurance and technical inspection of newly constructed WASH infrastructure."},
-
-        # --- PEACE BUILDING ---
         {"title": "Peace Club Launch", "category": "PEACE_BUILDING", "filename": "GSS Bogoro LGA Peace Club members (24).JPG.jpeg", "caption": "Students of GSS Bogoro participating in the launch of the community Peace Club."},
         {"title": "Youth Peace Dialogue", "category": "PEACE_BUILDING", "filename": "GSS Bogoro LGA Peace Club members (30).JPG.jpeg", "caption": "Interfaith youth leaders engaging in dialogue to foster religious tolerance."},
         {"title": "Conflict Resolution Workshop", "category": "PEACE_BUILDING", "filename": "GSS Bogoro LGA Peace Club members (31).JPG.jpeg", "caption": "Training community members on sustainable conflict resolution techniques."},
@@ -407,8 +379,6 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         {"title": "Sports for Unity", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0023.jpg.jpeg", "caption": "Youth teams competing in unity during the regional Peace Sports event."},
         {"title": "Peace Advocacy through Sports", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0032.jpg.jpeg", "caption": "Using sports as a tool for bridge-building between diverse ethnic groups."},
         {"title": "Harmony Dialogue Session", "category": "PEACE_BUILDING", "filename": "IMG-20250906-WA0034.jpg.jpeg", "caption": "Community elders discussing shared resources and harmony."},
-
-        # --- EMPOWERMENT ---
         {"title": "Vocational Skills Center", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0085.jpg.jpeg", "caption": "Ongoing vocational skills training for vulnerable women and youth."},
         {"title": "Entrepreneurship Workshop", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0039.jpg.jpeg", "caption": "Empowering women with entrepreneurship and business management skills."},
         {"title": "Youth Skills Acquisition", "category": "EMPOWERMENT", "filename": "IMG-20250906-WA0040.jpg.jpeg", "caption": "Empowering the next generation through practical vocational training."},
@@ -420,39 +390,27 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         {"title": "Community Leadership Outreach", "category": "EMPOWERMENT", "filename": "IMG_1843.JPG.jpeg", "caption": "Engaging community leaders on women's rights and economic participation."},
         {"title": "Youth Leadership Summit", "category": "EMPOWERMENT", "filename": "IMG_1849.JPG.jpeg", "caption": "Empowering youth leaders with global advocacy skills."},
         {"title": "Economic Resilience Session", "category": "EMPOWERMENT", "filename": "IMG_1866.JPG.jpeg", "caption": "Building resilience through diversified income generation training."},
-
-        # --- PRISON APOSTOLATE ---
         {"title": "Prison Visitation", "category": "PRISON_APOSTOLATE", "filename": "IMG_20250909_093607.jpg.jpeg", "caption": "Welfare support and counseling visit to a correctional facility in Bauchi."},
         {"title": "Legal Aid Outreach", "category": "PRISON_APOSTOLATE", "filename": "IMG_20250909_093613.jpg.jpeg", "caption": "Providing legal guidance and human rights awareness to inmates."},
         {"title": "Inmate Support Program", "category": "PRISON_APOSTOLATE", "filename": "IMG_20250909_093705.jpg.jpeg", "caption": "Donation of welfare materials and essential supplies to correctional centers."},
-
-        # --- SUSTAINABLE AGRIC ---
         {"title": "Modern Farming Demo", "category": "SUSTAINABLE_AGRIC", "filename": "sustainable_agric.jpg", "caption": "Demonstrating sustainable agricultural techniques to improve food security."},
-
-        # --- GENERAL ---
         {"title": "Stakeholder Engagement", "category": "GENERAL", "filename": "IMG-20200310-WA0004.jpg.jpeg", "caption": "JUDSCI Bauchi coordinating with local stakeholders on regional development."},
     ]
 
     for img_data in gallery_images:
         filename = img_data.pop('filename')
+        title = img_data['title']
         try:
-            photo = Photo.objects.create(**img_data)
+            photo, created = Photo.objects.get_or_create(title=title, defaults=img_data)
             img_path = images_dir / filename
-            if img_path.exists():
+            if img_path.exists() and not photo.image:
                 with open(img_path, 'rb') as f:
                     photo.image.save(filename, File(f), save=True)
-                print(f"Added to Gallery: {img_data['title']}")
-            else:
-                print(f"Gallery Image NOT found: {filename}")
+            print(f"Verified Gallery: {title}")
         except Exception as e:
-            print(f"Error adding {filename} to Gallery: {e}")
+            print(f"Error adding {title} to Gallery: {e}")
 
-    # --- Impact Stats ---
-    try:
-        ImpactStat.objects.all().delete()
-    except Exception as e:
-        print(f"Notice deleting stats: {e}")
-
+    # --- Impact Stats (Using update_or_create) ---
     print("Populating Impact Stats...")
     stats_data = [
         {"label": "Households Reached", "value": 35000, "suffix": "+", "icon": "users"},
@@ -461,70 +419,61 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         {"label": "Completed Projects", "value": 10, "suffix": "", "icon": "check-circle"},
     ]
     for s_data in stats_data:
-        ImpactStat.objects.create(**s_data)
-        print(f"Created Stat: {s_data['label']}")
+        label = s_data.pop('label')
+        try:
+            ImpactStat.objects.update_or_create(label=label, defaults=s_data)
+            print(f"Created/Updated Stat: {label}")
+        except Exception as e:
+            print(f"Notice stat {label}: {e}")
 
-    # --- Impact Locations ---
+    # --- Impact Locations (Using update_or_create) ---
     try:
-        ImpactLocation.objects.all().delete()
-        print("Populating Impact Locations...")
         locations_data = [
             {"title": "Bauchi City Hub", "description": "LGA HQ and coordination center for WASH projects.", "latitude": 10.3158, "longitude": 9.8442},
             {"title": "Bogoro Outreach", "description": "Active Peace Building and Agriculture training site.", "latitude": 9.6000, "longitude": 9.5000},
             {"title": "Gombe Field Office", "description": "Regional hub for empowerment programs in Gombe State.", "latitude": 10.2897, "longitude": 11.1673},
         ]
         for l_data in locations_data:
-            ImpactLocation.objects.create(**l_data)
-            print(f"Created Location: {l_data['title']}")
+            title = l_data.pop('title')
+            ImpactLocation.objects.update_or_create(title=title, defaults=l_data)
+            print(f"Created/Updated Location: {title}")
     except Exception as e:
         print(f"Notice populating locations: {e}")
 
-    # --- Sample Appointments ---
+    # --- Sample Appointments (Using get_or_create) ---
     try:
-        if Appointment.objects.count() == 0:
-            Appointment.objects.create(
-                name="Emmanuel Garba",
-                email="emmanuel@example.com",
-                phone="+2348123456789",
-                date=timezone.now().date(),
-                time="10:00:00",
-                reason="Consultation regarding Prison Apostolate legal aid outreach in Bauchi Central.",
-                status="PENDING"
-            )
-            print("Created sample Appointment record")
+        Appointment.objects.get_or_create(
+            email="emmanuel@example.com",
+            defaults={
+                "name": "Emmanuel Garba",
+                "phone": "+2348123456789",
+                "date": timezone.now().date(),
+                "time": "10:00:00",
+                "reason": "Consultation regarding Prison Apostolate legal aid outreach in Bauchi Central.",
+                "status": "PENDING"
+            }
+        )
+        print("Verified sample Appointment record")
     except Exception as e:
         print(f"Notice creating sample appointment: {e}")
 
-    # --- Sample Donations ---
+    # --- Sample Donations (Using get_or_create) ---
     try:
-        if Donation.objects.count() == 0:
-            Donation.objects.create(
-                donor_name="Misereor Partner Support",
-                email="donor@example.org",
-                amount=250000.00,
-                reference="REF-JUDSCI-2024-001",
-                project_category="WASH Interventions",
-                status="SUCCESS"
-            )
-            print("Created sample Donation record")
+        Donation.objects.get_or_create(
+            reference="REF-JUDSCI-2024-001",
+            defaults={
+                "donor_name": "Misereor Partner Support",
+                "email": "donor@example.org",
+                "amount": 250000.00,
+                "project_category": "WASH Interventions",
+                "status": "SUCCESS"
+            }
+        )
+        print("Verified sample Donation record")
     except Exception as e:
         print(f"Notice creating sample donation: {e}")
 
     print("Population Complete!")
-
-    # --- Create Superuser Accounts ---
-    for uname in ['admin', 'judsci_admin']:
-        try:
-            u, _ = User.objects.get_or_create(username=uname)
-            u.email = f"{uname}@judsci.org.ng"
-            u.set_password('Admin@12345')
-            u.is_staff = True
-            u.is_superuser = True
-            u.is_active = True
-            u.save()
-            print(f"FORCED RESET SUPERUSER: username={uname} password=Admin@12345 (active=True, staff=True)")
-        except Exception as e:
-            print(f"Error resetting superuser {uname}: {e}")
 
 if __name__ == '__main__':
     populate()
