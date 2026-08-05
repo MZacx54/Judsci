@@ -60,8 +60,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         appointment = serializer.save()
         
-        # 1. Background Confirmation to User
-        user_msg = f"""Dear {appointment.name},
+        try:
+            user_msg = f"""Dear {appointment.name},
 
 Thank you for contacting JUDSCI Bauchi. Your appointment request has been received and is currently PENDING review.
 
@@ -75,19 +75,16 @@ You will receive another email once your appointment is confirmed or if we need 
 Regards,
 JUDSCI Bauchi Team
 """
-        # Reply-To set to support email so user replies go to admin
-        send_async_email(
-            subject="Appointment Received: JUDSCI Bauchi", 
-            body=user_msg, 
-            to_email=[appointment.email],
-            reply_to=[settings.EMAIL_HOST_USER]
-        )
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@judsci.org.ng')
+            send_async_email(
+                subject="Appointment Received: JUDSCI Bauchi", 
+                body=user_msg, 
+                to_email=[appointment.email],
+                reply_to=[from_email]
+            )
 
-        # 2. Background Alert to Admin
-        admin_dashboard_url = "https://www.judsci.org.ng/#admin"
-        django_admin_url = "https://www.judsci.org.ng/admin"
-
-        admin_msg = f"""New appointment request received.
+            admin_notification_emails = getattr(settings, 'ADMIN_NOTIFICATION_EMAILS', ['support@judsci.org.ng', 'judscib@gmail.com'])
+            admin_msg = f"""New appointment request received.
 
 Name: {appointment.name}
 Date: {appointment.date}
@@ -97,16 +94,16 @@ Phone: {appointment.phone}
 Email: {appointment.email}
 
 Please log in to the admin dashboard to Approve or Reject this request.
-React Dashboard: {admin_dashboard_url}
-Django Admin: {django_admin_url}
+Django Admin: https://www.judsci.org.ng/admin
 """
-        # Reply-To set to user's email so admin can hit reply to contact user
-        send_async_email(
-            subject=f"New Booking Request: {appointment.name}", 
-            body=admin_msg, 
-            to_email=settings.ADMIN_NOTIFICATION_EMAILS,
-            reply_to=[appointment.email]
-        )
+            send_async_email(
+                subject=f"New Booking Request: {appointment.name}", 
+                body=admin_msg, 
+                to_email=admin_notification_emails,
+                reply_to=[appointment.email]
+            )
+        except Exception as e:
+            logger.error(f"Notice sending booking notification email: {e}")
 
     def perform_update(self, serializer):
         instance = self.get_object()
