@@ -229,10 +229,10 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='support@judsci.org.ng')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
 
 # Admin Notification Emails (Comma-separated in .env)
-ADMIN_NOTIFICATION_EMAILS = [email.strip() for email in env.list('ADMIN_NOTIFICATION_EMAILS', default=['support@judsci.org.ng', 'judscib@gmail.com'])]
+ADMIN_NOTIFICATION_EMAILS = [email.strip() for email in env.list('ADMIN_NOTIFICATION_EMAILS', default=['dmzacx@gmail.com', 'judscib@gmail.com', 'support@judsci.org.ng'])]
 
 # Resend API Configuration
 RESEND_API_KEY = env('RESEND_API_KEY', default='')
