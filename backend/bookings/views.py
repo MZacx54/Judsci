@@ -14,36 +14,48 @@ import os
 
 def send_async_email(subject, body, to_email, reply_to=None):
     """
-    Sends an email in a background thread using the Resend HTTPS API.
+    Sends an email in a background thread using Resend API with Django SMTP fallback.
     """
     def _send():
-        try:
-            resend_key = getattr(settings, 'RESEND_API_KEY', '') or os.environ.get('RESEND_API_KEY', '')
-            if not resend_key:
-                logger.info("Resend API key not set, skipping email dispatch.")
-                return
+        recipients = to_email if isinstance(to_email, list) else [to_email]
+        resend_key = getattr(settings, 'RESEND_API_KEY', '') or os.environ.get('RESEND_API_KEY', '')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@judsci.org.ng')
 
-            resend.api_key = resend_key
-            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
+        sent_via_resend = False
 
-            params = {
-                "from": from_email,
-                "to": to_email if isinstance(to_email, list) else [to_email],
-                "subject": subject,
-                "html": body.replace('\n', '<br>'),
-                "text": body,
-            }
-            
-            if reply_to:
-                if isinstance(reply_to, list):
-                    params["reply_to"] = reply_to[0]
-                else:
-                    params["reply_to"] = reply_to
+        if resend_key:
+            try:
+                resend.api_key = resend_key
+                params = {
+                    "from": from_email,
+                    "to": recipients,
+                    "subject": subject,
+                    "html": body.replace('\n', '<br>'),
+                    "text": body,
+                }
+                if reply_to:
+                    params["reply_to"] = reply_to[0] if isinstance(reply_to, list) else reply_to
 
-            response = resend.Emails.send(params)
-            logger.info(f"Resend API success. Email sent to {to_email}. Response: {response}")
-        except Exception as e:
-            logger.error(f"Notice sending email via Resend to {to_email}: {str(e)}")
+                response = resend.Emails.send(params)
+                logger.info(f"[Resend Email Success] Sent to {recipients}. Response: {response}")
+                sent_via_resend = True
+            except Exception as e:
+                logger.warning(f"[Resend Email Warning] Failed to send via Resend ({e}). Trying Django SMTP fallback...")
+
+        # Fallback to Django core mail if Resend was not used or failed
+        if not sent_via_resend:
+            try:
+                msg = EmailMessage(
+                    subject=subject,
+                    body=body,
+                    from_email=from_email,
+                    to=recipients,
+                    reply_to=[reply_to[0] if isinstance(reply_to, list) else reply_to] if reply_to else None,
+                )
+                msg.send(fail_silently=False)
+                logger.info(f"[Django SMTP Success] Sent email to {recipients}")
+            except Exception as e:
+                logger.error(f"[Email Dispatch Error] Failed to send email to {recipients}: {e}")
 
     email_thread = threading.Thread(target=_send)
     email_thread.start()
