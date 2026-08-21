@@ -1,11 +1,71 @@
 import React from 'react';
 
-const PARTNERS = [
-    { name: 'Misereor', category: 'International', logo: '🤝' },
-    { name: 'Catholic Relief Services (CRS)', category: 'International', logo: '✝️' },
-    { name: 'Caritas Nigeria', category: 'Local', logo: '🕊️' },
-    { name: 'JDPH', category: 'Local', logo: '🏠' },
-    { name: 'Pharos Observatoire', category: 'International', logo: '🔭' },
+// Custom SVG partner brand logos
+const MisereorLogo = () => (
+    <div className="w-12 h-12 flex items-center justify-center bg-red-700 text-white rounded-xl shadow-sm font-black text-xs tracking-tighter p-1 text-center leading-none">
+        <div className="flex flex-col items-center">
+            <span className="text-[14px] font-extrabold tracking-widest uppercase">MIS</span>
+            <span className="text-[9px] tracking-tight uppercase opacity-90">EREOR</span>
+        </div>
+    </div>
+);
+
+const CRSLogo = () => (
+    <div className="w-12 h-12 flex items-center justify-center bg-blue-900 text-white rounded-xl shadow-sm font-black text-xs tracking-tighter p-1 text-center leading-none border border-blue-800">
+        <div className="flex flex-col items-center">
+            <span className="text-[14px] font-extrabold tracking-tighter text-red-500">CRS</span>
+            <span className="text-[7px] tracking-widest text-blue-200 uppercase">Relief</span>
+        </div>
+    </div>
+);
+
+const CaritasLogo = () => (
+    <div className="w-12 h-12 flex items-center justify-center bg-rose-800 text-white rounded-xl shadow-sm font-black text-xs tracking-tighter p-1 text-center leading-none">
+        <div className="flex flex-col items-center">
+            <span className="text-base mb-[1px]">✝️</span>
+            <span className="text-[8px] font-black tracking-wider uppercase text-yellow-300">Caritas</span>
+        </div>
+    </div>
+);
+
+const JDPHLogo = () => (
+    <div className="w-12 h-12 flex items-center justify-center bg-emerald-800 text-white rounded-xl shadow-sm font-black text-xs tracking-tighter p-1 text-center leading-none border border-emerald-700">
+        <div className="flex flex-col items-center">
+            <span className="text-[14px] font-extrabold tracking-tight text-amber-300">JDPH</span>
+            <span className="text-[7px] tracking-widest text-emerald-200 uppercase">Health</span>
+        </div>
+    </div>
+);
+
+interface Partner {
+    name: string;
+    category: string;
+    logoComponent: React.ReactNode;
+    logoUrl?: string;
+}
+
+const PARTNERS: Partner[] = [
+    {
+        name: 'Misereor',
+        category: 'International',
+        logoComponent: <MisereorLogo />,
+        logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Misereor_Logo_%282022%29.svg'
+    },
+    {
+        name: 'Catholic Relief Services (CRS)',
+        category: 'International',
+        logoComponent: <CRSLogo />
+    },
+    {
+        name: 'Caritas Nigeria',
+        category: 'Local',
+        logoComponent: <CaritasLogo />
+    },
+    {
+        name: 'JDPH',
+        category: 'Local',
+        logoComponent: <JDPHLogo />
+    }
 ];
 
 interface PartnersListProps {
@@ -24,15 +84,31 @@ const PartnersList: React.FC<PartnersListProps> = ({ onInquire }) => {
                 <div className="relative">
                     {/* Continuous scrolling row */}
                     <div className="flex gap-8 animate-scroll">
-                        {[...PARTNERS, ...PARTNERS].map((partner, idx) => (
+                        {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((partner, idx) => (
                             <div
                                 key={idx}
-                                className="flex-shrink-0 flex items-center gap-4 bg-white px-8 py-6 rounded-2xl shadow-sm border border-gray-100 grayscale hover:grayscale-0 transition-all cursor-pointer group"
+                                className="flex-shrink-0 flex items-center gap-4 bg-white px-8 py-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
                             >
-                                <div className="text-4xl group-hover:scale-110 transition-transform">{partner.logo}</div>
+                                <div className="group-hover:scale-110 transition-transform flex items-center justify-center">
+                                    {partner.logoUrl ? (
+                                        <img
+                                            src={partner.logoUrl}
+                                            alt={partner.name}
+                                            className="w-12 h-12 object-contain"
+                                            onError={(e) => {
+                                                // Fall back to SVG component if URL fails
+                                                (e.target as HTMLElement).style.display = 'none';
+                                                (e.target as HTMLElement).nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                        />
+                                    ) : null}
+                                    <div className={partner.logoUrl ? 'hidden' : ''}>
+                                        {partner.logoComponent}
+                                    </div>
+                                </div>
                                 <div>
-                                    <h3 className="font-bold text-gray-900">{partner.name}</h3>
-                                    <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest">{partner.category}</p>
+                                    <h3 className="font-bold text-gray-900 text-sm md:text-base">{partner.name}</h3>
+                                    <p className="text-[10px] uppercase font-black text-green-700 tracking-widest">{partner.category}</p>
                                 </div>
                             </div>
                         ))}
@@ -45,12 +121,12 @@ const PartnersList: React.FC<PartnersListProps> = ({ onInquire }) => {
                 <style>{`
           @keyframes scroll {
             0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            100% { transform: translateX(-33.33%); }
           }
           .animate-scroll {
             display: flex;
             width: fit-content;
-            animation: scroll 40s linear infinite;
+            animation: scroll 35s linear infinite;
           }
           .animate-scroll:hover {
             animation-play-state: paused;
