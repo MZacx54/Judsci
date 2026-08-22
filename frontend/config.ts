@@ -1,7 +1,8 @@
 const isBrowser = typeof window !== 'undefined';
-const defaultUrl = isBrowser ? window.location.origin : 'https://judsci.onrender.com';
-const rawUrl = import.meta.env.VITE_API_URL || defaultUrl;
-const API_BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
+// In browser, use current origin (e.g. https://www.judsci.org.ng) so API endpoints hit the unified live web server
+const API_BASE_URL = isBrowser
+  ? window.location.origin
+  : (import.meta.env.VITE_API_URL || 'https://www.judsci.org.ng').replace(/\/$/, '');
 
 console.log('--- JDPC DEBUG: API Connectivity ---');
 console.log('Configured Backend URL:', API_BASE_URL);
