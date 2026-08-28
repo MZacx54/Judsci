@@ -52,17 +52,49 @@ def populate():
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
-            # Comprehensive Supabase PostgreSQL legacy schema auto-repair
+            # Universal PostgreSQL PL/pgSQL auto-drop NOT NULL for all legacy columns
+            try:
+                cursor.execute("""
+                    DO $$
+                    DECLARE
+                        r RECORD;
+                    BEGIN
+                        FOR r IN (
+                            SELECT table_name, column_name 
+                            FROM information_schema.columns 
+                            WHERE table_schema = 'public' 
+                              AND table_name IN ('bookings_appointment', 'core_program', 'resources_resource', 'impact_impactstat', 'impact_impactlocation', 'donations_donation', 'news_blogpost', 'gallery_photo')
+                              AND column_name != 'id'
+                              AND is_nullable = 'NO'
+                        ) LOOP
+                            BEGIN
+                                EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' DROP NOT NULL;';
+                                EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT '''' ;';
+                            EXCEPTION WHEN OTHERS THEN
+                                NULL;
+                            END;
+                        END LOOP;
+                    END $$;
+                """)
+            except Exception as plsql_err:
+                pass
+
+            # Explicit Supabase PostgreSQL legacy schema auto-repair
             legacy_schema_fixes = [
                 "ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS name VARCHAR(200) DEFAULT '';",
                 "ALTER TABLE bookings_appointment ALTER COLUMN full_name DROP NOT NULL;",
                 "ALTER TABLE bookings_appointment ALTER COLUMN full_name SET DEFAULT '';",
+                "ALTER TABLE bookings_appointment ALTER COLUMN service_type DROP NOT NULL;",
+                "ALTER TABLE bookings_appointment ALTER COLUMN service_type SET DEFAULT '';",
+                "ALTER TABLE bookings_appointment ALTER COLUMN name DROP NOT NULL;",
                 "ALTER TABLE bookings_appointment ALTER COLUMN name SET DEFAULT '';",
 
                 "ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
                 "ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';",
                 "ALTER TABLE core_program ALTER COLUMN content DROP NOT NULL;",
                 "ALTER TABLE core_program ALTER COLUMN content SET DEFAULT '';",
+                "ALTER TABLE core_program ALTER COLUMN icon_class DROP NOT NULL;",
+                "ALTER TABLE core_program ALTER COLUMN icon_class SET DEFAULT '';",
                 "ALTER TABLE core_program ALTER COLUMN summary DROP NOT NULL;",
                 "ALTER TABLE core_program ALTER COLUMN summary SET DEFAULT '';",
                 "ALTER TABLE core_program ALTER COLUMN full_content DROP NOT NULL;",
@@ -71,18 +103,26 @@ def populate():
                 "ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
                 "ALTER TABLE resources_resource ALTER COLUMN description DROP NOT NULL;",
                 "ALTER TABLE resources_resource ALTER COLUMN description SET DEFAULT '';",
+                "ALTER TABLE resources_resource ALTER COLUMN external_link DROP NOT NULL;",
+                "ALTER TABLE resources_resource ALTER COLUMN external_link SET DEFAULT '';",
 
                 "ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS label VARCHAR(100) DEFAULT '';",
                 "ALTER TABLE impact_impactstat ALTER COLUMN title DROP NOT NULL;",
                 "ALTER TABLE impact_impactstat ALTER COLUMN title SET DEFAULT '';",
+                "ALTER TABLE impact_impactstat ALTER COLUMN count DROP NOT NULL;",
+                "ALTER TABLE impact_impactstat ALTER COLUMN count SET DEFAULT '';",
 
                 "ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS title VARCHAR(100) DEFAULT '';",
                 "ALTER TABLE impact_impactlocation ALTER COLUMN name DROP NOT NULL;",
                 "ALTER TABLE impact_impactlocation ALTER COLUMN name SET DEFAULT '';",
+                "ALTER TABLE impact_impactlocation ALTER COLUMN intervention_type DROP NOT NULL;",
+                "ALTER TABLE impact_impactlocation ALTER COLUMN intervention_type SET DEFAULT '';",
 
                 "ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS project_category VARCHAR(100) DEFAULT '';",
                 "ALTER TABLE donations_donation ALTER COLUMN gateway DROP NOT NULL;",
                 "ALTER TABLE donations_donation ALTER COLUMN gateway SET DEFAULT '';",
+                "ALTER TABLE donations_donation ALTER COLUMN metadata DROP NOT NULL;",
+                "ALTER TABLE donations_donation ALTER COLUMN metadata SET DEFAULT '';",
 
                 "ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS summary TEXT DEFAULT '';",
                 "ALTER TABLE news_blogpost ALTER COLUMN content DROP NOT NULL;",
