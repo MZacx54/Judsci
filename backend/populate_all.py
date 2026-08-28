@@ -52,7 +52,7 @@ def populate():
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
-            # Universal PostgreSQL PL/pgSQL auto-drop NOT NULL for all legacy columns
+            # Universal PostgreSQL PL/pgSQL auto-drop NOT NULL for all legacy columns with typed defaults
             try:
                 cursor.execute("""
                     DO $$
@@ -60,7 +60,7 @@ def populate():
                         r RECORD;
                     BEGIN
                         FOR r IN (
-                            SELECT table_name, column_name 
+                            SELECT table_name, column_name, data_type 
                             FROM information_schema.columns 
                             WHERE table_schema = 'public' 
                               AND table_name IN ('bookings_appointment', 'core_program', 'resources_resource', 'impact_impactstat', 'impact_impactlocation', 'donations_donation', 'news_blogpost', 'gallery_photo')
@@ -69,7 +69,22 @@ def populate():
                         ) LOOP
                             BEGIN
                                 EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' DROP NOT NULL;';
-                                EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT '''' ;';
+                            EXCEPTION WHEN OTHERS THEN
+                                NULL;
+                            END;
+
+                            BEGIN
+                                IF r.data_type IN ('integer', 'bigint', 'smallint', 'numeric', 'double precision') THEN
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT 0;';
+                                ELSIF r.data_type = 'boolean' THEN
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT TRUE;';
+                                ELSIF r.data_type IN ('date') THEN
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT CURRENT_DATE;';
+                                ELSIF r.data_type LIKE '%time%' THEN
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT CURRENT_TIMESTAMP;';
+                                ELSE
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT '''';';
+                                END IF;
                             EXCEPTION WHEN OTHERS THEN
                                 NULL;
                             END;
@@ -79,18 +94,28 @@ def populate():
             except Exception as plsql_err:
                 pass
 
-            # Explicit Supabase PostgreSQL legacy schema auto-repair
+            # Explicit Supabase PostgreSQL legacy schema auto-repair (handling reserved keywords)
             legacy_schema_fixes = [
+                # bookings_appointment
                 "ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS name VARCHAR(200) DEFAULT '';",
                 "ALTER TABLE bookings_appointment ALTER COLUMN full_name DROP NOT NULL;",
                 "ALTER TABLE bookings_appointment ALTER COLUMN full_name SET DEFAULT '';",
                 "ALTER TABLE bookings_appointment ALTER COLUMN service_type DROP NOT NULL;",
                 "ALTER TABLE bookings_appointment ALTER COLUMN service_type SET DEFAULT '';",
+                "ALTER TABLE bookings_appointment ALTER COLUMN preferred_date DROP NOT NULL;",
+                "ALTER TABLE bookings_appointment ALTER COLUMN preferred_date SET DEFAULT CURRENT_DATE;",
+                "ALTER TABLE bookings_appointment ALTER COLUMN preferred_time DROP NOT NULL;",
+                "ALTER TABLE bookings_appointment ALTER COLUMN preferred_time SET DEFAULT '10:00:00';",
+                "ALTER TABLE bookings_appointment ALTER COLUMN notes DROP NOT NULL;",
+                "ALTER TABLE bookings_appointment ALTER COLUMN notes SET DEFAULT '';",
                 "ALTER TABLE bookings_appointment ALTER COLUMN name DROP NOT NULL;",
                 "ALTER TABLE bookings_appointment ALTER COLUMN name SET DEFAULT '';",
 
+                # core_program
                 "ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
                 "ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';",
+                "ALTER TABLE core_program ALTER COLUMN \"order\" DROP NOT NULL;",
+                "ALTER TABLE core_program ALTER COLUMN \"order\" SET DEFAULT 0;",
                 "ALTER TABLE core_program ALTER COLUMN content DROP NOT NULL;",
                 "ALTER TABLE core_program ALTER COLUMN content SET DEFAULT '';",
                 "ALTER TABLE core_program ALTER COLUMN icon_class DROP NOT NULL;",
@@ -100,30 +125,39 @@ def populate():
                 "ALTER TABLE core_program ALTER COLUMN full_content DROP NOT NULL;",
                 "ALTER TABLE core_program ALTER COLUMN full_content SET DEFAULT '';",
 
+                # resources_resource
                 "ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
+                "ALTER TABLE resources_resource ALTER COLUMN is_active DROP NOT NULL;",
+                "ALTER TABLE resources_resource ALTER COLUMN is_active SET DEFAULT TRUE;",
                 "ALTER TABLE resources_resource ALTER COLUMN description DROP NOT NULL;",
                 "ALTER TABLE resources_resource ALTER COLUMN description SET DEFAULT '';",
                 "ALTER TABLE resources_resource ALTER COLUMN external_link DROP NOT NULL;",
                 "ALTER TABLE resources_resource ALTER COLUMN external_link SET DEFAULT '';",
 
+                # impact_impactstat
                 "ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS label VARCHAR(100) DEFAULT '';",
+                "ALTER TABLE impact_impactstat ALTER COLUMN \"order\" DROP NOT NULL;",
+                "ALTER TABLE impact_impactstat ALTER COLUMN \"order\" SET DEFAULT 0;",
                 "ALTER TABLE impact_impactstat ALTER COLUMN title DROP NOT NULL;",
                 "ALTER TABLE impact_impactstat ALTER COLUMN title SET DEFAULT '';",
                 "ALTER TABLE impact_impactstat ALTER COLUMN count DROP NOT NULL;",
-                "ALTER TABLE impact_impactstat ALTER COLUMN count SET DEFAULT '';",
+                "ALTER TABLE impact_impactstat ALTER COLUMN count SET DEFAULT 0;",
 
+                # impact_impactlocation
                 "ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS title VARCHAR(100) DEFAULT '';",
                 "ALTER TABLE impact_impactlocation ALTER COLUMN name DROP NOT NULL;",
                 "ALTER TABLE impact_impactlocation ALTER COLUMN name SET DEFAULT '';",
                 "ALTER TABLE impact_impactlocation ALTER COLUMN intervention_type DROP NOT NULL;",
                 "ALTER TABLE impact_impactlocation ALTER COLUMN intervention_type SET DEFAULT '';",
 
+                # donations_donation
                 "ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS project_category VARCHAR(100) DEFAULT '';",
                 "ALTER TABLE donations_donation ALTER COLUMN gateway DROP NOT NULL;",
                 "ALTER TABLE donations_donation ALTER COLUMN gateway SET DEFAULT '';",
                 "ALTER TABLE donations_donation ALTER COLUMN metadata DROP NOT NULL;",
                 "ALTER TABLE donations_donation ALTER COLUMN metadata SET DEFAULT '';",
 
+                # news_blogpost
                 "ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS summary TEXT DEFAULT '';",
                 "ALTER TABLE news_blogpost ALTER COLUMN content DROP NOT NULL;",
                 "ALTER TABLE news_blogpost ALTER COLUMN content SET DEFAULT '';"
