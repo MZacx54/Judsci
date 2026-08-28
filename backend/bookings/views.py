@@ -73,31 +73,18 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
     def create(self, request, *args, **kwargs):
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS name VARCHAR(200);")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS email VARCHAR(254);")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS phone VARCHAR(20);")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS date DATE;")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS time TIME;")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS reason TEXT;")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDING';")
-                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;")
-        except Exception as e:
-            logger.warning(f"Schema check notice on bookings_appointment: {e}")
-
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             logger.error(f"[Booking Serializer Validation Error]: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        try:
+            appointment = serializer.save()
+        except Exception as e:
+            logger.error(f"[Booking Save Error]: {e}")
+            return Response({"error": "Failed to save appointment", "detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def perform_create(self, serializer):
-        appointment = serializer.save()
-        
+        # Background email notifications
         try:
             user_msg = f"""Dear {appointment.name},
 
@@ -121,7 +108,7 @@ JUDSCI Bauchi Team
                 reply_to=[from_email]
             )
 
-            admin_notification_emails = getattr(settings, 'ADMIN_NOTIFICATION_EMAILS', ['support@judsci.org.ng', 'judscib@gmail.com'])
+            admin_notification_emails = getattr(settings, 'ADMIN_NOTIFICATION_EMAILS', ['dmzacx@gmail.com', 'judscib@gmail.com', 'support@judsci.org.ng'])
             admin_msg = f"""New appointment request received.
 
 Name: {appointment.name}
@@ -142,6 +129,9 @@ Django Admin: https://www.judsci.org.ng/admin
             )
         except Exception as e:
             logger.error(f"Notice sending booking notification email: {e}")
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_update(self, serializer):
         instance = self.get_object()
