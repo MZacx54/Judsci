@@ -52,16 +52,47 @@ def populate():
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';")
             cursor.execute("ALTER TABLE core_program ADD COLUMN IF NOT EXISTS image VARCHAR(255);")
-            try:
-                cursor.execute("ALTER TABLE core_program ALTER COLUMN summary DROP NOT NULL;")
-                cursor.execute("ALTER TABLE core_program ALTER COLUMN summary SET DEFAULT '';")
-            except Exception:
-                pass
-            try:
-                cursor.execute("ALTER TABLE core_program ALTER COLUMN full_content DROP NOT NULL;")
-                cursor.execute("ALTER TABLE core_program ALTER COLUMN full_content SET DEFAULT '';")
-            except Exception:
-                pass
+            # Comprehensive Supabase PostgreSQL legacy schema auto-repair
+            legacy_schema_fixes = [
+                "ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS name VARCHAR(200) DEFAULT '';",
+                "ALTER TABLE bookings_appointment ALTER COLUMN full_name DROP NOT NULL;",
+                "ALTER TABLE bookings_appointment ALTER COLUMN full_name SET DEFAULT '';",
+                "ALTER TABLE bookings_appointment ALTER COLUMN name SET DEFAULT '';",
+
+                "ALTER TABLE core_program ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
+                "ALTER TABLE core_program ADD COLUMN IF NOT EXISTS full_content TEXT DEFAULT '';",
+                "ALTER TABLE core_program ALTER COLUMN content DROP NOT NULL;",
+                "ALTER TABLE core_program ALTER COLUMN content SET DEFAULT '';",
+                "ALTER TABLE core_program ALTER COLUMN summary DROP NOT NULL;",
+                "ALTER TABLE core_program ALTER COLUMN summary SET DEFAULT '';",
+                "ALTER TABLE core_program ALTER COLUMN full_content DROP NOT NULL;",
+                "ALTER TABLE core_program ALTER COLUMN full_content SET DEFAULT '';",
+
+                "ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
+                "ALTER TABLE resources_resource ALTER COLUMN description DROP NOT NULL;",
+                "ALTER TABLE resources_resource ALTER COLUMN description SET DEFAULT '';",
+
+                "ALTER TABLE impact_impactstat ADD COLUMN IF NOT EXISTS label VARCHAR(100) DEFAULT '';",
+                "ALTER TABLE impact_impactstat ALTER COLUMN title DROP NOT NULL;",
+                "ALTER TABLE impact_impactstat ALTER COLUMN title SET DEFAULT '';",
+
+                "ALTER TABLE impact_impactlocation ADD COLUMN IF NOT EXISTS title VARCHAR(100) DEFAULT '';",
+                "ALTER TABLE impact_impactlocation ALTER COLUMN name DROP NOT NULL;",
+                "ALTER TABLE impact_impactlocation ALTER COLUMN name SET DEFAULT '';",
+
+                "ALTER TABLE donations_donation ADD COLUMN IF NOT EXISTS project_category VARCHAR(100) DEFAULT '';",
+                "ALTER TABLE donations_donation ALTER COLUMN gateway DROP NOT NULL;",
+                "ALTER TABLE donations_donation ALTER COLUMN gateway SET DEFAULT '';",
+
+                "ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS summary TEXT DEFAULT '';",
+                "ALTER TABLE news_blogpost ALTER COLUMN content DROP NOT NULL;",
+                "ALTER TABLE news_blogpost ALTER COLUMN content SET DEFAULT '';"
+            ]
+            for stmt in legacy_schema_fixes:
+                try:
+                    cursor.execute(stmt)
+                except Exception:
+                    pass
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS impact_impactstat (
