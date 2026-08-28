@@ -77,7 +77,18 @@ const BookingSystem: React.FC = () => {
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          console.error('[JUDSCI Booking Non-JSON Response]:', text);
+        }
+      } catch (jsonErr) {
+        console.error('[JUDSCI JSON Parse Notice]:', jsonErr);
+      }
 
       if (res.ok || res.status === 201 || res.status === 200) {
         setSubmitted(true);
@@ -89,9 +100,7 @@ const BookingSystem: React.FC = () => {
           setFormData({ name: '', email: '', phone: '', reason: '' });
         }, 5000);
       } else {
-        // Detailed diagnostic logging for production debugging
-        console.error(`[JUDSCI Booking Error] Status: ${res.status} ${res.statusText}`);
-        console.error(`[JUDSCI Booking Error] Body:`, data);
+        console.error(`[JUDSCI Booking Error] Status: ${res.status} ${res.statusText}`, data);
 
         let errorMessage = "Failed to schedule appointment.";
         if (data && typeof data === 'object') {

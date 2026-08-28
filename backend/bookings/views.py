@@ -68,11 +68,32 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     
     def get_permissions(self):
-        if self.action == 'create':
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [permissions.IsAdminUser]
-        return [permission() for permission in permission_classes]
+        if self.action in ['create', 'metadata'] or self.request.method in ['POST', 'OPTIONS']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS name VARCHAR(200);")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS email VARCHAR(254);")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS phone VARCHAR(20);")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS date DATE;")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS time TIME;")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS reason TEXT;")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDING';")
+                cursor.execute("ALTER TABLE bookings_appointment ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;")
+        except Exception as e:
+            logger.warning(f"Schema check notice on bookings_appointment: {e}")
+
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            logger.error(f"[Booking Serializer Validation Error]: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         appointment = serializer.save()
