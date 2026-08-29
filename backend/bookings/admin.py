@@ -28,27 +28,39 @@ class AppointmentAdmin(admin.ModelAdmin):
     )
 
     def save_model(self, request, obj, form, change):
-        old_obj = None
+        old_date = None
+        old_time = None
+        old_status = None
+
         if change and obj.pk:
             try:
-                old_obj = Appointment.objects.get(pk=obj.pk)
+                if form and hasattr(form, 'initial') and form.initial:
+                    old_date = form.initial.get('date', None)
+                    old_time = form.initial.get('time', None)
+                    old_status = form.initial.get('status', None)
+                else:
+                    old_record = Appointment.objects.filter(pk=obj.pk).values('date', 'time', 'status').first()
+                    if old_record:
+                        old_date = old_record['date']
+                        old_time = old_record['time']
+                        old_status = old_record['status']
             except Exception:
-                old_obj = None
+                pass
 
-        if old_obj:
-            status_changed = old_obj.status != obj.status
-            schedule_changed = str(old_obj.date) != str(obj.date) or str(old_obj.time) != str(obj.time)
+        schedule_changed = False
+        if old_date is not None and old_time is not None:
+            schedule_changed = (str(old_date) != str(obj.date)) or (str(old_time) != str(obj.time))
 
-            if schedule_changed and obj.status == 'PENDING':
-                obj.status = 'RESCHEDULED'
-                status_changed = True
+        if schedule_changed and obj.status in ('PENDING', 'CONFIRMED'):
+            obj.status = 'RESCHEDULED'
 
-            super().save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
-            if status_changed or schedule_changed:
-                self.send_status_email(obj, obj.status, old_obj=old_obj)
-        else:
-            super().save_model(request, obj, form, change)
+        try:
+            prev_info_str = f"{old_date} at {old_time}" if (schedule_changed and old_date and old_time) else None
+            self.send_status_email(obj, obj.status, previous_schedule=prev_info_str)
+        except Exception as mail_err:
+            print(f"Notice sending status email: {mail_err}")
 
     def mark_confirmed(self, request, queryset):
         count = 0
@@ -83,8 +95,8 @@ class AppointmentAdmin(admin.ModelAdmin):
         self.message_user(request, f"{count} appointment(s) marked as CANCELLED and notification emails dispatched.")
     mark_cancelled.short_description = "Mark selected appointments as CANCELLED"
 
-    def send_status_email(self, appointment, new_status, old_obj=None):
-        if not appointment.email:
+    def send_status_email(self, appointment, new_status, previous_schedule=None):
+        if not appointment or not getattr(appointment, 'email', None):
             return
 
         subject = ""
@@ -111,7 +123,7 @@ JUDSCI Bauchi Team
 https://www.judsci.org.ng
 """
         elif new_status == 'RESCHEDULED':
-            prev_info = f"\nPrevious Schedule: {old_obj.date} at {old_obj.time}\n" if old_obj else ""
+            prev_info = f"\nPrevious Schedule: {previous_schedule}\n" if previous_schedule else ""
             subject = f"Appointment Rescheduled: JUDSCI Bauchi - {appointment.date}"
             message = f"""Dear {appointment.name},
 
