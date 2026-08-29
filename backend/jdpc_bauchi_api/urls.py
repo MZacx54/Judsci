@@ -20,7 +20,7 @@ from rest_framework import routers
 from impact.views import ImpactStatViewSet, ImpactLocationViewSet
 from core.views import ProgramViewSet
 from news.views import BlogPostViewSet
-from bookings.views import AppointmentViewSet
+from bookings.views import AppointmentViewSet, submit_booking_api
 from donations.views import DonationViewSet
 from resources.views import ResourceViewSet
 from gallery.views import PhotoViewSet
@@ -51,6 +51,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/health/', health_check, name='health-check'),
+    path('api/bookings/', submit_booking_api, name='submit-booking'),
     path('api/admin/dashboard-stats/', AdminDashboardStatsView.as_view(), name='admin-dashboard-stats'),
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
