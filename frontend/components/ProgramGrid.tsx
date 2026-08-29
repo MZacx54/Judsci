@@ -15,8 +15,9 @@ const DEFAULT_PROGRAMS: Program[] = [
     slug: "wash",
     icon: "💧",
     color: "bg-blue-500",
+    image: "/images/wash.jpg",
     description: "Our WASH interventions focus on the provision of potable water through the construction of boreholes and wells, sensitization on sanitation and hygiene, and VIP latrines with support from Misereor.",
-    full_content: "Our WASH interventions focus on the provision of potable water..."
+    full_content: "Our WASH interventions focus on the provision of potable water through the construction of boreholes and wells, sensitization on sanitation and hygiene, and the construction of VIP latrines. These projects are implemented with the critical support of Misereor to improve community health and dignity."
   },
   {
     id: 2,
@@ -24,8 +25,9 @@ const DEFAULT_PROGRAMS: Program[] = [
     slug: "peace-building",
     icon: "🕊️",
     color: "bg-green-600",
+    image: "/images/peace-building.jpg",
     description: "We facilitate inclusive dialogue sessions, establish interfaith peace structures, and create Peace Clubs in schools to foster social and religious tolerance across Bauchi and Gombe States.",
-    full_content: "We facilitate inclusive dialogue sessions..."
+    full_content: "We facilitate inclusive dialogue sessions, establish interfaith peace structures, and create Peace Clubs in schools. Our goal is to foster social and religious tolerance and build lasting harmony within communities across Bauchi and Gombe States."
   },
   {
     id: 3,
@@ -33,8 +35,9 @@ const DEFAULT_PROGRAMS: Program[] = [
     slug: "agriculture",
     icon: "🌱",
     color: "bg-emerald-600",
+    image: "/images/agriculture.jpg",
     description: "We promote sustainable agricultural practices to improve food security and economic resilience for local farmers across rural communities.",
-    full_content: "We promote sustainable agricultural practices..."
+    full_content: "We promote sustainable agricultural practices to improve food security and economic resilience for local farmers. Our initiatives provide training on modern techniques and support communities in adapting to environmental changes for long-term sustainability."
   },
   {
     id: 4,
@@ -42,8 +45,9 @@ const DEFAULT_PROGRAMS: Program[] = [
     slug: "empowerment",
     icon: "👩‍🚀",
     color: "bg-orange-500",
+    image: "/images/empowerment.jpg",
     description: "Empowering women and youth through vocational skills training, entrepreneurship development, and advocacy for economic independence.",
-    full_content: "Empowering women and youth..."
+    full_content: "Empowering women and youth through vocational skills training, entrepreneurship development, and advocacy for inclusion. We focus on building the capacity of vulnerable groups to achieve economic independence and active participation in society."
   },
   {
     id: 5,
@@ -51,8 +55,9 @@ const DEFAULT_PROGRAMS: Program[] = [
     slug: "prison-apostolate",
     icon: "⚖️",
     color: "bg-red-600",
+    image: "/images/prison-apostolate.jpg",
     description: "We advocate for the rights and dignity of inmates by providing support services, welfare assistance, and spiritual guidance within correctional facilities.",
-    full_content: "We advocate for the rights and dignity of inmates..."
+    full_content: "We advocate for the rights and dignity of inmates by providing support services, welfare assistance, and spiritual guidance. Our mission is to promote justice and human rights within the correctional facilities across the Bauchi Diocese."
   }
 ];
 
@@ -105,22 +110,23 @@ const ProgramGrid: React.FC<ProgramGridProps> = ({ onSelect, fullView, onReadSto
               onClick={() => handleProgramClick(prog)}
             >
               <div className="h-56 w-full bg-gray-100 relative overflow-hidden">
-                {prog.image ? (
-                  <img
-                    src={getMediaUrl(prog.image)}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${prog.slug || prog.id}/800/600`;
-                    }}
-                    alt={`JDPC Bauchi Program: ${prog.title}`}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
-                  <div className={`w-full h-full ${prog.color || 'bg-green-600'} opacity-20 flex items-center justify-center text-5xl`}>
-                    {prog.icon || '📌'}
-                  </div>
-                )}
+                <img
+                  src={prog.image ? getMediaUrl(prog.image) : `/images/${prog.slug || 'wash'}.jpg`}
+                  onError={(e) => {
+                    const fallbackMap: Record<string, string> = {
+                      'wash': '/images/wash.jpg',
+                      'peace-building': '/images/peace-building.jpg',
+                      'agriculture': '/images/agriculture.jpg',
+                      'empowerment': '/images/empowerment.jpg',
+                      'prison-apostolate': '/images/prison-apostolate.jpg'
+                    };
+                    (e.target as HTMLImageElement).src = fallbackMap[prog.slug] || '/images/wash.jpg';
+                  }}
+                  alt={`JDPC Bauchi Program: ${prog.title}`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
+                  decoding="async"
+                />
                 <div className="absolute top-4 right-4 w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center text-2xl z-10 border border-gray-100">
                   {prog.icon || '📌'}
                 </div>

@@ -59,6 +59,7 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     re_path(r'^assets/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'assets'}),
+    re_path(r'^images/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'images'}),
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 

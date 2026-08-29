@@ -12,7 +12,10 @@ const Hero: React.FC<HeroProps> = ({ onExplore, onDonate }) => {
       {/* Background with overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://picsum.photos/id/11/1920/1080"
+          src="/images/peace-building.jpg"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/images/wash.jpg';
+          }}
           className="w-full h-full object-cover filter brightness-[0.4]"
           alt="JDPC Bauchi - Promoting Justice and Peace in Bauchi State, Nigeria"
         />

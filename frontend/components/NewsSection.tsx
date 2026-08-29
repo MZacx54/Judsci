@@ -14,6 +14,7 @@ const DEFAULT_POSTS: BlogPost[] = [
     title: "Restoring Health and Dignity through Potable Water in Rijin Gani",
     slug: "rijin-gani-water-success",
     category: "Success Stories",
+    image: "/images/wash.jpg",
     summary: "How a community gained reliable access to safe drinking water and eliminated waterborne diseases through JUDSCI's intervention.",
     body: "In Rijin Gani community of Bauchi Diocese, women and children long relied on unsafe surface water, leading to frequent waterborne diseases. JUDSCI Bauchi constructed a motorized borehole along with VIP latrines, providing clean water to over 350 households.",
     author: "JUDSCI Media Team",
@@ -24,6 +25,7 @@ const DEFAULT_POSTS: BlogPost[] = [
     title: "Bridging Divides through Dialogue and Interfaith Cooperation",
     slug: "peace-building-dialogue",
     category: "Peace Building",
+    image: "/images/peace-building.jpg",
     summary: "Strengthening interfaith collaboration and community trust through inclusive dialogue sessions across the Diocese.",
     body: "JUDSCI Bauchi intervened by facilitating inclusive dialogue sessions and strengthening interfaith and community structures across Bauchi and Gombe States.",
     author: "JUDSCI Peace Desk",
@@ -34,6 +36,7 @@ const DEFAULT_POSTS: BlogPost[] = [
     title: "Community-Led Sanitation: A Path to Better Health",
     slug: "sanitation-success",
     category: "WASH",
+    image: "/images/Borehole Commissioning Pictures (44).JPG.jpeg",
     summary: "Eliminating open defecation and promoting hygiene through community ownership and behavior change.",
     body: "JUDSCI supported the construction of VIP latrines and conducted extensive hygiene promotion sessions in rural communities.",
     author: "JUDSCI WASH Team",
@@ -82,9 +85,9 @@ const NewsSection: React.FC<NewsSectionProps> = ({ fullView, onReadStory, onSeeA
             <article key={post.id} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all group border border-gray-100 flex flex-col h-full">
               <div className="h-64 overflow-hidden relative cursor-pointer" onClick={() => onReadStory?.(post)}>
                 <img
-                  src={post.image ? getMediaUrl(post.image) : `https://picsum.photos/seed/${post.slug || post.id}/800/600`}
+                  src={post.image ? getMediaUrl(post.image) : '/images/wash.jpg'}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${post.slug || post.id}/800/600`;
+                    (e.target as HTMLImageElement).src = '/images/wash.jpg';
                   }}
                   alt={`JDPC Bauchi News: ${post.title}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
