@@ -67,6 +67,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all().order_by('-created_at')
     serializer_class = AppointmentSerializer
     
+    def get_authenticators(self):
+        if self.request.method in ['POST', 'OPTIONS']:
+            return []
+        return super().get_authenticators()
+
     def get_permissions(self):
         if self.action in ['create', 'metadata'] or self.request.method in ['POST', 'OPTIONS']:
             return [permissions.AllowAny()]
