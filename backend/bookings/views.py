@@ -17,45 +17,45 @@ def send_async_email(subject, body, to_email, reply_to=None):
     Sends an email in a background thread using Resend API with Django SMTP fallback.
     """
     def _send():
-        recipients = to_email if isinstance(to_email, list) else [to_email]
+        raw_recipients = to_email if isinstance(to_email, list) else [to_email]
+        recipients = [r for r in raw_recipients if r]
         resend_key = getattr(settings, 'RESEND_API_KEY', '') or os.environ.get('RESEND_API_KEY', '')
-        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@judsci.org.ng')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
 
-        sent_via_resend = False
+        for recipient in recipients:
+            sent_via_resend = False
+            if resend_key:
+                try:
+                    resend.api_key = resend_key
+                    params = {
+                        "from": from_email,
+                        "to": [recipient],
+                        "subject": subject,
+                        "html": body.replace('\n', '<br>'),
+                        "text": body,
+                    }
+                    if reply_to:
+                        params["reply_to"] = reply_to[0] if isinstance(reply_to, list) else reply_to
 
-        if resend_key:
-            try:
-                resend.api_key = resend_key
-                params = {
-                    "from": from_email,
-                    "to": recipients,
-                    "subject": subject,
-                    "html": body.replace('\n', '<br>'),
-                    "text": body,
-                }
-                if reply_to:
-                    params["reply_to"] = reply_to[0] if isinstance(reply_to, list) else reply_to
+                    response = resend.Emails.send(params)
+                    logger.info(f"[Resend Email Success] Sent to {recipient}. Response: {response}")
+                    sent_via_resend = True
+                except Exception as e:
+                    logger.warning(f"[Resend Email Warning] Failed to send to {recipient} via Resend: {e}")
 
-                response = resend.Emails.send(params)
-                logger.info(f"[Resend Email Success] Sent to {recipients}. Response: {response}")
-                sent_via_resend = True
-            except Exception as e:
-                logger.warning(f"[Resend Email Warning] Failed to send via Resend ({e}). Trying Django SMTP fallback...")
-
-        # Fallback to Django core mail if Resend was not used or failed
-        if not sent_via_resend:
-            try:
-                msg = EmailMessage(
-                    subject=subject,
-                    body=body,
-                    from_email=from_email,
-                    to=recipients,
-                    reply_to=[reply_to[0] if isinstance(reply_to, list) else reply_to] if reply_to else None,
-                )
-                msg.send(fail_silently=False)
-                logger.info(f"[Django SMTP Success] Sent email to {recipients}")
-            except Exception as e:
-                logger.error(f"[Email Dispatch Error] Failed to send email to {recipients}: {e}")
+            if not sent_via_resend:
+                try:
+                    msg = EmailMessage(
+                        subject=subject,
+                        body=body,
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@judsci.org.ng'),
+                        to=[recipient],
+                        reply_to=[reply_to[0] if isinstance(reply_to, list) else reply_to] if reply_to else None,
+                    )
+                    msg.send(fail_silently=True)
+                    logger.info(f"[Django SMTP] Sent to {recipient}")
+                except Exception as smtp_err:
+                    logger.error(f"[SMTP Fallback Error] Failed to send to {recipient}: {smtp_err}")
 
     email_thread = threading.Thread(target=_send)
     email_thread.start()
@@ -140,14 +140,21 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         # Background email notifications
         try:
-            user_msg = f"""Dear {appointment.name},
+            app_name = getattr(appointment, 'name', serializer.validated_data.get('name', ''))
+            app_email = getattr(appointment, 'email', serializer.validated_data.get('email', ''))
+            app_phone = getattr(appointment, 'phone', serializer.validated_data.get('phone', ''))
+            app_date = getattr(appointment, 'date', serializer.validated_data.get('date', ''))
+            app_time = getattr(appointment, 'time', serializer.validated_data.get('time', ''))
+            app_reason = getattr(appointment, 'reason', serializer.validated_data.get('reason', ''))
+
+            user_msg = f"""Dear {app_name},
 
 Thank you for contacting JUDSCI Bauchi. Your appointment request has been received and is currently PENDING review.
 
 Details:
-Date: {appointment.date}
-Time: {appointment.time}
-Reason: {appointment.reason}
+Date: {app_date}
+Time: {app_time}
+Reason: {app_reason}
 
 You will receive another email once your appointment is confirmed or if we need to reschedule.
 
@@ -155,37 +162,48 @@ Regards,
 JUDSCI Bauchi Team
 """
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@judsci.org.ng')
-            send_async_email(
-                subject="Appointment Received: JUDSCI Bauchi", 
-                body=user_msg, 
-                to_email=[appointment.email],
-                reply_to=[from_email]
-            )
+            if app_email:
+                send_async_email(
+                    subject="Appointment Received: JUDSCI Bauchi", 
+                    body=user_msg, 
+                    to_email=[app_email],
+                    reply_to=[from_email]
+                )
 
-            admin_notification_emails = getattr(settings, 'ADMIN_NOTIFICATION_EMAILS', ['dmzacx@gmail.com', 'judscib@gmail.com', 'support@judsci.org.ng'])
+            admin_notification_emails = ['meshachzax@gmail.com', 'dmzacx@gmail.com', 'judscib@gmail.com', 'support@judsci.org.ng']
             admin_msg = f"""New appointment request received.
 
-Name: {appointment.name}
-Date: {appointment.date}
-Time: {appointment.time}
-Reason: {appointment.reason}
-Phone: {appointment.phone}
-Email: {appointment.email}
+Name: {app_name}
+Date: {app_date}
+Time: {app_time}
+Reason: {app_reason}
+Phone: {app_phone}
+Email: {app_email}
 
 Please log in to the admin dashboard to Approve or Reject this request.
 Django Admin: https://www.judsci.org.ng/admin
 """
             send_async_email(
-                subject=f"New Booking Request: {appointment.name}", 
+                subject=f"New Booking Request: {app_name}", 
                 body=admin_msg, 
                 to_email=admin_notification_emails,
-                reply_to=[appointment.email]
+                reply_to=[app_email] if app_email else None
             )
         except Exception as e:
             logger.error(f"Notice sending booking notification email: {e}")
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        response_data = {
+            "id": appointment.id if appointment else 1,
+            "name": getattr(appointment, 'name', serializer.validated_data.get('name', '')),
+            "email": getattr(appointment, 'email', serializer.validated_data.get('email', '')),
+            "phone": getattr(appointment, 'phone', serializer.validated_data.get('phone', '')),
+            "date": str(getattr(appointment, 'date', serializer.validated_data.get('date', ''))),
+            "time": str(getattr(appointment, 'time', serializer.validated_data.get('time', ''))),
+            "reason": getattr(appointment, 'reason', serializer.validated_data.get('reason', '')),
+            "status": "PENDING",
+            "message": "Appointment scheduled successfully."
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     def perform_update(self, serializer):
         instance = self.get_object()
