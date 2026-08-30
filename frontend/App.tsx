@@ -146,7 +146,7 @@ const AppContent: React.FC = () => {
         activeSection={activeSection}
         onNavigate={(section) => navigate(section)}
       />
-      <div className="flex-grow pt-16">
+      <div className="flex-grow pt-20">
         {renderContent()}
       </div>
       <footer className="bg-gray-900 text-white py-12 px-4">

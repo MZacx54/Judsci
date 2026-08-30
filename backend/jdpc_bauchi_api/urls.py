@@ -65,6 +65,8 @@ urlpatterns = [
     path('sitemap.xml', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'sitemap.xml'}),
     path('robots.txt', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'robots.txt'}),
     path('manifest.json', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'manifest.json'}),
+    path('llms.txt', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'llms.txt'}),
+    path('llms-full.txt', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'llms-full.txt'}),
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 
