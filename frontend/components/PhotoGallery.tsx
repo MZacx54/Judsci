@@ -88,17 +88,18 @@ const PhotoGallery: React.FC = () => {
   const categories = ['All', ...Array.from(new Set(photos.map(p => p.category)))];
 
   return (
-    <div className="space-y-8">
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+    <div className="space-y-6 sm:space-y-8">
+      {/* Filter Tabs - Mobile Scrollable & Desktop Wrapped */}
+      <div className="flex overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap gap-2 scrollbar-none items-center">
         {categories.map(cat => (
           <button
             key={cat}
             onClick={() => setFilter(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filter === cat
-              ? 'bg-green-700 text-white shadow-md'
-              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-              }`}
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+              filter === cat
+                ? 'bg-green-700 text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 active:bg-gray-100'
+            }`}
           >
             {cat.replace('_', ' ')}
           </button>
@@ -107,11 +108,11 @@ const PhotoGallery: React.FC = () => {
 
       {/* Grid Layout */}
       {filteredPhotos.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredPhotos.map((photo) => (
             <div
               key={photo.id}
-              className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
+              className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 bg-gray-50 active:scale-[0.99]"
               onClick={() => setSelectedPhoto(photo)}
             >
               <div className="aspect-[4/3] w-full overflow-hidden bg-gray-100">
@@ -121,40 +122,50 @@ const PhotoGallery: React.FC = () => {
                     (e.target as HTMLImageElement).src = '/images/wash.jpg';
                   }}
                   alt={photo.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <span className="text-xs font-bold text-green-400 uppercase tracking-widest mb-1">{photo.category.replace('_', ' ')}</span>
-                <h3 className="text-white font-bold text-lg leading-snug">{photo.title}</h3>
+              <div className="p-4 sm:p-5">
+                <span className="text-[10px] font-black text-green-700 bg-green-50 px-2 py-0.5 rounded uppercase tracking-wider mb-2 inline-block">
+                  {photo.category.replace('_', ' ')}
+                </span>
+                <h3 className="text-gray-900 font-bold text-base sm:text-lg leading-snug line-clamp-1">
+                  {photo.title}
+                </h3>
+                {photo.caption && (
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
+                    {photo.caption}
+                  </p>
+                )}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-          <p className="text-gray-400 font-medium italic">No photos found in this category.</p>
+        <div className="text-center py-16 sm:py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+          <p className="text-gray-400 font-medium italic text-sm sm:text-base">No photos found in this category.</p>
         </div>
       )}
 
-      {/* Lightbox Modal */}
+      {/* Touch-Friendly Lightbox Modal */}
       {selectedPhoto && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 transition-opacity duration-300"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setSelectedPhoto(null)}
         >
           <button
-            className="absolute top-4 right-4 text-white/70 hover:text-white p-2"
+            className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors active:scale-90"
             onClick={() => setSelectedPhoto(null)}
+            aria-label="Close photo preview"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
           <div
-            className="max-w-5xl w-full max-h-screen overflow-y-auto bg-transparent relative"
+            className="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-transparent relative flex flex-col items-center"
             onClick={e => e.stopPropagation()}
           >
             <img
@@ -163,11 +174,14 @@ const PhotoGallery: React.FC = () => {
                 (e.target as HTMLImageElement).src = '/images/wash.jpg';
               }}
               alt={selectedPhoto.title}
-              className="w-full h-auto rounded-lg shadow-2xl max-h-[80vh] object-contain mx-auto"
+              className="w-full h-auto rounded-xl shadow-2xl max-h-[65vh] sm:max-h-[75vh] object-contain mx-auto"
             />
-            <div className="mt-4 text-center">
-              <h3 className="text-2xl font-bold text-white mb-2">{selectedPhoto.title}</h3>
-              <p className="text-gray-300 max-w-2xl mx-auto">{selectedPhoto.caption}</p>
+            <div className="mt-4 text-center px-4 max-w-xl">
+              <span className="text-xs font-bold text-green-400 uppercase tracking-widest mb-1 inline-block">
+                {selectedPhoto.category.replace('_', ' ')}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{selectedPhoto.title}</h3>
+              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">{selectedPhoto.caption}</p>
             </div>
           </div>
         </div>

@@ -62,6 +62,9 @@ urlpatterns = [
     re_path(r'^assets/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'assets'}),
     re_path(r'^images/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'images'}),
     re_path(r'^resources/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'resources'}),
+    path('sitemap.xml', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'sitemap.xml'}),
+    path('robots.txt', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'robots.txt'}),
+    path('manifest.json', serve, {'document_root': settings.FRONTEND_DIST_DIR, 'path': 'manifest.json'}),
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 
