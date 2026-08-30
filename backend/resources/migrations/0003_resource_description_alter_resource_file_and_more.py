@@ -2,6 +2,22 @@
 
 from django.db import migrations, models
 
+def safe_add_description(apps, schema_editor):
+    if schema_editor.connection.vendor == 'postgresql':
+        with schema_editor.connection.cursor() as cursor:
+            cursor.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_schema = 'public' 
+                          AND table_name = 'resources_resource' 
+                          AND column_name = 'description'
+                    ) THEN
+                        ALTER TABLE resources_resource ADD COLUMN description TEXT DEFAULT '';
+                    END IF;
+                END $$;
+            """)
 
 class Migration(migrations.Migration):
 
@@ -10,19 +26,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='resource',
-            name='description',
-            field=models.TextField(blank=True, default=''),
-        ),
-        migrations.AlterField(
-            model_name='resource',
-            name='file',
-            field=models.FileField(blank=True, null=True, upload_to='resources/'),
-        ),
-        migrations.AlterField(
-            model_name='resource',
-            name='type',
-            field=models.CharField(choices=[('ANNUAL_REPORT', 'Annual Report'), ('NEWSLETTER', 'Newsletter'), ('OTHER', 'Other')], default='ANNUAL_REPORT', max_length=50),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='resource',
+                    name='description',
+                    field=models.TextField(blank=True, default=''),
+                ),
+                migrations.AlterField(
+                    model_name='resource',
+                    name='file',
+                    field=models.FileField(blank=True, null=True, upload_to='resources/'),
+                ),
+                migrations.AlterField(
+                    model_name='resource',
+                    name='type',
+                    field=models.CharField(choices=[('ANNUAL_REPORT', 'Annual Report'), ('NEWSLETTER', 'Newsletter'), ('OTHER', 'Other')], default='ANNUAL_REPORT', max_length=50),
+                ),
+            ],
+            database_operations=[
+                migrations.RunPython(safe_add_description, reverse_code=migrations.RunPython.noop),
+            ]
         ),
     ]
