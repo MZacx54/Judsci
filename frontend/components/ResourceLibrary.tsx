@@ -3,13 +3,23 @@ import { API_ENDPOINTS, getMediaUrl } from '../config';
 import { Resource } from '../types';
 import PhotoGallery from './PhotoGallery';
 
+const resolveResourceUrl = (fileUrl?: string) => {
+  if (!fileUrl) return '/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf';
+  if (fileUrl.startsWith('http')) return fileUrl;
+  const filename = fileUrl.split('/').pop() || '';
+  if (filename) {
+    return `/resources/${filename}`;
+  }
+  return getMediaUrl(fileUrl);
+};
+
 const DEFAULT_RESOURCES: Resource[] = [
   {
     id: '1',
     title: 'Annual Narrative Report 2023',
     type: 'Annual Report',
     date: '2023-12-31',
-    file: getMediaUrl('/media/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf'),
+    file: '/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf',
     description: 'Comprehensive overview of JUDSCI Bauchi interventions, achievements, and financial reports for the 2023 project year.'
   },
   {
@@ -17,7 +27,7 @@ const DEFAULT_RESOURCES: Resource[] = [
     title: 'WASH Community Implementation & Sanitation Guide',
     type: 'Newsletter',
     date: '2024-03-15',
-    file: getMediaUrl('/media/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf'),
+    file: '/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf',
     description: 'Best practices for establishing WASHCOM committees and managing rural water infrastructure.'
   },
   {
@@ -25,7 +35,7 @@ const DEFAULT_RESOURCES: Resource[] = [
     title: 'Peace Building & Inter-faith Dialogue Toolkit',
     type: 'Other',
     date: '2024-06-20',
-    file: getMediaUrl('/media/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf'),
+    file: '/resources/ANNUAL_NARRATIVE_REPORT_2023.pdf',
     description: 'Practical handbook for facilitating community peace clubs and conflict resolution in northern Nigeria.'
   }
 ];
@@ -130,7 +140,7 @@ const ResourceLibrary: React.FC = () => {
                       <p className="text-xs text-gray-500 mb-6 leading-relaxed line-clamp-2">{res.description}</p>
                     )}
                   </div>
-                  <a href={res.file} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-gray-50 hover:bg-green-700 hover:text-white text-gray-600 font-bold rounded-xl transition-all flex items-center justify-center gap-2 mt-auto">
+                  <a href={resolveResourceUrl(res.file)} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-gray-50 hover:bg-green-700 hover:text-white text-gray-600 font-bold rounded-xl transition-all flex items-center justify-center gap-2 mt-auto">
                     Download PDF
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

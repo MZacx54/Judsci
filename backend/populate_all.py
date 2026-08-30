@@ -160,7 +160,17 @@ def populate():
                 # news_blogpost
                 "ALTER TABLE news_blogpost ADD COLUMN IF NOT EXISTS summary TEXT DEFAULT '';",
                 "ALTER TABLE news_blogpost ALTER COLUMN content DROP NOT NULL;",
-                "ALTER TABLE news_blogpost ALTER COLUMN content SET DEFAULT '';"
+                "ALTER TABLE news_blogpost ALTER COLUMN content SET DEFAULT '';",
+
+                # auth_user
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS first_name VARCHAR(150) DEFAULT '';",
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS last_name VARCHAR(150) DEFAULT '';",
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS email VARCHAR(254) DEFAULT '';",
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS is_staff BOOLEAN DEFAULT TRUE;",
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;",
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS is_superuser BOOLEAN DEFAULT TRUE;",
+                "ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS date_joined TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;",
+                "UPDATE auth_user SET first_name = COALESCE(first_name, ''), last_name = COALESCE(last_name, ''), email = COALESCE(email, ''), is_staff = COALESCE(is_staff, TRUE), is_active = COALESCE(is_active, TRUE), is_superuser = COALESCE(is_superuser, TRUE), date_joined = COALESCE(date_joined, CURRENT_TIMESTAMP);"
             ]
             for stmt in legacy_schema_fixes:
                 try:

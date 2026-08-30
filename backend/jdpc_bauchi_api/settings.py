@@ -74,8 +74,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third party apps
-    'cloudinary_storage',
-    'cloudinary',
     'rest_framework',
     'corsheaders',
 

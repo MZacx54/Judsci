@@ -56,10 +56,12 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    re_path(r'^media/resources/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'resources'}),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     re_path(r'^assets/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'assets'}),
     re_path(r'^images/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'images'}),
+    re_path(r'^resources/(?P<path>.*)$', serve, {'document_root': settings.FRONTEND_DIST_DIR / 'resources'}),
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 
