@@ -463,23 +463,49 @@ Through JUDSCI's various interventions, many women have gained financial indepen
         except Exception as e:
             print(f"Error adding image to {slug}: {e}")
 
-    # --- Resources (Using get_or_create) ---
-    pdf_name = "ANNUAL NARRATIVE REPORT 2023 (1).pdf"
-    pdf_path = assets_dir / pdf_name
-    try:
-        res, created = Resource.objects.get_or_create(
-            title="Annual Narrative Report 2023",
-            defaults={
-                "type": "Annual Report",
-                "date": timezone.now().date()
-            }
-        )
-        if pdf_path.exists() and not res.file:
-            with open(pdf_path, 'rb') as f:
-                res.file.save(pdf_name, File(f), save=True)
-        print("Created/Verified Annual Report Resource")
-    except Exception as e:
-        print(f"Notice creating Resource: {e}")
+    # --- Resources (Using update_or_create) ---
+    print("Populating Resources...")
+    resources_data = [
+        {
+            "title": "Annual Narrative Report 2023",
+            "type": "ANNUAL_REPORT",
+            "date": "2023-12-31",
+            "description": "Comprehensive overview of JUDSCI Bauchi interventions, achievements, and financial reports for the 2023 project year.",
+            "pdf_name": "ANNUAL_NARRATIVE_REPORT_2023.pdf"
+        },
+        {
+            "title": "WASH Community Implementation & Sanitation Guide",
+            "type": "NEWSLETTER",
+            "date": "2024-03-15",
+            "description": "Best practices for establishing WASHCOM committees and managing rural water infrastructure.",
+            "pdf_name": "ANNUAL_NARRATIVE_REPORT_2023.pdf"
+        },
+        {
+            "title": "Peace Building & Inter-faith Dialogue Toolkit",
+            "type": "OTHER",
+            "date": "2024-06-20",
+            "description": "Practical handbook for facilitating community peace clubs and conflict resolution in northern Nigeria.",
+            "pdf_name": "ANNUAL_NARRATIVE_REPORT_2023.pdf"
+        }
+    ]
+
+    for item in resources_data:
+        pdf_name = item.pop("pdf_name")
+        title = item["title"]
+        try:
+            res, created = Resource.objects.update_or_create(
+                title=title,
+                defaults=item
+            )
+            pdf_path = assets_dir / "ANNUAL NARRATIVE REPORT 2023 (1).pdf"
+            if not pdf_path.exists():
+                pdf_path = settings.BASE_DIR / "media" / "resources" / pdf_name
+            if pdf_path.exists() and not res.file:
+                with open(pdf_path, 'rb') as f:
+                    res.file.save(pdf_name, File(f), save=True)
+            print(f"Verified Resource: {title}")
+        except Exception as e:
+            print(f"Notice creating Resource {title}: {e}")
 
     # --- Photo Gallery (Using get_or_create) ---
     print("Populating Photo Gallery...")

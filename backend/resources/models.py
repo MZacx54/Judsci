@@ -8,9 +8,10 @@ class Resource(models.Model):
     ]
 
     title = models.CharField(max_length=200)
-    type = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='ANNUAL_REPORT')
     date = models.DateField()
-    file = models.FileField(upload_to='resources/')
+    description = models.TextField(blank=True, default='')
+    file = models.FileField(upload_to='resources/', blank=True, null=True)
     cover_image = models.ImageField(upload_to='resources/covers/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
