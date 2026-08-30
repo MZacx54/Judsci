@@ -74,7 +74,10 @@ def populate():
                             END;
 
                             BEGIN
-                                IF r.data_type IN ('integer', 'bigint', 'smallint', 'numeric', 'double precision') THEN
+                                IF r.column_name LIKE '%_id' THEN
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' DROP DEFAULT;';
+                                    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT NULL;';
+                                ELSIF r.data_type IN ('integer', 'bigint', 'smallint', 'numeric', 'double precision') THEN
                                     EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT 0;';
                                 ELSIF r.data_type = 'boolean' THEN
                                     EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' ALTER COLUMN ' || quote_ident(r.column_name) || ' SET DEFAULT TRUE;';
@@ -125,7 +128,14 @@ def populate():
                 "ALTER TABLE core_program ALTER COLUMN full_content DROP NOT NULL;",
                 "ALTER TABLE core_program ALTER COLUMN full_content SET DEFAULT '';",
 
-                # resources_resource
+                # resources_resource & category constraint removal
+                "CREATE TABLE IF NOT EXISTS resources_resourcecategory (id SERIAL PRIMARY KEY, name VARCHAR(100) DEFAULT '');",
+                "INSERT INTO resources_resourcecategory (id, name) VALUES (0, 'General') ON CONFLICT (id) DO NOTHING;",
+                "ALTER TABLE resources_resource DROP CONSTRAINT IF EXISTS resources_resource_category_id_0cd2d52c_fk_resources CASCADE;",
+                "ALTER TABLE resources_resource DROP CONSTRAINT IF EXISTS resources_resource_category_id_fk CASCADE;",
+                "ALTER TABLE resources_resource ALTER COLUMN category_id DROP NOT NULL;",
+                "ALTER TABLE resources_resource ALTER COLUMN category_id DROP DEFAULT;",
+                "ALTER TABLE resources_resource ALTER COLUMN category_id SET DEFAULT NULL;",
                 "ALTER TABLE resources_resource ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';",
                 "ALTER TABLE resources_resource ALTER COLUMN is_active DROP NOT NULL;",
                 "ALTER TABLE resources_resource ALTER COLUMN is_active SET DEFAULT TRUE;",
