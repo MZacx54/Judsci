@@ -23,4 +23,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py makemigrations --noinput && python manage.py migrate --run-syncdb --noinput && (python populate_all.py || true) && gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000"]
+# Fast production start: Run fast schema migrations and start Gunicorn with concurrency
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn jdpc_bauchi_api.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 2 --timeout 120"]

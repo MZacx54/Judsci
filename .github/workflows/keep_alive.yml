@@ -1,0 +1,16 @@
+name: Keep Render Service Awake & Health Monitor
+
+on:
+  schedule:
+    # Runs every 10 minutes to prevent Render free instance from sleeping
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+jobs:
+  ping-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping Health Endpoint
+        run: |
+          echo "Pinging JUDSCI Bauchi API health endpoint..."
+          curl -f -s -max-time 60 "https://www.judsci.org.ng/api/health/" || echo "Health ping done"
